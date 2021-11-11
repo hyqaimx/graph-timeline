@@ -1,6 +1,6 @@
 {
   "name": "graph-timeline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "是一个用于图分析中分析节点的时间关系的组件",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,6 +14,10 @@
     "start": "cross-env NODE_ENV=development webpack serve --open",
     "build": "cross-env NODE_ENV=production npx webpack"
   },
+  "peerDependencies": {
+    "react": ">=16.9.0",
+    "react-dom": ">=16.9.0"
+  },
   "dependencies": {
     "d3": "^7.1.1",
     "react": "^17.0.2",
@@ -22,6 +26,7 @@
     "webpack-cli": "^4.9.1"
   },
   "devDependencies": {
+    "@types/d3": "^7.1.0",
     "@types/react": "^17.0.34",
     "babel": "^6.23.0",
     "babel-loader": "^8.2.3",
