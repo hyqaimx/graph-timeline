@@ -46,7 +46,9 @@ export interface ITimelineProps{
   padding?: number[];
   nodes: INodeItem[];
   links: ILinkItem[];
+  usBrush?: boolean;
   options?: IOptions;
+  timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
 }
 
@@ -56,8 +58,10 @@ const Timeline = ({
   padding = [20, 20, 20, 50],
   nodes = [],
   links = [],
+  usBrush = true,
   options = {},
-  onBrushChange
+  onBrushChange,
+  timeLabelFormat
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
@@ -108,7 +112,7 @@ const Timeline = ({
   const {x, y, zoom, brush} = useMemo(() => {
     const x = xRange(nodes,padding, realWidth);
     const y = yRange(nodes, padding, height);
-    const zoom = getZoom(nodes, x, y, xAxisStyle);
+    const zoom = getZoom(nodes, x, y, xAxisStyle, timeLabelFormat);
     const brush = getBrush(nodes, x, y, brushNodeColor, onBrushChange);
     return {x, y, zoom, brush};
   }, [nodes, realWidth, height])
@@ -125,7 +129,7 @@ const Timeline = ({
       const gx = svg.append('g')
                     .attr('class', "xAxis")
                     .attr("transform", `translate(0,${height - padBottom})`)
-                    .call(xAxis, x);
+                    .call(xAxis, x, timeLabelFormat);
       // 设置X轴的样式
       if(xAxisStyle) {
         const { color, axisColor, tickColor} = xAxisStyle; 
@@ -207,7 +211,7 @@ const Timeline = ({
 
   return (
     <div className="container">
-      <button onClick={() => setBrush(!isBrush)}>{isBrush ? '取消框选' : '框选'}</button>
+      {usBrush && <button onClick={() => setBrush(!isBrush)}>{isBrush ? '取消框选' : '框选'}</button>}
       <div ref={outerRef} style={{width: '100%'}}></div>
     </div>
   )
