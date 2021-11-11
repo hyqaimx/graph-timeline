@@ -52,13 +52,23 @@
 **可以进行时间拖拽和缩放。点击框选可以选择节点**
 
 ## 配置项Props
-* nodes
+* width?: number | '100%'
+> 宽度，默认100%
+* height?: number
+> 高度，默认300px
+* padding?: [number, number, number, number]
+> 内边距，值为长度为4的数据，分别对应上、右、下、左。默认值[20, 20, 20, 50]
+* nodes: []
 > 配置节点对应的数据，数组中的对象`id`、`name`、`date`属性是必须的
-* links
+* links: []
 > 配置节点之间的连接关系，其中`source`和`target`均对应nodes中的节点id。
-* onBrushChange
+* useBrush?: boolean
+> 配置是否启用框选功能，默认为`true`。如果启用则会展示框选按钮
+* timeLabelFormat?: (date: Date) => string
+> 对x轴的时间展示文本进行格式化，接收一个Date作为参数，返回值为字符串
+* onBrushChange?: (value: []) => void;
 > 框选的回调函数，参数是被框选的节点的信息。
-* options
+* options?: {}
 > 图标样式设置
 ```
   options:{
@@ -80,3 +90,8 @@
     arrowColor: 'blue'     // 连线的颜色
   }
 ```
+## 变更日志
+### v1.0.2
+* 增加了`useBrush`选项，用于切换是否使用框选功能
+* 增加了`timeLabelFormat`选项，可以用于自定义x轴的label展示
+* readme文件修改

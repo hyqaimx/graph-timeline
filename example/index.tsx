@@ -21,7 +21,9 @@ const App = () => {
     <GraphTimeLine
       nodes={nodes}
       links={links}
+      usBrush={false}
       onBrushChange={ (value) => {console.log(value)}}
+      timeLabelFormat={ (date) => date.toLocaleDateString()}
     />
   )
 }
