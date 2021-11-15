@@ -40,7 +40,7 @@ const getZoom = (
   }
 
   return d3.zoom<SVGGElement, undefined>()
-                     .on("zoom", zoomed);
+            .on("zoom", zoomed);
 }
 
 export default getZoom;

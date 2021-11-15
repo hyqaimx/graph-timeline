@@ -78,11 +78,6 @@
       tickColor: 'red',    // x轴的分割线颜色
       axisColor: 'red'     // x轴的轴线颜色
     },
-    yAxis: {
-      color: 'red',        // y轴的文本颜色
-      tickColor: 'red',    // y轴的分割线颜色
-      axisColor: 'red'     // y轴的轴线颜色
-    },
     node: {                
       color: 'blue',       // 节点颜色
       size: 10             // 节点的大小
@@ -94,4 +89,9 @@
 ### v1.0.2
 * 增加了`useBrush`选项，用于切换是否使用框选功能
 * 增加了`timeLabelFormat`选项，可以用于自定义x轴的label展示
+* readme文件修改
+### v1.0.3
+* 修改了缩放时节点及连线超出轴线范围的情况
+* y轴节点及横线样式修改，去除了轴线展示
+* 去除了y轴的配置项
 * readme文件修改
