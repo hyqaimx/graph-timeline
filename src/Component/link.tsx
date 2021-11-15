@@ -24,6 +24,7 @@ const DrawLink = (
     .attr("d", "M0,0 v5 l7,-2.5 Z");
   // 开始绘制
   g.append('g')
+  .attr('clip-path', 'url(#clipView)')
   .attr("class", "arrowLine")
   .selectAll('path')
   .data(linkData)

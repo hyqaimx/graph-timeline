@@ -4,7 +4,7 @@ import DrawLink from "./link";
 import drawNodes from "./nodes";
 import getZoom from "./zoom";
 import { xAxis, xRange } from "./xAxis";
-import { yAxis, yRange } from "./yAxis";
+import { setYAxisStyle, yAxis, yRange } from "./yAxis";
 import getBrush from "./brush";
 import { DrawTooltip } from "./tooltip";
 
@@ -27,11 +27,11 @@ export interface IOptions {
     axisColor?: string;
     tickColor?: string;
   };
-  yAxis?: {
-    color?: string;
-    axisColor?: string;
-    tickColor?: string;
-  };
+  // yAxis?: {
+  //   color?: string;
+  //   axisColor?: string;
+  //   tickColor?: string;
+  // };
   node?: {
     color?: string;
     size?: number
@@ -65,7 +65,7 @@ const Timeline = ({
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
-  const {xAxis: xAxisStyle, yAxis: yAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor} = options;
+  const {xAxis: xAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor} = options;
 
   const [realWidth, setWidth] = useState<number>(1000);
   const [isBrush, setBrush] = useState(false);
@@ -112,7 +112,7 @@ const Timeline = ({
   const {x, y, zoom, brush} = useMemo(() => {
     const x = xRange(nodes,padding, realWidth);
     const y = yRange(nodes, padding, height);
-    const zoom = getZoom(nodes, x, y, xAxisStyle, timeLabelFormat);
+    const zoom = getZoom(nodes, x, y, xAxisStyle,timeLabelFormat);
     const brush = getBrush(nodes, x, y, brushNodeColor, onBrushChange);
     return {x, y, zoom, brush};
   }, [nodes, realWidth, height])
@@ -124,6 +124,12 @@ const Timeline = ({
         .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
         .attr('width', realWidth)
         svg.html("");
+
+      // 设置剪切区域
+      svg.append('clipPath')
+          .attr('id', 'clipView')
+          .append('path')
+          .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${height} h${-(realWidth - padLeft - padRight)} v${-height}z`)
 
       // 将x轴添加到画板
       const gx = svg.append('g')
@@ -145,21 +151,14 @@ const Timeline = ({
       const gy = svg.append('g')
                     .attr('class', 'yAxis')
                     .attr('transform', `translate(${padLeft}, 0)`)
-                    .call(yAxis, y, formatFn);
-      // 设置y轴的样式
-      if(yAxisStyle) {
-        const { color, axisColor, tickColor } = yAxisStyle;
-        gy.select('path').attr('stroke', axisColor || 'currentColor');
-        gy.selectAll('text').attr('fill', color || 'currentColor');
-        gy.selectAll('line').attr('stroke', tickColor || 'currentColor');
-      }
-      // 绘制横向延长线
-      gy.selectAll(".yAxis line")
-        .attr('x1', realWidth - padRight - padLeft)
-        .attr('stroke-opacity', '0.3');
+                    .call(yAxis, y, formatFn)
+                    .call(setYAxisStyle, y, nodes, realWidth - padRight - padLeft);
 
       /* 绘制数据点 */
-      const circles = svg.append('g').call(drawNodes, nodes, x, y, nodeStyle);
+      svg.append('g')
+         .attr('clip-path', 'url(#clipView)')
+         .attr('width', realWidth - padLeft - padRight)
+         .call(drawNodes, nodes, x, y, nodeStyle);
       
       /* 绘制连线 */
       svg.call(DrawLink, nodes, links, x, y, arrowColor);
