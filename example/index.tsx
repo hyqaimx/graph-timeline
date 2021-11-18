@@ -1,29 +1,44 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import GraphTimeLine from '../src';
 
 const App = () => {
-  const nodes = [
-    {id: '1', name: '节点1', date: '2021-10-19 12:00:00'},
-    {id: '1-1', name: '节点1-1', date: '2021-10-19 12:00:00'},
-    {id: '2', name: '节点2', date: '2021-10-20 12:00:00'},
-    {id: '2-1', name: '节点2-1', date: '2021-10-20 12:00:00'},
-    {id: '3', name: '节点3', date: '2021-10-21 12:00:00'},
-    {id: '4', name: '节点4', date: '2021-10-22 12:00:00'},
-    {id: '5', name: '节点5', date: '2021-10-23 12:00:00'},
-    {id: '6', name: '节点6', date: '2021-10-24 12:00:00'},
-  ]
-  const links = [
-    {source: '1', target: "1-1"},
-    {source: '2', target: "2-1"},
-  ]
+  const [nodes, setNodes] = useState([]);
+  const [links, setLinks] = useState([]);
+  useEffect(() => {
+    const date = new Date();
+    const getStrDate = (date) => {
+      const year = date.getFullYear();
+      const month = date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
+      const day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
+      const hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
+      const minutes = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
+      const seconds = date.getSeconds() > 9 ? date.getSeconds() : '0' + date.getSeconds();
+      return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
+    }
+    const arr = new Array(1000).fill(0).map((item, index) => ({
+      id: String(index + 1),
+      name: '节点' + (index + 1),
+      date: getStrDate(new Date(date.valueOf() - (1000*index)))
+    }));
+
+    const createLinks = Array.from({length: 500}).fill(0).map((item, index) => ({
+      source: String(index + 1),
+      target: String(index + Math.floor(Math.random() * 2) + 1)
+    }));
+
+    setNodes([...arr]);
+    setLinks([...createLinks]);
+  }, [])
   return (
     <GraphTimeLine
+      height={500}
       nodes={nodes}
       links={links}
       usBrush={false}
       onBrushChange={ (value) => {console.log(value)}}
-      timeLabelFormat={ (date) => date.toLocaleDateString()}
+      // timeLabelFormat={ (date) => date.toLocaleDateString()}
+      onSelect={(d, show) => {console.log(d, show)}}
     />
   )
 }

@@ -29,7 +29,8 @@ const getZoom = (
         const y2 = (y(String(d.target)) || 0) + 5;
         return `M ${x1},${y1} L ${x2},${y2}`;
       })
-      d3.select<SVGGElement, undefined>('.xAxis').call(xAxis, rx, timeLabelFormat);
+
+      d3.select<SVGGElement, unknown>('#xAxis-container .xAxis').call(xAxis, rx, timeLabelFormat);
     // 对新的x轴进行样式调整
     if(xAxisStyle) {
       const { color, axisColor, tickColor} = xAxisStyle;

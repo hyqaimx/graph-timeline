@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { ILinkItem, INodeItem } from ".";
 
 export const DrawTooltip = (
-  g: d3.Selection<SVGGElement, undefined, HTMLElement, any>,
+  g: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
   links: ILinkItem[],
 ) => {
   const tooltip = g.append('g')

@@ -24,15 +24,13 @@
         <NpmTimeLine
           nodes={nodes}
           links={links}
+          usBrush={false}
           onBrushChange={ (value) => {console.log(value)}}
+          timeLabelFormat={ (date) => date.toLocaleDateString()}
+          onSelect={(d, show) => {console.log(d, show)}}
           // options={{
           //   background: '#234dad',
           //   xAxis: {
-          //     color: 'red',
-          //     tickColor: 'red',
-          //     axisColor: 'red'
-          //   },
-          //   yAxis: {
           //     color: 'red',
           //     tickColor: 'red',
           //     axisColor: 'red'
@@ -68,6 +66,8 @@
 > 对x轴的时间展示文本进行格式化，接收一个Date作为参数，返回值为字符串
 * onBrushChange?: (value: []) => void;
 > 框选的回调函数，参数是被框选的节点的信息。
+* onSelect?: (d: unknown, show: boolean) => void;
+> 点击y轴选中某一行的回调函数。
 * options?: {}
 > 图标样式设置
 ```
@@ -95,3 +95,10 @@
 * y轴节点及横线样式修改，去除了轴线展示
 * 去除了y轴的配置项
 * readme文件修改
+
+### v1.0.4
+* 修改了y轴样式修改的代码，减少了入参
+* y轴增加了点击事件，可以点击文本选中当前行
+* 增加了y轴点击事件的回调函数
+* 增加了纵向的滚动条，当分类变多时展示可以更美观
+* 修改了缩放时x轴展示的问题
