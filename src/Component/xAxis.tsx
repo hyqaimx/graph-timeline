@@ -15,7 +15,8 @@ export const xAxis = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefi
     d3.axisBottom(x)
       .tickFormat(
         function (d, index) {
-          const zoomLv = d3.zoomTransform(d3.select(this).node());
+          // 此处不能使用this来获取缩放等级，因为x轴是单独在一个svg中渲染的，而这个svg没有绑定缩放事件
+          const zoomLv = d3.zoomTransform(d3.select<SVGGElement, unknown>('#timeline').node());
           const date = new Date(d.valueOf());
           if(timeLabelFormat) {
             return timeLabelFormat(date);

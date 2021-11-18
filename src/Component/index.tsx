@@ -4,20 +4,21 @@ import DrawLink from "./link";
 import drawNodes from "./nodes";
 import getZoom from "./zoom";
 import { xAxis, xRange } from "./xAxis";
-import { setYAxisStyle, yAxis, yRange } from "./yAxis";
+import { setEvent, setYAxisStyle, yAxis, yRange } from "./yAxis";
 import getBrush from "./brush";
 import { DrawTooltip } from "./tooltip";
+import { node } from "webpack";
 
 
 export interface INodeItem {
-  id: string | number | symbol;
+  id: string;
   name: string;
   date: string;
   [prop: string]: any;
 } 
 export interface ILinkItem {
-  source: string | number | symbol;
-  target: string | number | symbol;
+  source: string;
+  target: string;
 }
 
 export interface IOptions {
@@ -50,6 +51,7 @@ export interface ITimelineProps{
   options?: IOptions;
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
+  onSelect?:(id: unknown, show: boolean) => void;
 }
 
 const Timeline = ({
@@ -61,7 +63,8 @@ const Timeline = ({
   usBrush = true,
   options = {},
   onBrushChange,
-  timeLabelFormat
+  timeLabelFormat,
+  onSelect
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
@@ -75,32 +78,49 @@ const Timeline = ({
     // 设置容器的宽度以及自适应
     const listener = () => {
       if(outerRef.current) {
-        setWidth(outerRef.current.clientWidth);
+        setWidth(outerRef.current.clientWidth - 30);
       }
     }
 
     if(outerRef.current) {
       outerRef.current.innerHTML = "";
       if(!width || width === '100%') {
-        setWidth(outerRef.current.clientWidth);
+        setWidth(outerRef.current.clientWidth - 30);
         window.addEventListener('resize', listener);
       }else {
         if(typeof width === 'number') {
-          setWidth(width);
+          setWidth(width - 30);
         }else {
           throw Error("宽度只能设置为数字或'100%'")
         }
       }
 
       // 初始化画板
-      const svg = d3.create('svg')
-      .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
-      .attr('width', realWidth)
-      .attr('height', height)
-      .attr('id', 'timeline')
-      .style("background-color", background || '#F5F5F5')
+      // 单独创建x轴画板
+      const xAxisSvg = d3.create('svg')
+        .attr('id', 'xAxis-container')
+        .attr('width', realWidth)
+        .attr('height', height)
+        .style('position', 'absolute')
+        .style("z-index", -1)
+        .style("pointer-events", "none");
+      
+      // 创建主画板包含元素
+      const main = d3.create('div')
+        .style('overflow-y', 'auto')
+        .style('height', `${height - padBottom}px`)
+        .attr('id', 'main');
+      // 创建主画板
+      main.append('svg')
+        .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
+        .attr('width', realWidth)
+        .attr('height', height)
+        .attr('id', 'timeline')
+        .style("background-color", background || '#F5F5F5')
+        .style("display", 'block');
 
-      outerRef.current.append(svg.node() || "<div>build fail</div>")
+      outerRef.current.append(xAxisSvg.node() || "<div>xAxis build fail</div>");
+      outerRef.current.append(main.node() || "<div>body build fail</div>");
     }
 
     // 卸载事件监听
@@ -111,28 +131,21 @@ const Timeline = ({
 
   const {x, y, zoom, brush} = useMemo(() => {
     const x = xRange(nodes,padding, realWidth);
-    const y = yRange(nodes, padding, height);
+    const y = yRange(nodes, padding, height - padBottom);
     const zoom = getZoom(nodes, x, y, xAxisStyle,timeLabelFormat);
     const brush = getBrush(nodes, x, y, brushNodeColor, onBrushChange);
     return {x, y, zoom, brush};
-  }, [nodes, realWidth, height])
+  }, [nodes, realWidth])
 
   useEffect(() => {
     if(outerRef.current) {
-      // 绘画底图
-        const svg = d3.select<SVGGElement, undefined>('#timeline')
-        .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
+      // 先绘画x轴
+      const xAxisSvg = d3.select('#xAxis-container')
         .attr('width', realWidth)
-        svg.html("");
-
-      // 设置剪切区域
-      svg.append('clipPath')
-          .attr('id', 'clipView')
-          .append('path')
-          .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${height} h${-(realWidth - padLeft - padRight)} v${-height}z`)
-
+        .attr('height', height);
+      xAxisSvg.html("");
       // 将x轴添加到画板
-      const gx = svg.append('g')
+      const gx = xAxisSvg.append('g')
                     .attr('class', "xAxis")
                     .attr("transform", `translate(0,${height - padBottom})`)
                     .call(xAxis, x, timeLabelFormat);
@@ -143,37 +156,55 @@ const Timeline = ({
         gx.selectAll('text').attr('fill', color || 'currentColor');
         gx.selectAll('line').attr('stroke', tickColor || 'currentColor')
       }
-      // 将y轴添加到面板
-      const formatFn = (item:any) => {
-        const node =  nodes.filter(n => n.id === item);
-        return node[0].name
+
+      // 绘画主体部分
+      const realHeight = nodes.length * 30 > height - padBottom ? nodes.length * 30 : height - padBottom;
+      const svg = d3.select<SVGElement, unknown>('#timeline')
+        .attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
+        .attr('width', realWidth)
+        .attr('height', realHeight);
+      if(!svg.empty()) {
+        svg.html("");
+        // 绘画底图, 计算绘图所需真正高度
+        svg.attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
+          .attr('width', realWidth)
+
+        // 设置剪切区域
+        svg.append('clipPath')
+            .attr('id', 'clipView')
+            .append('path')
+            .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
+
+        // 将y轴添加到面板
+        const formatFn = (item:any) => {
+          const node =  nodes.filter(n => n.id === item);
+          return node[0].name
+        }
+        const gy = svg.append('g')
+                      .attr('class', 'yAxis')
+                      .attr('transform', `translate(${padLeft}, 0)`)
+                      .call(yAxis, y, formatFn)
+                      .call(setYAxisStyle, realWidth - padRight - padLeft)
+                      .call(setEvent, onSelect);
+
+        /* 绘制数据点 */
+        svg.append('g')
+          .attr('clip-path', 'url(#clipView)')
+          .attr('width', realWidth - padLeft - padRight)
+          .call(drawNodes, nodes, x, y, nodeStyle);
+        
+        /* 绘制连线 */
+        svg.call(DrawLink, nodes, links, x, y, arrowColor);
+
+        /* 增加tooltip */
+        svg.call(DrawTooltip, links);
       }
-      const gy = svg.append('g')
-                    .attr('class', 'yAxis')
-                    .attr('transform', `translate(${padLeft}, 0)`)
-                    .call(yAxis, y, formatFn)
-                    .call(setYAxisStyle, y, nodes, realWidth - padRight - padLeft);
-
-      /* 绘制数据点 */
-      svg.append('g')
-         .attr('clip-path', 'url(#clipView)')
-         .attr('width', realWidth - padLeft - padRight)
-         .call(drawNodes, nodes, x, y, nodeStyle);
-      
-      /* 绘制连线 */
-      svg.call(DrawLink, nodes, links, x, y, arrowColor);
-
-      /* 增加tooltip */
-      svg.call(DrawTooltip, links);
-
-      outerRef.current.append(svg.node() || 'build fail');
     }
 
   }, [realWidth, JSON.stringify(nodes), JSON.stringify(links), height, JSON.stringify(padding)])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#timeline')
-                  .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
                   .attr('width', realWidth);
      /* 设置缩放事件过滤 */
      zoom.filter((event) => {
@@ -206,7 +237,7 @@ const Timeline = ({
     }else {
       svg.call(brush);
     }
-  }, [isBrush, realWidth, height])
+  }, [isBrush, realWidth])
 
   return (
     <div className="container">

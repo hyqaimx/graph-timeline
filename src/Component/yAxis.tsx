@@ -3,10 +3,11 @@ import { INodeItem } from ".";
 
 // 构建数据映射
 export const yRange = (data:INodeItem[], padding: number[], height: number) => {
-  const values = data.map(item => String(item.id));
+  const values = data.map(item => item.id);
+  const realHeight = data.length * 30 > height - 20 ? data.length * 30 : height - 20;
   return d3.scalePoint()
            .domain([...values])
-           .range([height - padding[2] , padding[0]]);
+           .range([realHeight - padding[2] , padding[0]]);
 }
 
 // 构建y轴
@@ -19,8 +20,6 @@ export const yAxis = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefi
 // 设置y轴得展示样式
 export const setYAxisStyle = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
-  y: d3.ScalePoint<string>,
-  data: INodeItem[],
   supLineWidth: number,
   yAxisStyle?:{
     color?: string;
@@ -29,26 +28,24 @@ export const setYAxisStyle = (
   }
 ) => {
   const colors = ['#419388', '#4795eb', '#d83965'];
-
-  const values = data.map(item => String(item.id));
   // 去除y轴的竖线
   g.select('.domain').remove();
-  // 在各项开头增加圆形节点
-  g.selectAll('.tick circle')
-    .data(values)
-    .join('circle')
-    .attr('cx', 0)
-    .attr('cy', d => y(d))
-    .attr('r', 6)
-    .attr('fill', (d, i) => colors[i % 3])
-  // 设置文本颜色，和圆形颜色保持一致
-  g.selectAll('.tick text')
-    .attr('fill', (d, i) => colors[i % 3])
-  // 设置横线颜色
-  g.selectAll('.tick line')
-    .attr('x1', supLineWidth)
-    .attr('stroke', (d, i) => colors[i % 3])
-    .attr('stroke-width', 2);
+
+  g.selectAll('.tick')
+    .each(function (d, i) {
+      const tick = d3.select(this);
+      // 在各项开头增加圆形节点
+      tick.append('circle')
+        .attr('r', 6)
+        .attr('fill', colors[i % 3] );
+      // 设置文本颜色，和圆形颜色保持一致
+      tick.select('text').attr('fill', colors[i % 3]);
+      // 设置横线颜色
+      tick.select('line')
+        .attr('x1', supLineWidth)
+        .attr('stroke', colors[i % 3] )
+        .attr('stroke-width', 2);
+    });
 
   // 设置y轴的样式
   if(yAxisStyle) {
@@ -57,4 +54,37 @@ export const setYAxisStyle = (
     // g.selectAll('text').attr('fill', color || 'currentColor');
     // g.selectAll('line').attr('stroke', tickColor || 'currentColor');
   }
+}
+
+// 设置y轴的点击事件
+export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: (d:unknown, show: boolean) => void) => {
+  const colors = ['#419388', '#4795eb', '#d83965'];
+  g.selectAll('.tick')
+    .each(function (d) {
+      const tick = d3.select(this);
+      const left = Number(tick.select('line').attr('x2'));
+      const right = Number(tick.select('line').attr('x1'));
+      const r = Number(tick.select('circle').attr('r'));
+      tick.select('text')
+        .on('click' ,function() {
+          const rect = d3.select('rect');
+          if(rect.empty()) {
+            tick.insert('rect', ':first-child')
+              .attr('x', left - 3)
+              .attr('y', - r - 5)
+              .attr('width', right - left + 3)
+              .attr('height', r * 2 + 10)
+              .attr('fill', '#AAA')
+              .attr('fill-stroke', .2);
+            if(onSelect) {
+              onSelect(d, true);
+            }
+          }else {
+            rect.remove();
+            if(onSelect) {
+              onSelect(d, false);
+            }
+          }
+        })
+    })
 }
