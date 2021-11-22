@@ -38,7 +38,7 @@ const App = () => {
       usBrush={false}
       onBrushChange={ (value) => {console.log(value)}}
       // timeLabelFormat={ (date) => date.toLocaleDateString()}
-      onSelect={(d, show) => {console.log(d, show)}}
+      onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
     />
   )
 }

@@ -57,8 +57,8 @@ export const setYAxisStyle = (
 }
 
 // 设置y轴的点击事件
-export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: (d:unknown, show: boolean) => void) => {
-  const colors = ['#419388', '#4795eb', '#d83965'];
+export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: <T>(id: T, show: boolean, selectedData: T[]) => void) => {
+  let selectedData = [];
   g.selectAll('.tick')
     .each(function (d) {
       const tick = d3.select(this);
@@ -67,22 +67,24 @@ export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, und
       const r = Number(tick.select('circle').attr('r'));
       tick.select('text')
         .on('click' ,function() {
-          const rect = d3.select('rect');
+          const rect = tick.select('rect');
           if(rect.empty()) {
             tick.insert('rect', ':first-child')
               .attr('x', left - 3)
               .attr('y', - r - 5)
               .attr('width', right - left + 3)
               .attr('height', r * 2 + 10)
-              .attr('fill', '#AAA')
+              .attr('fill', '#DDD')
               .attr('fill-stroke', .2);
+            selectedData.push(d);  
             if(onSelect) {
-              onSelect(d, true);
+              onSelect(d, true, selectedData);
             }
           }else {
             rect.remove();
+            selectedData = selectedData.filter(item => item !== d);
             if(onSelect) {
-              onSelect(d, false);
+              onSelect(d, false, selectedData);
             }
           }
         })

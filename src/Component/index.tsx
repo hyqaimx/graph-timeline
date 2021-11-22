@@ -51,7 +51,7 @@ export interface ITimelineProps{
   options?: IOptions;
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
-  onSelect?:(id: unknown, show: boolean) => void;
+  onSelect?:<T>(id: T, show: boolean, selectedData: T[]) => void;
 }
 
 const Timeline = ({
