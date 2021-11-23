@@ -16,6 +16,16 @@ const base = {
         test: /\.(ts|tsx)?$/,
         loader: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)?$/,
+        use: {
+          loader: "url-loader",
+          options: {
+            name: '[name].[ext]'
+          }
+        },
+        exclude: /node_modules/
       }
     ],
   },

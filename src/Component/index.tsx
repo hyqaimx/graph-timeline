@@ -7,7 +7,8 @@ import { xAxis, xRange } from "./xAxis";
 import { setEvent, setYAxisStyle, yAxis, yRange } from "./yAxis";
 import getBrush from "./brush";
 import { DrawTooltip } from "./tooltip";
-import { node } from "webpack";
+import BrushImg from '../assets/usebrush.png';
+import DisableBrush from '../assets/unusebrush.png';
 
 
 export interface INodeItem {
@@ -47,7 +48,7 @@ export interface ITimelineProps{
   padding?: number[];
   nodes: INodeItem[];
   links: ILinkItem[];
-  usBrush?: boolean;
+  useBrush?: boolean;
   options?: IOptions;
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
@@ -60,7 +61,7 @@ const Timeline = ({
   padding = [20, 20, 20, 50],
   nodes = [],
   links = [],
-  usBrush = true,
+  useBrush = true,
   options = {},
   onBrushChange,
   timeLabelFormat,
@@ -240,8 +241,25 @@ const Timeline = ({
   }, [isBrush, realWidth])
 
   return (
-    <div className="container">
-      {usBrush && <button onClick={() => setBrush(!isBrush)}>{isBrush ? '取消框选' : '框选'}</button>}
+    <div className="container" style={{position: 'relative'}}>
+      { useBrush &&
+        <div
+          onClick={() => setBrush(!isBrush)}
+          style={{ 
+            position: 'absolute',
+            right: 40,
+            top: 10,
+            backgroundColor: 'rgba(255, 255, 255, .5)',
+            fontSize: 0,
+            cursor: 'pointer'
+          }}
+        >
+          {isBrush ? 
+            <img src={BrushImg} alt='禁用框选' /> :
+            <img src={DisableBrush} alt='框选' />
+          }
+        </div>
+      }
       <div ref={outerRef} style={{width: '100%'}}></div>
     </div>
   )

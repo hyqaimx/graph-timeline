@@ -35,7 +35,7 @@ const App = () => {
       height={500}
       nodes={nodes}
       links={links}
-      usBrush={false}
+      // useBrush={false}
       onBrushChange={ (value) => {console.log(value)}}
       // timeLabelFormat={ (date) => date.toLocaleDateString()}
       onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
