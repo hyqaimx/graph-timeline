@@ -19,7 +19,8 @@ const App = () => {
     const arr = new Array(1000).fill(0).map((item, index) => ({
       id: String(index + 1),
       name: '节点' + (index + 1),
-      date: getStrDate(new Date(date.valueOf() - (1000*index)))
+      date: getStrDate(new Date(date.valueOf() - (1000*index))),
+      color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16).padEnd(6, "f")
     }));
 
     const createLinks = Array.from({length: 500}).fill(0).map((item, index) => ({

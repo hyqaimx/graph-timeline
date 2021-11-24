@@ -24,6 +24,7 @@ export interface ILinkItem {
 
 export interface IOptions {
   background?: string;
+  colors?: string[];
   xAxis?: {
     color?: string;
     axisColor?: string;
@@ -69,7 +70,7 @@ const Timeline = ({
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
-  const {xAxis: xAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor} = options;
+  const {xAxis: xAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor, colors} = options;
 
   const [realWidth, setWidth] = useState<number>(1000);
   const [isBrush, setBrush] = useState(false);
@@ -185,7 +186,7 @@ const Timeline = ({
                       .attr('class', 'yAxis')
                       .attr('transform', `translate(${padLeft}, 0)`)
                       .call(yAxis, y, formatFn)
-                      .call(setYAxisStyle, realWidth - padRight - padLeft)
+                      .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
                       .call(setEvent, onSelect);
 
         /* 绘制数据点 */
@@ -245,7 +246,7 @@ const Timeline = ({
       { useBrush &&
         <div
           onClick={() => setBrush(!isBrush)}
-          style={{ 
+          style={{
             position: 'absolute',
             right: 40,
             top: 10,

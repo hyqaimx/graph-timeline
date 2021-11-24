@@ -21,29 +21,37 @@ export const yAxis = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefi
 export const setYAxisStyle = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
   supLineWidth: number,
+  datas: INodeItem[],
+  colors?: string[],
   yAxisStyle?:{
     color?: string;
     axisColor?: string;
     tickColor?: string;
   }
 ) => {
-  const colors = ['#419388', '#4795eb', '#d83965'];
+  const themes= colors || ['#419388', '#4795eb', '#d83965'];
   // 去除y轴的竖线
   g.select('.domain').remove();
-
   g.selectAll('.tick')
-    .each(function (d, i) {
+    .each(function (d, i, nodes) {
+      const currentData = datas.filter(item => item.id === d)[0];
+      let color;
+      if(currentData && currentData.color) {
+        color = currentData.color;
+      }else {
+        color = themes[i % 3];
+      }
       const tick = d3.select(this);
       // 在各项开头增加圆形节点
       tick.append('circle')
         .attr('r', 6)
-        .attr('fill', colors[i % 3] );
+        .attr('fill', color);
       // 设置文本颜色，和圆形颜色保持一致
-      tick.select('text').attr('fill', colors[i % 3]);
+      tick.select('text').attr('fill', color);
       // 设置横线颜色
       tick.select('line')
         .attr('x1', supLineWidth)
-        .attr('stroke', colors[i % 3] )
+        .attr('stroke', color)
         .attr('stroke-width', 2);
     });
 
