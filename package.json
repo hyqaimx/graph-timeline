@@ -1,13 +1,17 @@
 {
   "name": "graph-timeline",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "是一个用于图分析中分析节点的时间关系的组件",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "keywords": ["graph", "timeline", "react"],
+  "keywords": [
+    "graph",
+    "timeline",
+    "react"
+  ],
   "repository": "git@github.com:hyqaimx/graph-timeline.git",
   "author": "maxiao",
   "license": "MIT",
@@ -38,6 +42,7 @@
     "html-webpack-plugin": "^5.5.0",
     "ts-loader": "^9.2.6",
     "typescript": "^4.4.4",
+    "url-loader": "^4.1.1",
     "webpack-dev-server": "^4.4.0"
   }
 }

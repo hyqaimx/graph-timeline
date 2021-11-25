@@ -21,29 +21,37 @@ export const yAxis = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefi
 export const setYAxisStyle = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
   supLineWidth: number,
+  datas: INodeItem[],
+  colors?: string[],
   yAxisStyle?:{
     color?: string;
     axisColor?: string;
     tickColor?: string;
   }
 ) => {
-  const colors = ['#419388', '#4795eb', '#d83965'];
+  const themes= colors || ['#419388', '#4795eb', '#d83965'];
   // 去除y轴的竖线
   g.select('.domain').remove();
-
   g.selectAll('.tick')
-    .each(function (d, i) {
+    .each(function (d, i, nodes) {
+      const currentData = datas.filter(item => item.id === d)[0];
+      let color;
+      if(currentData && currentData.color) {
+        color = currentData.color;
+      }else {
+        color = themes[i % 3];
+      }
       const tick = d3.select(this);
       // 在各项开头增加圆形节点
       tick.append('circle')
         .attr('r', 6)
-        .attr('fill', colors[i % 3] );
+        .attr('fill', color);
       // 设置文本颜色，和圆形颜色保持一致
-      tick.select('text').attr('fill', colors[i % 3]);
+      tick.select('text').attr('fill', color);
       // 设置横线颜色
       tick.select('line')
         .attr('x1', supLineWidth)
-        .attr('stroke', colors[i % 3] )
+        .attr('stroke', color)
         .attr('stroke-width', 2);
     });
 
@@ -57,8 +65,8 @@ export const setYAxisStyle = (
 }
 
 // 设置y轴的点击事件
-export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: (d:unknown, show: boolean) => void) => {
-  const colors = ['#419388', '#4795eb', '#d83965'];
+export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: <T>(id: T, show: boolean, selectedData: T[]) => void) => {
+  let selectedData = [];
   g.selectAll('.tick')
     .each(function (d) {
       const tick = d3.select(this);
@@ -67,22 +75,24 @@ export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, und
       const r = Number(tick.select('circle').attr('r'));
       tick.select('text')
         .on('click' ,function() {
-          const rect = d3.select('rect');
+          const rect = tick.select('rect');
           if(rect.empty()) {
             tick.insert('rect', ':first-child')
               .attr('x', left - 3)
               .attr('y', - r - 5)
               .attr('width', right - left + 3)
               .attr('height', r * 2 + 10)
-              .attr('fill', '#AAA')
+              .attr('fill', '#DDD')
               .attr('fill-stroke', .2);
+            selectedData.push(d);  
             if(onSelect) {
-              onSelect(d, true);
+              onSelect(d, true, selectedData);
             }
           }else {
             rect.remove();
+            selectedData = selectedData.filter(item => item !== d);
             if(onSelect) {
-              onSelect(d, false);
+              onSelect(d, false, selectedData);
             }
           }
         })
