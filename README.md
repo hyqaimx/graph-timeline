@@ -6,28 +6,31 @@
   import NpmTimeLine from 'graph-timeline';
   function App() {
     const nodes = [
-      {id: '1', name: '节点1', date: '2021-10-19 12:00:00'},
-      {id: '1-1', name: '节点1-1', date: '2021-10-19 12:00:00'},
-      {id: '2', name: '节点2', date: '2021-10-20 12:00:00'},
-      {id: '2-1', name: '节点2-1', date: '2021-10-20 12:00:00'},
-      {id: '3', name: '节点3', date: '2021-10-21 12:00:00'},
-      {id: '4', name: '节点4', date: '2021-10-22 12:00:00'},
-      {id: '5', name: '节点5', date: '2021-10-23 12:00:00'},
-      {id: '6', name: '节点6', date: '2021-10-24 12:00:00'},
+      {id: '1',name: '节点1', date: '2021-11-25 10:10:10'},
+      {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
+      {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
+      {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
+      {id: '5',name: '节点3', date: '2021-11-24 18:10:10'},
+      {id: '6',name: '节点3', date: '2021-11-24 15:10:10'},
+      {id: '7',name: '节点3', date: '2021-11-24 23:10:10'},
+      {id: '8',name: '节点4', date: '2021-11-23 12:10:10'},
+      {id: '9',name: '节点5', date: '2021-11-25 15:12:10'},
+      {id: '10',name: '节点5', date: '2021-11-24 18:10:10'},
     ];
     const links = [
-      {source: '1', target: "1-1"},
-      {source: '2', target: "2-1"},
+      {source: '2', target: '4'},
+      {source: '2', target: '4'},
     ];
     return (
       <>
         <NpmTimeLine
+          height={500}
           nodes={nodes}
           links={links}
-          usBrush={false}
+          usBrush
           onBrushChange={ (value) => {console.log(value)}}
-          timeLabelFormat={ (date) => date.toLocaleDateString()}
-          onSelect={(d, show) => {console.log(d, show)}}
+          // timeLabelFormat={ (date) => date.toLocaleDateString()}
+          onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
           // options={{
           //   background: '#234dad',
           //   xAxis: {
@@ -46,8 +49,11 @@
     );
   }
 ```
-![alt 运行效果](./src/assets/example.png)
-**可以进行时间拖拽和缩放。点击框选可以选择节点**
+![alt zoom运行效果](./src/assets/zoomExp.png)
+![alt brush运行效果](./src/assets/brushExp.png)
+**可以进行时间拖拽和缩放。点击右上角图标可以切换拖拽和缩放，点击左侧文字可以选中当前行**
+
+**图表背景是我编辑器的背景，请忽略...**
 
 ## 配置项Props
 * width?: number | '100%'
@@ -73,6 +79,7 @@
 ```
   options:{
     background: '#234dad', // 整体的背景颜色
+    colors: string[],      // 根据该色板循环设置y轴每个item的颜色      
     xAxis: {
       color: 'red',        // x轴的文本颜色
       tickColor: 'red',    // x轴的分割线颜色
@@ -110,3 +117,5 @@
 ### v1.0.6
 * 增加了colors色板参数，可以控制横向线条及文本的颜色循环
 * 节点数据对象中可以增加color属性，用来单点控制某一项的颜色
+* 修改了nodes参数的处理方式。这个需要额外说明：之前只有在id一致的时候节点才可能出现在同一行，但是这个很明显不符合实际的使用情况，一个节点很可能存在于多个时间点，如果id一致的话那么这些一行的节点将无法区分（只能通过时间区分，但是也有对应的问题），现在修改为id作为所有节点的唯一标识，通过name来判断是否是同一节点的不同时刻。
+* 修改了tooltip的展示，将以前的展示id更改为展示name

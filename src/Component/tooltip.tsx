@@ -4,6 +4,7 @@ import { ILinkItem, INodeItem } from ".";
 export const DrawTooltip = (
   g: d3.Selection<SVGGElement, unknown, HTMLElement, any>,
   links: ILinkItem[],
+  nodes: INodeItem[]
 ) => {
   const tooltip = g.append('g')
     .attr('class', 'tooltip')
@@ -12,11 +13,15 @@ export const DrawTooltip = (
   const entered = (event: any, data: INodeItem) => {
     const position = d3.pointer(event);
     const curLink = links.filter(item => item.source === data.id || item.target === data.id);
+
     const textData = [`节点名称: ${data.name}`];
     if(curLink.length !== 0) {
       curLink.forEach(item => {
-        textData.push(`起始节点: ${String(item.source)}`);
-        textData.push(`目标节点: ${String(item.target)}`);
+        const sourceData = nodes.filter(node => node.id === item.source)[0];
+        const targetData = nodes.filter(node => node.id === item.target)[0];
+        if(!sourceData || !targetData) return "";
+        textData.push(`起始节点: ${sourceData.name}`);
+        textData.push(`目标节点: ${targetData.name}`);
       })
     }
     tooltip.style('dispaly', null);

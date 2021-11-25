@@ -30,10 +30,13 @@ const DrawLink = (
     .data(linkData)
     .join('path')
     .attr('d', d => {
-      const x1 = x(new Date(data.filter(item => item.id === d.source)[0].date));
-      const x2 = x(new Date(data.filter(item => item.id === d.target)[0].date));
-      const y1 = (y(String(d.source)) || 0) - 5;
-      const y2 = (y(String(d.target)) || 0) + 5;
+      const sourceData = data.filter(item => item.id === d.source)[0];
+      const targetData = data.filter(item => item.id === d.target)[0];
+      if(!sourceData || !targetData) return "";
+      const x1 = x(new Date(sourceData.date));
+      const x2 = x(new Date(targetData.date));
+      const y1 = y(sourceData.name) - 5;
+      const y2 = y(targetData.name) + 5;
       return `M ${x1},${y1} L ${x2},${y2}`;
     })
     .attr('pathLength', '90')
