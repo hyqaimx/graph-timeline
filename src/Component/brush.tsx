@@ -21,7 +21,7 @@ const getBrush = (
       value = circles
               .attr('fill', 'gray')
               .filter(d => {
-                const currentY = y(d.id as string);
+                const currentY = y(d.name);
                 const currentX = rx(new Date(d.date));
                 if(!currentY) return false;
 

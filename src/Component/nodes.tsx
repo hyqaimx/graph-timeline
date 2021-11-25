@@ -27,7 +27,7 @@ const drawNodes = (
     .data(data)
     .join('circle')
     .attr('cx', d => x(new Date(d.date)))
-    .attr('cy', d => y(String(d.id)) || null)
+    .attr('cy', d => y(String(d.name)) || null)
     .attr('r', size)
     .attr('fill', color);
 }

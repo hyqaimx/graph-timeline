@@ -3,10 +3,12 @@ import { INodeItem } from ".";
 
 // 构建数据映射
 export const yRange = (data:INodeItem[], padding: number[], height: number) => {
-  const values = data.map(item => item.id);
+  const values = data.map(item => item.name);
+  const uniqueVals = values.filter((item, index) => values.indexOf(item) === index);
+
   const realHeight = data.length * 30 > height - 20 ? data.length * 30 : height - 20;
   return d3.scalePoint()
-           .domain([...values])
+           .domain([...uniqueVals])
            .range([realHeight - padding[2] , padding[0]]);
 }
 

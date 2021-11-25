@@ -178,14 +178,14 @@ const Timeline = ({
             .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
 
         // 将y轴添加到面板
-        const formatFn = (item:any) => {
-          const node =  nodes.filter(n => n.id === item);
-          return node[0].name
-        }
+        // const formatFn = (item:any) => {
+        //   const node =  nodes.filter(n => n.name === item);
+        //   return node[0].name
+        // }
         const gy = svg.append('g')
                       .attr('class', 'yAxis')
                       .attr('transform', `translate(${padLeft}, 0)`)
-                      .call(yAxis, y, formatFn)
+                      .call(yAxis, y)
                       .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
                       .call(setEvent, onSelect);
 
@@ -199,7 +199,7 @@ const Timeline = ({
         svg.call(DrawLink, nodes, links, x, y, arrowColor);
 
         /* 增加tooltip */
-        svg.call(DrawTooltip, links);
+        svg.call(DrawTooltip, links, nodes);
       }
     }
 
