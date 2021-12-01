@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import DrawLink from "./link";
 import drawNodes from "./nodes";
 import getZoom from "./zoom";
@@ -51,6 +51,10 @@ export interface ITimelineProps{
   links: ILinkItem[];
   useBrush?: boolean;
   options?: IOptions;
+  tooltip?: {
+    show?: boolean;
+    format?: (data: INodeItem, links: ILinkItem[]) => ReactNode
+  };
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
   onSelect?:<T>(id: T, show: boolean, selectedData: T[]) => void;
@@ -64,13 +68,15 @@ const Timeline = ({
   links = [],
   useBrush = true,
   options = {},
+  tooltip = {},
   onBrushChange,
   timeLabelFormat,
-  onSelect
+  onSelect,
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
   const {xAxis: xAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor, colors} = options;
+  const { show: showTooltip, format: tooltipFormat } = tooltip;
 
   const [realWidth, setWidth] = useState<number>(1000);
   const [isBrush, setBrush] = useState(false);
@@ -111,13 +117,13 @@ const Timeline = ({
       const main = d3.create('div')
         .style('overflow-y', 'auto')
         .style('height', `${height - padBottom}px`)
-        .attr('id', 'main');
+        .attr('id', 'graph-timeline-main');
       // 创建主画板
       main.append('svg')
         .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
         .attr('width', realWidth)
         .attr('height', height)
-        .attr('id', 'timeline')
+        .attr('id', 'graph-timeline-svg')
         .style("background-color", background || '#F5F5F5')
         .style("display", 'block');
 
@@ -161,7 +167,7 @@ const Timeline = ({
 
       // 绘画主体部分
       const realHeight = nodes.length * 30 > height - padBottom ? nodes.length * 30 : height - padBottom;
-      const svg = d3.select<SVGElement, unknown>('#timeline')
+      const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg')
         .attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
         .attr('width', realWidth)
         .attr('height', realHeight);
@@ -199,14 +205,14 @@ const Timeline = ({
         svg.call(DrawLink, nodes, links, x, y, arrowColor);
 
         /* 增加tooltip */
-        svg.call(DrawTooltip, links, nodes);
+        svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
       }
     }
 
   }, [realWidth, JSON.stringify(nodes), JSON.stringify(links), height, JSON.stringify(padding)])
 
   useEffect(() => {
-    const svg = d3.select<SVGGElement, undefined>('#timeline')
+    const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')
                   .attr('width', realWidth);
      /* 设置缩放事件过滤 */
      zoom.filter((event) => {
