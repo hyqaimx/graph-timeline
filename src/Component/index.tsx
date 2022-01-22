@@ -202,7 +202,7 @@ const Timeline = ({
           .call(drawNodes, nodes, x, y, nodeStyle);
         
         /* 绘制连线 */
-        svg.call(DrawLink, nodes, links, x, y, arrowColor);
+        svg.call(DrawLink, nodes, links, x, y, arrowColor, nodeStyle);
 
         /* 增加tooltip */
         svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);

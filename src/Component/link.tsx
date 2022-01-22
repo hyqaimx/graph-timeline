@@ -7,21 +7,27 @@ const DrawLink = (
   linkData: ILinkItem[],
   x:d3.ScaleTime<number, number, never>,
   y:d3.ScalePoint<string>,
-  arrowColor?: string 
+  arrowColor?: string,
+  nodeStyle?: {
+    color?: string;
+    size?: number;
+  }
 ) => {
   let color = arrowColor || 'red';
+  let nodeSize = nodeStyle?.size || 5;
+  const arrowSize = nodeSize > 15 ? nodeSize : 15
   // 预先定义箭头图标
   g.append("defs")
   .append("marker")
     .attr("id", "arrow")
-    .attr("markerHeight", 10)
-    .attr("markerWidth", 10)
-    .attr("refX", 5)
-    .attr("refY", 2.5)
+    .attr("markerHeight", arrowSize)
+    .attr("markerWidth", arrowSize)
+    .attr("refX", arrowSize / 2)
+    .attr("refY", arrowSize / 4)
     .attr("orient", "auto")
   .append("path")
     .attr("fill", color)
-    .attr("d", "M0,0 v5 l7,-2.5 Z");
+    .attr("d", `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5 },-${arrowSize / 4} Z`);
   // 开始绘制
   g.append('g')
     .attr('clip-path', 'url(#clipView)')
@@ -35,9 +41,9 @@ const DrawLink = (
       if(!sourceData || !targetData) return "";
       const x1 = x(new Date(sourceData.date));
       const x2 = x(new Date(targetData.date));
-      const y1 = y(sourceData.name) - 5;
-      const y2 = y(targetData.name) + 5;
-      return `M ${x1},${y1} L ${x2},${y2}`;
+      const y1 = y(sourceData.name);
+      const y2 = y(targetData.name);
+      return `M ${x1},${y1} L ${x2},${y2 > y1 ? y2 - (nodeSize * 6 / 5) : y2 + (nodeSize * 6 / 5)}`;
     })
     .attr('pathLength', '90')
     .attr('stroke', color)

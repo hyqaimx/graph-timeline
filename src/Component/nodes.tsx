@@ -12,7 +12,7 @@ const drawNodes = (
   }
 ) => {
   let color = 'red';
-  let size = 4;
+  let size = 5;
   if(nodeStyle) {
     if(nodeStyle.color) {
       color = nodeStyle.color;

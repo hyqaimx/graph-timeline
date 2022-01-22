@@ -1,6 +1,6 @@
 {
   "name": "graph-timeline",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "是一个用于图分析中分析节点的时间关系的组件",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
