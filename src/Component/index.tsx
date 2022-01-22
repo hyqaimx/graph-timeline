@@ -110,6 +110,7 @@ const Timeline = ({
         .attr('width', realWidth)
         .attr('height', height)
         .style('position', 'absolute')
+        .style('left', 0)
         .style("z-index", -1)
         .style("pointer-events", "none");
       
@@ -140,7 +141,7 @@ const Timeline = ({
   const {x, y, zoom, brush} = useMemo(() => {
     const x = xRange(nodes,padding, realWidth);
     const y = yRange(nodes, padding, height - padBottom);
-    const zoom = getZoom(nodes, x, y, xAxisStyle,timeLabelFormat);
+    const zoom = getZoom(nodes, x, y, nodeStyle, xAxisStyle,timeLabelFormat);
     const brush = getBrush(nodes, x, y, brushNodeColor, onBrushChange);
     return {x, y, zoom, brush};
   }, [nodes, realWidth])
@@ -202,7 +203,7 @@ const Timeline = ({
           .call(drawNodes, nodes, x, y, nodeStyle);
         
         /* 绘制连线 */
-        svg.call(DrawLink, nodes, links, x, y, arrowColor);
+        svg.call(DrawLink, nodes, links, x, y, arrowColor, nodeStyle);
 
         /* 增加tooltip */
         svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);

@@ -55,16 +55,16 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   tempConfig = {
     ...base,
-    entry: path.join(__dirname, './example/index.tsx'),
+    entry: path.join(__dirname, './pages/index.tsx'),
     output: {
-      path: path.join(__dirname, './example/dist'),
+      path: path.join(__dirname, './pages/dist'),
       filename: 'bundle.js',
       library: 'graph-timeline',
       libraryTarget: 'umd',
     },
     plugins: [
       new HtmlWebpackPlugin({
-        template: path.join(__dirname, './example/index.html'),
+        template: path.join(__dirname, './pages/index.html'),
         filename: 'index.html',
       }),
     ],

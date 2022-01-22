@@ -17,7 +17,7 @@ const App = () => {
   ]);
   const [links, setLinks] = useState([
     {source: '2', target: '4'},
-    {source: '5', target: '10'},
+    {source: '10', target: '5'},
   ]);
   // useEffect(() => {
   //   const date = new Date();
@@ -51,6 +51,11 @@ const App = () => {
       nodes={nodes}
       links={links}
       // useBrush={false}
+      options={{
+        node: {
+          size: 10
+        }
+      }}
       onBrushChange={ (value) => {console.log(value)}}
       // timeLabelFormat={ (date) => date.toLocaleDateString()}
       onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
