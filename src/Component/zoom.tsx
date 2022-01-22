@@ -6,6 +6,7 @@ const getZoom = (
   data: INodeItem[],
   x: d3.ScaleTime<number,number>,
   y: d3.ScalePoint<string>,
+  nodeStyle,
   xAxisStyle?: {
     color?: string;
     axisColor?: string;
@@ -15,6 +16,8 @@ const getZoom = (
 ) => {
   /* 时间缩放 */
   const zoomed = (event:any) => {
+    // 获取节点大小
+    let nodeSize = nodeStyle?.size || 5;
     // 重新计算比例尺
     const rx = event.transform.rescaleX(x);
     // 重新计算点位置
@@ -28,9 +31,9 @@ const getZoom = (
         if(!sourceData || !targetData) return "";
         const x1 = rx(new Date(sourceData.date));
         const x2 = rx(new Date(targetData.date));
-        const y1 = y(sourceData.name) - 5;
-        const y2 = y(targetData.name) + 5;
-        return `M ${x1},${y1} L ${x2},${y2}`;
+        const y1 = y(sourceData.name);
+        const y2 = y(targetData.name);
+        return `M ${x1},${y1} L ${x2},${y2 > y1 ? y2 - (nodeSize * 6 / 5) : y2 + (nodeSize * 6 / 5)}`;
       })
 
       d3.select<SVGGElement, unknown>('#xAxis-container .xAxis').call(xAxis, rx, timeLabelFormat);
