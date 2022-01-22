@@ -130,6 +130,7 @@ npm install graph-timeline
 ### v1.0.8
 * 解决了箭头反向时的展示异常[issue#9](https://github.com/hyqaimx/graph-timeline/issues/9)
 * 箭头展示大小优化，根据节点大小动态变化
+* 缩放时箭头展示，x轴样式调整
 
 ## 题外话
 这个组件是从部门内部的需求衍生出来的一个组件，起初只是为了满足业务需求。
