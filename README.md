@@ -35,6 +35,11 @@ npm install graph-timeline
           onBrushChange={ (value) => {console.log(value)}}
           // timeLabelFormat={ (date) => date.toLocaleDateString()}
           onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
+          onSelectedNodesChange={
+            (current, selectedData) => {
+              console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
+            }
+          }
           // options={{
           //   background: '#234dad',
           //   xAxis: {
@@ -76,6 +81,8 @@ npm install graph-timeline
 > 框选的回调函数，参数是被框选的节点的信息。
 * onSelect?: <T>(d: T, show: boolean, selectedData: T[]) => void;
 > 点击y轴选中某一行的回调函数。
+* onSelectedNodesChange?: <T>(d: T, show: boolean, selectedData: T[]) => void;
+> 节点选中变化事件，按住alt键可以多选
 * options?: {}
 > 图标样式设置
 ```
@@ -127,10 +134,14 @@ npm install graph-timeline
 * 增加了参数tooltip，用于控制tooltip展示以及自定义内容
 * 修改了生成的元素的id，使其更句有标识性，避免与其他库冲突
 
-### v1.0.8
+### v1.0.8 & v1.0.9
 * 解决了箭头反向时的展示异常[issue#9](https://github.com/hyqaimx/graph-timeline/issues/9)
 * 箭头展示大小优化，根据节点大小动态变化
 * 缩放时箭头展示，x轴样式调整
+
+### v1.1.0
+* 增加了节点的选中事件，按住alt键可以多选
+* 从这个版本开始要逐渐考虑实际使用中涉及的交互，我认为这是一个较大的版本变动，所以加到1.1.0版本
 
 ## 题外话
 这个组件是从部门内部的需求衍生出来的一个组件，起初只是为了满足业务需求。

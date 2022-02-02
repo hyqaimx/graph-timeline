@@ -9,6 +9,8 @@ import getBrush from "./brush";
 import { DrawTooltip } from "./tooltip";
 import BrushImg from '../assets/usebrush.png';
 import DisableBrush from '../assets/unusebrush.png';
+import './style/index.less';
+import { bindSvgEvent, unbindSvgEvent } from "./event";
 
 
 export interface INodeItem {
@@ -58,6 +60,7 @@ export interface ITimelineProps{
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
   onSelect?:<T>(id: T, show: boolean, selectedData: T[]) => void;
+  onSelectedNodesChange?: <T>(current: T | null, selectedNodes: T[]) => void;
 }
 
 const Timeline = ({
@@ -72,6 +75,7 @@ const Timeline = ({
   onBrushChange,
   timeLabelFormat,
   onSelect,
+  onSelectedNodesChange
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
@@ -126,7 +130,8 @@ const Timeline = ({
         .attr('height', height)
         .attr('id', 'graph-timeline-svg')
         .style("background-color", background || '#F5F5F5')
-        .style("display", 'block');
+        .style("display", 'block')
+        .call(bindSvgEvent, onSelectedNodesChange);
 
       outerRef.current.append(xAxisSvg.node() || "<div>xAxis build fail</div>");
       outerRef.current.append(main.node() || "<div>body build fail</div>");
@@ -134,6 +139,7 @@ const Timeline = ({
 
     // 卸载事件监听
     return () => {
+      d3.select('#graph-timeline-svg').call(unbindSvgEvent);
       window.removeEventListener('resize', listener);
     }
   }, [])
@@ -185,10 +191,6 @@ const Timeline = ({
             .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
 
         // 将y轴添加到面板
-        // const formatFn = (item:any) => {
-        //   const node =  nodes.filter(n => n.name === item);
-        //   return node[0].name
-        // }
         const gy = svg.append('g')
                       .attr('class', 'yAxis')
                       .attr('transform', `translate(${padLeft}, 0)`)
@@ -200,7 +202,7 @@ const Timeline = ({
         svg.append('g')
           .attr('clip-path', 'url(#clipView)')
           .attr('width', realWidth - padLeft - padRight)
-          .call(drawNodes, nodes, x, y, nodeStyle);
+          .call(drawNodes, nodes, x, y, nodeStyle, onSelectedNodesChange);
         
         /* 绘制连线 */
         svg.call(DrawLink, nodes, links, x, y, arrowColor, nodeStyle);

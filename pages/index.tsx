@@ -59,6 +59,11 @@ const App = () => {
       onBrushChange={ (value) => {console.log(value)}}
       // timeLabelFormat={ (date) => date.toLocaleDateString()}
       onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
+      onSelectedNodesChange={
+        (current, selectedData) => {
+          console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
+        }
+      }
     />
   )
 }
