@@ -4,7 +4,7 @@ import DrawLink from "./link";
 import drawNodes from "./nodes";
 import getZoom from "./zoom";
 import { xAxis, xRange } from "./xAxis";
-import { setEvent, setYAxisStyle, yAxis, yRange } from "./yAxis";
+import { setEvent, setSelect, setYAxisStyle, yAxis, yRange } from "./yAxis";
 import getBrush from "./brush";
 import { DrawTooltip } from "./tooltip";
 import BrushImg from '../assets/usebrush.png';
@@ -52,6 +52,7 @@ export interface ITimelineProps{
   nodes: INodeItem[];
   links: ILinkItem[];
   useBrush?: boolean;
+  selectedItem?: string[];
   options?: IOptions;
   tooltip?: {
     show?: boolean;
@@ -59,7 +60,7 @@ export interface ITimelineProps{
   };
   timeLabelFormat?: (date: Date) => string;
   onBrushChange?: (value: INodeItem[]) => void;
-  onSelect?:<T>(id: T, show: boolean, selectedData: T[]) => void;
+  onSelect?:<T>(selectedData: T[], current: T, show: boolean) => void;
   onSelectedNodesChange?: <T>(current: T | null, selectedNodes: T[]) => void;
 }
 
@@ -70,6 +71,7 @@ const Timeline = ({
   nodes = [],
   links = [],
   useBrush = true,
+  selectedItem = [],
   options = {},
   tooltip = {},
   onBrushChange,
@@ -191,13 +193,13 @@ const Timeline = ({
             .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
 
         // 将y轴添加到面板
-        const gy = svg.append('g')
-                      .attr('class', 'yAxis')
-                      .attr('transform', `translate(${padLeft}, 0)`)
-                      .call(yAxis, y)
-                      .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
-                      .call(setEvent, onSelect);
-
+        svg.append('g')
+          .attr('class', 'yAxis')
+          .attr('transform', `translate(${padLeft}, 0)`)
+          .call(yAxis, y)
+          .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
+          .call(setEvent, onSelect)
+          .call(setSelect, selectedItem);
         /* 绘制数据点 */
         svg.append('g')
           .attr('clip-path', 'url(#clipView)')
