@@ -48,8 +48,10 @@ export const setYAxisStyle = (
       tick.append('circle')
         .attr('r', 6)
         .attr('fill', color);
-      // 设置文本颜色，和圆形颜色保持一致
-      tick.select('text').attr('fill', color);
+      // 设置文本颜色，和圆形颜色保持一致，设置hover
+      tick.select('text')
+        .attr('fill', color)
+        .attr('style', 'cursor: pointer');
       // 设置横线颜色
       tick.select('line')
         .attr('x1', supLineWidth)
@@ -66,37 +68,55 @@ export const setYAxisStyle = (
   }
 }
 
+// 抽取出绘画rect的部分
+const drawRect = (g: d3.Selection<d3.BaseType, unknown, null, undefined>) => {
+  const left = Number(g.select('line').attr('x2'));
+  const right = Number(g.select('line').attr('x1'));
+  const r = Number(g.select('circle').attr('r'));
+  // 因为在某些情况下（比如初始化选中的时候）g标签添加rect并没有效果，具体原因未知，所以使用path模拟rect
+  g.insert('path', ':first-child')
+        .attr('d', `M0,0 h${-r} v${-r - 5} h${right - left + 3} v${(r + 5) * 2} h${left - right - 3} v${-r - 5} Z`)
+        .attr('fill', '#DDD')
+        .attr('fill-stroke', .2);
+}
+
 // 设置y轴的点击事件
-export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: <T>(id: T, show: boolean, selectedData: T[]) => void) => {
+export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, onSelect?: <T>(selectedData: T[], id: T, show: boolean) => void) => {
   let selectedData = [];
   g.selectAll('.tick')
     .each(function (d) {
       const tick = d3.select(this);
-      const left = Number(tick.select('line').attr('x2'));
-      const right = Number(tick.select('line').attr('x1'));
-      const r = Number(tick.select('circle').attr('r'));
+      const p = tick.select('path');
+      if(!p.empty()) {
+        selectedData.push(d);
+      }
       tick.select('text')
-        .on('click' ,function() {
-          const rect = tick.select('rect');
-          if(rect.empty()) {
-            tick.insert('rect', ':first-child')
-              .attr('x', left - 3)
-              .attr('y', - r - 5)
-              .attr('width', right - left + 3)
-              .attr('height', r * 2 + 10)
-              .attr('fill', '#DDD')
-              .attr('fill-stroke', .2);
+        .on('click' ,function(e) {
+          e.stopPropagation();
+          const path = tick.select('path');
+          if(path.empty()) {
+            drawRect(tick);
             selectedData.push(d);  
             if(onSelect) {
-              onSelect(d, true, selectedData);
+              onSelect(selectedData, d, true);
             }
           }else {
-            rect.remove();
+            path.remove();
             selectedData = selectedData.filter(item => item !== d);
             if(onSelect) {
-              onSelect(d, false, selectedData);
+              onSelect(selectedData, d, false);
             }
           }
         })
+    })
+}
+
+// 设置y轴项选中的情况
+export const setSelect = (g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, selectedItem: string[]) => {
+  g.selectAll('.tick')
+    .filter(function (d: string, i) { return selectedItem.includes(d)})
+    .each(function () {
+      const tick = d3.select(this);
+      drawRect(tick);
     })
 }

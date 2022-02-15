@@ -32,9 +32,15 @@ npm install graph-timeline
           nodes={nodes}
           links={links}
           usBrush
+          selectedItem={['节点1']}
           onBrushChange={ (value) => {console.log(value)}}
           // timeLabelFormat={ (date) => date.toLocaleDateString()}
-          onSelect={(d, show, selectedData) => {console.log(d, show, selectedData)}}
+          onSelect={(selectedData, show, d) => {console.log(selectedData, d, show)}}
+          onSelectedNodesChange={
+            (current, selectedData) => {
+              console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
+            }
+          }
           // options={{
           //   background: '#234dad',
           //   xAxis: {
@@ -70,12 +76,16 @@ npm install graph-timeline
 > 配置节点之间的连接关系，其中`source`和`target`均对应nodes中的节点id。
 * useBrush?: boolean
 > 配置是否启用框选功能，默认为`true`。如果启用则会展示框选按钮
+* selectedItem?: string[]
+> 配置初始选中的节点，如果有值，则y轴对应的节点会选中
 * timeLabelFormat?: (date: Date) => string
 > 对x轴的时间展示文本进行格式化，接收一个Date作为参数，返回值为字符串
 * onBrushChange?: (value: []) => void;
 > 框选的回调函数，参数是被框选的节点的信息。
 * onSelect?: <T>(d: T, show: boolean, selectedData: T[]) => void;
 > 点击y轴选中某一行的回调函数。
+* onSelectedNodesChange?: <T>(d: T, show: boolean, selectedData: T[]) => void;
+> 节点选中变化事件，按住alt键可以多选
 * options?: {}
 > 图标样式设置
 ```
@@ -127,10 +137,15 @@ npm install graph-timeline
 * 增加了参数tooltip，用于控制tooltip展示以及自定义内容
 * 修改了生成的元素的id，使其更句有标识性，避免与其他库冲突
 
-### v1.0.8
+### v1.0.8 & v1.0.9
 * 解决了箭头反向时的展示异常[issue#9](https://github.com/hyqaimx/graph-timeline/issues/9)
 * 箭头展示大小优化，根据节点大小动态变化
 * 缩放时箭头展示，x轴样式调整
+
+### v1.1.0
+* 增加了节点的选中事件，按住alt键可以多选
+* 增加了初始化是默认选中的节点，注意，这个是针对y轴的选项，也就是对应到实际分析图中的节点
+* 从这个版本开始要逐渐考虑实际使用中涉及的交互，我认为这是一个较大的版本变动，所以加到1.1.0版本
 
 ## 题外话
 这个组件是从部门内部的需求衍生出来的一个组件，起初只是为了满足业务需求。

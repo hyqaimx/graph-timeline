@@ -9,7 +9,8 @@ const drawNodes = (
   nodeStyle?: {
     color?: string;
     size?: number;
-  }
+  },
+  onSelectedNodesChange?: <T>(current: T, selectedNodes: T[]) => void
 ) => {
   let color = 'red';
   let size = 5;
@@ -21,7 +22,8 @@ const drawNodes = (
       size = nodeStyle.size;
     }
   }
-  return g
+
+  const nodesSelection = g
     .attr("class", "nodes")
     .selectAll('circle')
     .data(data)
@@ -30,6 +32,45 @@ const drawNodes = (
     .attr('cy', d => y(String(d.name)) || null)
     .attr('r', size)
     .attr('fill', color);
+  
+  // 增加点击事件
+  function clickHandle(event, data) {
+    const { isTrusted, altKey } = event;
+    event.stopPropagation();
+    
+    // 用户点击触发
+    if(isTrusted) {
+      const nodes = d3.select('.nodes').selectAll('circle');
+      const currentCircle = d3.select(this);
+      // 如果是按下alt键代表多选
+      if(!altKey) {
+        nodes.each(function() {
+          d3.select(this)
+            .attr('stroke', '')
+            .attr('stroke-width', 0)
+            .classed('selected', false);
+        })
+      }
+      currentCircle
+        .attr('stroke', 'blue')
+        .attr('stroke-width',3)
+        .classed('selected', false);
+
+      if(onSelectedNodesChange) {
+        const selectedNodes = [];
+        nodes.each(function (p, j){
+          const current = d3.select(this);
+          if(current.attr('stroke') && current.attr('stroke-width')) {
+            selectedNodes.push(p);
+          }
+        })
+        onSelectedNodesChange(data, selectedNodes);
+      }
+    }
+  }
+  nodesSelection.on('click', clickHandle)
+
+  return nodesSelection;
 }
 
 export default drawNodes;
