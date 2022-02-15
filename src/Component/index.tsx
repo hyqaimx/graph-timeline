@@ -198,8 +198,8 @@ const Timeline = ({
           .attr('transform', `translate(${padLeft}, 0)`)
           .call(yAxis, y)
           .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
+          .call(setSelect, selectedItem)
           .call(setEvent, onSelect)
-          .call(setSelect, selectedItem);
         /* 绘制数据点 */
         svg.append('g')
           .attr('clip-path', 'url(#clipView)')

@@ -48,8 +48,10 @@ export const setYAxisStyle = (
       tick.append('circle')
         .attr('r', 6)
         .attr('fill', color);
-      // 设置文本颜色，和圆形颜色保持一致
-      tick.select('text').attr('fill', color);
+      // 设置文本颜色，和圆形颜色保持一致，设置hover
+      tick.select('text')
+        .attr('fill', color)
+        .attr('style', 'cursor: pointer');
       // 设置横线颜色
       tick.select('line')
         .attr('x1', supLineWidth)
@@ -84,6 +86,10 @@ export const setEvent = (g:d3.Selection<SVGGElement, undefined, HTMLElement, und
   g.selectAll('.tick')
     .each(function (d) {
       const tick = d3.select(this);
+      const p = tick.select('path');
+      if(!p.empty()) {
+        selectedData.push(d);
+      }
       tick.select('text')
         .on('click' ,function(e) {
           e.stopPropagation();
