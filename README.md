@@ -155,5 +155,12 @@ npm install graph-timeline
 在和产品大大协商之后，我们决定发起一个赞助，如果赞助超`2000`的话我们就一起继续推进这个项目。也希望各位可以多多支持。
 <div align="center"><img src="./src/assets/zanshangma.jpg" width="30%">
   
-## 组件功能说明文档
-* 组件定位
+# 组件功能说明文档
+## 组件定位
+本组件主要应用场景是对带有时间属性的动态图（Dynamic network）进行可视分析。可以独立使用，也可配合图可视化或地理位置图进行交互分析。
+动态图定义，我们定义一个图：G=(V,E),V={(v,ts,te)},
+  ![image](https://user-images.githubusercontent.com/76591446/159158677-5901ceab-8403-4007-8a92-66519f393dee.png)
+
+  
+  
+  
