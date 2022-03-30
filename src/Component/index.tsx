@@ -39,10 +39,15 @@ export interface IOptions {
   // };
   node?: {
     color?: string;
-    size?: number
+    size?: number;
+    selectedColor?: string;
   };
+  nodeSelectedColor?: string;
   brushNodeColor?: string;
-  arrowColor?: string;
+  link?: {
+    color?: string;
+    selectedColor?: string;
+  }
 }
 
 export interface ITimelineProps{
@@ -62,6 +67,7 @@ export interface ITimelineProps{
   onBrushChange?: (value: INodeItem[]) => void;
   onSelect?:<T>(selectedData: T[], current: T, show: boolean) => void;
   onSelectedNodesChange?: <T>(current: T | null, selectedNodes: T[]) => void;
+  onSelectedLinksChange?: <T>(current: T | null, selectedNodes: T[]) => void;
 }
 
 const Timeline = ({
@@ -77,11 +83,12 @@ const Timeline = ({
   onBrushChange,
   timeLabelFormat,
   onSelect,
-  onSelectedNodesChange
+  onSelectedNodesChange,
+  onSelectedLinksChange
 }:ITimelineProps) => {
   // const
   const [padTop, padRight, padBottom, padLeft] = padding;
-  const {xAxis: xAxisStyle, node: nodeStyle, arrowColor, background, brushNodeColor, colors} = options;
+  const {xAxis: xAxisStyle, node: nodeStyle,link, background, brushNodeColor, colors} = options;
   const { show: showTooltip, format: tooltipFormat } = tooltip;
 
   const [realWidth, setWidth] = useState<number>(1000);
@@ -133,7 +140,7 @@ const Timeline = ({
         .attr('id', 'graph-timeline-svg')
         .style("background-color", background || '#F5F5F5')
         .style("display", 'block')
-        .call(bindSvgEvent, onSelectedNodesChange);
+        .call(bindSvgEvent, link, onSelectedNodesChange, onSelectedLinksChange);
 
       outerRef.current.append(xAxisSvg.node() || "<div>xAxis build fail</div>");
       outerRef.current.append(main.node() || "<div>body build fail</div>");
@@ -200,14 +207,15 @@ const Timeline = ({
           .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
           .call(setSelect, selectedItem)
           .call(setEvent, onSelect)
+
+        /* 绘制连线 */
+        svg.call(DrawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
+
         /* 绘制数据点 */
         svg.append('g')
           .attr('clip-path', 'url(#clipView)')
           .attr('width', realWidth - padLeft - padRight)
           .call(drawNodes, nodes, x, y, nodeStyle, onSelectedNodesChange);
-        
-        /* 绘制连线 */
-        svg.call(DrawLink, nodes, links, x, y, arrowColor, nodeStyle);
 
         /* 增加tooltip */
         svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
@@ -243,7 +251,7 @@ const Timeline = ({
     if(!isBrush) {
       // 还原原有的节点样式
       svg.selectAll('.nodes circle')
-         .attr('fill', nodeStyle?.color || 'red');
+         .attr('fill', nodeStyle?.color || '#F56565');
       svg.call(zoom)
         .transition()
         .duration(750);

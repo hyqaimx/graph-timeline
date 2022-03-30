@@ -65,6 +65,11 @@ const App = () => {
           console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
         }
       }
+      onSelectedLinksChange={
+        (current, selectedData) => {
+          console.log(`当前选中边：${JSON.stringify(current)}, 已选中边：${JSON.stringify(selectedData)}`)
+        }
+      }
     />
   )
 }
