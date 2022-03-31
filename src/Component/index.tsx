@@ -42,7 +42,6 @@ export interface IOptions {
     size?: number;
     selectedColor?: string;
   };
-  nodeSelectedColor?: string;
   brushNodeColor?: string;
   link?: {
     color?: string;

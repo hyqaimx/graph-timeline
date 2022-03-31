@@ -87,22 +87,28 @@ npm install graph-timeline
 > 点击y轴选中某一行的回调函数。
 * onSelectedNodesChange?: <T>(d: T, show: boolean, selectedData: T[]) => void;
 > 节点选中变化事件，按住alt键可以多选
+* onSelectedLinksChange?: <T>(current: T | null, selectedNodes: T[]) => void;
+> 节点选中变化事件，按住alt键可以多选
 * options?: {}
 > 图标样式设置
 ```
   options:{
-    background: '#234dad', // 整体的背景颜色
-    colors: string[],      // 根据该色板循环设置y轴每个item的颜色      
+    background: '#234dad',        // 整体的背景颜色
+    colors: string[],             // 根据该色板循环设置y轴每个item的颜色      
     xAxis: {
-      color: 'red',        // x轴的文本颜色
-      tickColor: 'red',    // x轴的分割线颜色
-      axisColor: 'red'     // x轴的轴线颜色
+      color: 'red',               // x轴的文本颜色
+      tickColor: 'red',           // x轴的分割线颜色
+      axisColor: 'red'            // x轴的轴线颜色
     },
     node: {                
-      color: 'blue',       // 节点颜色
-      size: 10             // 节点的大小
+      color: 'blue',              // 节点颜色
+      size: 10,                   // 节点的大小
+      selectedColor: '#148EF4'    // 选中节点的颜色
     },
-    arrowColor: 'blue'     // 连线的颜色
+    link: {
+      color: '#148EF4',           // 边的颜色
+      selectedColor: '#148EF4'    // 选中边的颜色
+    }
   }
 ```
 ## 变更日志
