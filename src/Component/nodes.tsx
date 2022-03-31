@@ -9,20 +9,25 @@ const drawNodes = (
   nodeStyle?: {
     color?: string;
     size?: number;
+    selectedColor?: string;
   },
   onSelectedNodesChange?: <T>(current: T, selectedNodes: T[]) => void
 ) => {
-  let color = 'red';
+  let color = '#F56565';
+  let selectedColor = '#148EF4';
   let size = 5;
   if(nodeStyle) {
     if(nodeStyle.color) {
       color = nodeStyle.color;
     }
+    if(nodeStyle.selectedColor) {
+      selectedColor = nodeStyle.selectedColor;
+    }
     if(nodeStyle.size) {
       size = nodeStyle.size;
     }
   }
-
+  
   const nodesSelection = g
     .attr("class", "nodes")
     .selectAll('circle')
@@ -52,9 +57,9 @@ const drawNodes = (
         })
       }
       currentCircle
-        .attr('stroke', 'blue')
+        .attr('stroke', selectedColor)
         .attr('stroke-width',3)
-        .classed('selected', false);
+        .classed('selected', true);
 
       if(onSelectedNodesChange) {
         const selectedNodes = [];
