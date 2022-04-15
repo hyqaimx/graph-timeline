@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "jsx": "react",
+    "esModuleInterop": true,
+    "declaration": true,
+    "removeComments": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "pages/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+  ]
+}
