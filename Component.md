@@ -40,6 +40,8 @@
   图片引用自cambridge-intelligence
 
 ## 组件主要功能
+组件元素定义
+![image](https://user-images.githubusercontent.com/76591446/178099282-98f5dc78-d05b-4ddd-832e-754f284ce23b.png)
 在“关联时间面板”中：
 
   @时间轴从左往右，在底部标明不同的时刻；
