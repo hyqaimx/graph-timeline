@@ -19,6 +19,14 @@ const App = () => {
     {source: '2', target: '4'},
     {source: '10', target: '5'},
   ]);
+
+const [selectedItem, setSelectedItem] = useState(['节点1']);
+
+useEffect(() => {
+  setTimeout(() => {
+    setSelectedItem(['节点1', '节点2'])
+  }, 2000)
+}, [])
   // useEffect(() => {
   //   const date = new Date();
   //   const getStrDate = (date) => {
@@ -56,7 +64,7 @@ const App = () => {
           size: 10
         }
       }}
-      selectedItem={['节点1']}
+      selectedItem={selectedItem}
       onBrushChange={ (value) => {console.log(value)}}
       // timeLabelFormat={ (date) => date.toLocaleDateString()}
       onSelect={(selectedData, show, d) => {console.log(selectedData, d, show)}}
