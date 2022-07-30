@@ -220,8 +220,7 @@ const Timeline = ({
         svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
       }
     }
-
-  }, [realWidth, JSON.stringify(nodes), JSON.stringify(links), height, JSON.stringify(padding)])
+  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')

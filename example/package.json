@@ -26,6 +26,8 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "@antv/g6": "^4.6.4"
+    "@antv/g6": "^4.6.4",
+    "css-loader": "^6.7.1",
+    "style-loader": "^3.3.1"
   }
 }

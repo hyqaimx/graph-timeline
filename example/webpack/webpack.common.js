@@ -28,6 +28,11 @@ module.exports = {
         exclude: path.resolve(__dirname, '../node_modules')
       },
       {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+        exclude: path.resolve(__dirname, '../node_modules')
+      },
+      {
         test: /\.(png|svg|jpg|jpeg|gif)?$/,
         use: {
           loader: "url-loader",
