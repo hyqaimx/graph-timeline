@@ -7,6 +7,9 @@
 npm install graph-timeline
 ````
 ## 使用示例
+example展示了和antv G6的联动使用效果，
+你可以进入example目录然后运行项目查看效果
+
 ```typescript
   import NpmTimeLine from 'graph-timeline';
   function App() {
@@ -158,6 +161,10 @@ npm install graph-timeline
 * 增加了边的选中事件，按住alt键可以多选
 * 修改了原有的节点及边的在选中和未选中的样式
 * 优化了在点击画布时一直触发边和节点的选中变化事件
+
+### v1.1.2
+* 增加与antv G6使用的案例
+* 修改了动态修改选择点时无法渲染视图的问题
 
 ## 题外话
 这个组件是从部门内部的需求衍生出来的一个组件，起初只是为了满足业务需求。
