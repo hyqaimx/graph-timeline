@@ -98,18 +98,18 @@ const Timeline = ({
     // 设置容器的宽度以及自适应
     const listener = () => {
       if(outerRef.current) {
-        setWidth(outerRef.current.clientWidth - 30);
+        setWidth(outerRef.current.clientWidth);
       }
     }
 
     if(outerRef.current) {
       outerRef.current.innerHTML = "";
       if(!width || width === '100%') {
-        setWidth(outerRef.current.clientWidth - 30);
+        setWidth(outerRef.current.clientWidth);
         window.addEventListener('resize', listener);
       }else {
         if(typeof width === 'number') {
-          setWidth(width - 30);
+          setWidth(width);
         }else {
           throw Error("宽度只能设置为数字或'100%'")
         }

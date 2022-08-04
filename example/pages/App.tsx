@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import G6 from '@antv/g6';
 import { data, timelineNodes } from './data';
-import GraphTimeLine from '../../dist';
-import './index.css'
+import GraphTimeLine from 'graph-timeline';
 
 let graph = null;
 const App = () => { 
