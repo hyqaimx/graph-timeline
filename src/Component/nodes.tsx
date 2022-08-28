@@ -51,18 +51,12 @@ const drawNodes = (
   
       if (d.color) {
         color = d.color;
-      } else if (Array.isArray(themes) && themes.length > 0) {
-        color = themes[i % themes.length];
-      } else if (typeof themes === 'object') {
-        const val = themes[group] || '#4795eb';
-  
-        if (typeof val === 'string') {
-          color = val;
-        } else {
-          throw new Error('when colors is a object. The attribute must a color string');
-        }
       } else {
-        throw new Error('colors need a string array or object');
+        const currentGroup = d3.selectAll('.tick circle').filter(function(d: string) {
+          return d === group;
+        });
+
+        color = currentGroup.attr('fill');
       }
   
       const node = d3.select(this);
