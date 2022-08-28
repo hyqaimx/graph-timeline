@@ -48,7 +48,7 @@ export const transNodes = (nodes) => {
 }
 
 export const timelineNodes = [
-  { id: '1', name: 'node0', date: '2022-07-19' },
+  { id: '1', name: 'node0', date: '2022-07-19', color: 'red' },
   { id: '2', name: 'node0', date: '2022-05-29' },
   { id: '3', name: 'node1', date: '2022-04-12' },
   { id: '4', name: 'node1', date: '2022-03-05' },

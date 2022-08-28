@@ -86,6 +86,15 @@ const App = () => {
           nodes={timelineNodes}
           selectedItem={selectedNodes}
           links={[]}
+          options={{
+            colors: {
+              '节点1': '#ffd666',
+              '节点3': '#a0d911'
+            },
+            node: {
+              size: 10
+            }
+          }}
           onSelect={handleNodeChange}
         />
       </div>

@@ -4,7 +4,7 @@ import GraphTimeLine from '../src';
 
 const App = () => {
   const [nodes, setNodes] = useState([
-    {id: '1',name: '节点1', date: '2021-11-25 10:10:10'},
+    {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'red'},
     {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
     {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
     {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
@@ -22,11 +22,11 @@ const App = () => {
 
 const [selectedItem, setSelectedItem] = useState(['节点1']);
 
-useEffect(() => {
-  setTimeout(() => {
-    setSelectedItem(['节点1', '节点2'])
-  }, 2000)
-}, [])
+// useEffect(() => {
+//   setTimeout(() => {
+//     setSelectedItem(['节点1', '节点2'])
+//   }, 2000)
+// }, [])
   // useEffect(() => {
   //   const date = new Date();
   //   const getStrDate = (date) => {
@@ -60,6 +60,10 @@ useEffect(() => {
       links={links}
       // useBrush={false}
       options={{
+        colors: {
+          '节点1': '#ffd666',
+          '节点3': '#a0d911'
+        },
         node: {
           size: 10
         }
