@@ -88,8 +88,8 @@ const App = () => {
           links={[]}
           options={{
             colors: {
-              '节点1': '#ffd666',
-              '节点3': '#a0d911'
+              'node1': '#ffd666',
+              'node5': '#a0d911'
             },
             node: {
               size: 10
