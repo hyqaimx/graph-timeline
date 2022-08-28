@@ -28,6 +28,7 @@
   "dependencies": {
     "@antv/g6": "^4.6.4",
     "css-loader": "^6.7.1",
+    "graph-timeline": "^1.1.4",
     "style-loader": "^3.3.1"
   }
 }

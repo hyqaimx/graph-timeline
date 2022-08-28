@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { INodeItem } from '.';
+import { INodeItem, TColors } from '.';
 
 const drawNodes = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
@@ -11,6 +11,7 @@ const drawNodes = (
     size?: number;
     selectedColor?: string;
   },
+  colors?: TColors,
   onSelectedNodesChange?: <T>(current: T, selectedNodes: T[]) => void
 ) => {
   let color = '#F56565';
@@ -27,6 +28,15 @@ const drawNodes = (
       size = nodeStyle.size;
     }
   }
+
+  // when has colors set or data has color attribute set node's color
+  let themes: TColors = colors;
+
+  if (!colors || colors.length === 0) {
+    themes = ['#4795eb', '#419388', '#d83965'];
+  } else {
+    themes = colors;
+  }
   
   const nodesSelection = g
     .attr("class", "nodes")
@@ -36,7 +46,23 @@ const drawNodes = (
     .attr('cx', d => x(new Date(d.date)))
     .attr('cy', d => y(String(d.name)) || null)
     .attr('r', size)
-    .attr('fill', color);
+    .each(function(d: INodeItem, i, nodes) {
+      const group = d.name;
+  
+      if (d.color) {
+        color = d.color;
+      } else {
+        const currentGroup = d3.selectAll('.tick circle').filter(function(d: string) {
+          return d === group;
+        });
+
+        color = currentGroup.attr('fill');
+      }
+  
+      const node = d3.select(this);
+  
+      node.attr('fill', color);
+    });
   
   // 增加点击事件
   function clickHandle(event, data) {

@@ -14,7 +14,7 @@ example展示了和antv G6的联动使用效果，
   import NpmTimeLine from 'graph-timeline';
   function App() {
     const nodes = [
-      {id: '1',name: '节点1', date: '2021-11-25 10:10:10'},
+      {id: '1',name: '节点1', date: '2021-11-25 10:10:10', , color: 'red'},
       {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
       {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
       {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
@@ -45,6 +45,15 @@ example展示了和antv G6的联动使用效果，
               console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
             }
           }
+          options={{
+            colors: {
+              '节点1': '#ffd666',
+              '节点3': '#a0d911'
+            },
+            node: {
+              size: 10
+            }
+          }}
           // options={{
           //   background: '#234dad',
           //   xAxis: {
@@ -75,7 +84,7 @@ example展示了和antv G6的联动使用效果，
 * padding?: [number, number, number, number]
 > 内边距，值为长度为4的数据，分别对应上、右、下、左。默认值[20, 20, 20, 50]
 * nodes: []
-> 配置节点对应的数据，数组中的对象`id`、`name`、`date`属性是必须的
+> 配置节点对应的数据，数组中的对象`id`、`name`、`date`属性是必须的, `color`属性可以调整事件节点颜色
 * links: []
 > 配置节点之间的连接关系，其中`source`和`target`均对应nodes中的节点id。
 * useBrush?: boolean
@@ -97,7 +106,7 @@ example展示了和antv G6的联动使用效果，
 ```
   options:{
     background: '#234dad',        // 整体的背景颜色
-    colors: string[],             // 根据该色板循环设置y轴每个item的颜色      
+    colors: string[] | Record<string, string>,             // 根据该色板循环设置y轴每个item的颜色，如果是对象则根据nodes数据中的name属性进行获取
     xAxis: {
       color: 'red',               // x轴的文本颜色
       tickColor: 'red',           // x轴的分割线颜色
@@ -183,6 +192,10 @@ example展示了和antv G6的联动使用效果，
 ### v1.1.2
 * 增加与antv G6使用的案例
 * 修改了动态修改选择点时无法渲染视图的问题
+
+### v1.1.3
+* 修改了example中的使用案例
+* 增加了自定义设置节点颜色的功能，事件节点与节点颜色保持一致，也可通过nodes进行单独定制
 
 ## 题外话
 这个组件是从部门内部的需求衍生出来的一个组件，起初只是为了满足业务需求。

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import G6 from '@antv/g6';
 import { data, timelineNodes } from './data';
-import GraphTimeLine from '../../dist';
-import './index.css'
+import GraphTimeLine from 'graph-timeline';
 
 let graph = null;
 const App = () => { 
@@ -87,6 +86,15 @@ const App = () => {
           nodes={timelineNodes}
           selectedItem={selectedNodes}
           links={[]}
+          options={{
+            colors: {
+              'node1': '#ffd666',
+              'node5': '#a0d911'
+            },
+            node: {
+              size: 10
+            }
+          }}
           onSelect={handleNodeChange}
         />
       </div>

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { INodeItem } from ".";
+import { INodeItem, TColors } from ".";
 
 // 构建数据映射
 export const yRange = (data:INodeItem[], padding: number[], height: number) => {
@@ -24,27 +24,43 @@ export const setYAxisStyle = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
   supLineWidth: number,
   datas: INodeItem[],
-  colors?: string[],
+  colors?: TColors,
   yAxisStyle?:{
     color?: string;
     axisColor?: string;
     tickColor?: string;
   }
 ) => {
-  const themes= colors || ['#419388', '#4795eb', '#d83965'];
+  let themes: TColors = colors;
+
+  if (!colors || colors.length === 0) {
+    themes = ['#4795eb', '#419388', '#d83965'];
+  } else {
+    themes = colors;
+  }
+
   // 去除y轴的竖线
   g.select('.domain').remove();
   g.selectAll('.tick')
-    .each(function (d, i, nodes) {
-      const currentData = datas.filter(item => item.id === d)[0];
+    .each(function (d: string, i, nodes) {
+      // set yAxis's nodes color
       let color;
-      if(currentData && currentData.color) {
-        color = currentData.color;
-      }else {
-        color = themes[i % 3];
+
+      if (Array.isArray(themes) && themes.length > 0) {
+        color = themes[i % themes.length];
+      } else if (typeof themes === 'object')  {
+        const val = themes[d] || '#4795eb';
+
+        if (typeof val === 'string') {
+          color = val;
+        } else {
+          throw new Error('when colors is a object. The attribute must a color string');
+        }
+      } else {
+        throw new Error('colors need a string array or object');
       }
       const tick = d3.select(this);
-      // 在各项开头增加圆形节点
+      // add circle node in yAxis
       tick.append('circle')
         .attr('r', 6)
         .attr('fill', color);

@@ -24,9 +24,11 @@ export interface ILinkItem {
   target: string;
 }
 
+export type TColors = string[] | Record<string, string>
+
 export interface IOptions {
   background?: string;
-  colors?: string[];
+  colors?: TColors;
   xAxis?: {
     color?: string;
     axisColor?: string;
@@ -98,18 +100,18 @@ const Timeline = ({
     // 设置容器的宽度以及自适应
     const listener = () => {
       if(outerRef.current) {
-        setWidth(outerRef.current.clientWidth - 30);
+        setWidth(outerRef.current.clientWidth);
       }
     }
 
     if(outerRef.current) {
       outerRef.current.innerHTML = "";
       if(!width || width === '100%') {
-        setWidth(outerRef.current.clientWidth - 30);
+        setWidth(outerRef.current.clientWidth);
         window.addEventListener('resize', listener);
       }else {
         if(typeof width === 'number') {
-          setWidth(width - 30);
+          setWidth(width);
         }else {
           throw Error("宽度只能设置为数字或'100%'")
         }
@@ -214,13 +216,13 @@ const Timeline = ({
         svg.append('g')
           .attr('clip-path', 'url(#clipView)')
           .attr('width', realWidth - padLeft - padRight)
-          .call(drawNodes, nodes, x, y, nodeStyle, onSelectedNodesChange);
+          .call(drawNodes, nodes, x, y, nodeStyle, colors, onSelectedNodesChange);
 
         /* 增加tooltip */
         svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
       }
     }
-  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
+  }, [realWidth, height, nodes, links, padding, selectedItem])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')
@@ -248,8 +250,34 @@ const Timeline = ({
     /* 添加框选或者缩放 */
     if(!isBrush) {
       // 还原原有的节点样式
+      let color = nodeStyle?.color || '#F56565';
+       // when has colors set or data has color attribute set node's color
+      let themes: TColors = colors;
+
+      if (!colors || colors.length === 0) {
+        themes = ['#4795eb', '#419388', '#d83965'];
+      } else {
+        themes = colors;
+      }
+
       svg.selectAll('.nodes circle')
-         .attr('fill', nodeStyle?.color || '#F56565');
+        .each(function (d: INodeItem) {
+          const group = d.name;
+  
+          if (d.color) {
+            color = d.color;
+          } else {
+            const currentGroup = d3.selectAll('.tick circle').filter(function(d: string) {
+              return d === group;
+            });
+
+            color = currentGroup.attr('fill');
+          }
+        
+          const node = d3.select(this);
+        
+          node.attr('fill', color);
+        })
       svg.call(zoom)
         .transition()
         .duration(750);
