@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { INodeItem } from '.';
-import { xAxis } from './xAxis';
+import { INodeItem } from '@/typings/custom-data';
+import { xAxis } from '@/components/xAxis';
 
 const getZoom = (
   data: INodeItem[],

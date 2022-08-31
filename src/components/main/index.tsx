@@ -1,55 +1,17 @@
 import * as d3 from "d3";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import DrawLink from "./link";
-import drawNodes from "./nodes";
-import getZoom from "./zoom";
-import { xAxis, xRange } from "./xAxis";
-import { setEvent, setSelect, setYAxisStyle, yAxis, yRange } from "./yAxis";
-import getBrush from "./brush";
-import { DrawTooltip } from "./tooltip";
-import BrushImg from '../assets/usebrush.png';
-import DisableBrush from '../assets/unusebrush.png';
-import './style/index.less';
-import { bindSvgEvent, unbindSvgEvent } from "./event";
+import DrawLink from "@/components/link";
+import drawNodes from "@/components/nodes";
+import getZoom from "@/components/zoom";
+import { xAxis, xRange } from "@/components/xAxis";
+import { setEvent, setSelect, setYAxisStyle, yAxis, yRange } from "@/components/yAxis";
+import getBrush from "@/components/brush";
+import { DrawTooltip } from "@/components/tooltip";
+import { bindSvgEvent, unbindSvgEvent } from "@/components/event";
+import BrushImg from '@/assets/usebrush.png';
+import DisableBrush from '@/assets/unusebrush.png';
+import { INodeItem, ILinkItem, IOptions, TColors } from "@/typings/custom-data";
 
-
-export interface INodeItem {
-  id: string;
-  name: string;
-  date: string;
-  [prop: string]: any;
-} 
-export interface ILinkItem {
-  source: string;
-  target: string;
-}
-
-export type TColors = string[] | Record<string, string>
-
-export interface IOptions {
-  background?: string;
-  colors?: TColors;
-  xAxis?: {
-    color?: string;
-    axisColor?: string;
-    tickColor?: string;
-  };
-  // yAxis?: {
-  //   color?: string;
-  //   axisColor?: string;
-  //   tickColor?: string;
-  // };
-  node?: {
-    color?: string;
-    size?: number;
-    selectedColor?: string;
-  };
-  brushNodeColor?: string;
-  link?: {
-    color?: string;
-    selectedColor?: string;
-  }
-}
 
 export interface ITimelineProps{
   width?: number | "100%";
@@ -261,7 +223,7 @@ const Timeline = ({
       }
 
       svg.selectAll('.nodes circle')
-        .each(function (d: INodeItem) {
+        .each(function (d:  INodeItem) {
           const group = d.name;
   
           if (d.color) {

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { INodeItem, TColors } from ".";
+import { INodeItem, TColors } from "@/typings/custom-data";
 
 // 构建数据映射
 export const yRange = (data:INodeItem[], padding: number[], height: number) => {

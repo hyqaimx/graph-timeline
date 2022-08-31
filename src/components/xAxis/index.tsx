@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { INodeItem } from ".";
+import { INodeItem } from "@/typings/custom-data";
 
 // 构建数据映射
 export const xRange = (data:INodeItem[], padding: number[], width: number) => {

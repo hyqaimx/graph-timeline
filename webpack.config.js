@@ -1,13 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const base = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   devtool: 'cheap-module-source-map',
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js', '.json']
+    extensions: ['', '.ts', '.tsx', '.js', '.json'],
+    plugins: [new TsConfigPathsPlugin()]
   },
   module: {
     rules: [

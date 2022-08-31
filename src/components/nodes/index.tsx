@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { INodeItem, TColors } from '.';
+import { INodeItem, TColors } from '@/typings/custom-data';
 
 const drawNodes = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,

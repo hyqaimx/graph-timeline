@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import { INodeItem } from '.';
+import { INodeItem } from '@/typings/custom-data';
+
 
 const getBrush = (
   data: INodeItem[],

@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import React, { ReactNode } from 'react';
 import ReactDOM from 'react-dom';
-import { ILinkItem, INodeItem } from ".";
+import { ILinkItem, INodeItem } from "@/typings/custom-data";
 
 export const DrawTooltip = (
   g: d3.Selection<SVGGElement, unknown, HTMLElement, any>,

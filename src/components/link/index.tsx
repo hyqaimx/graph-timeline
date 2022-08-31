@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import { ILinkItem, INodeItem } from '.';
+import { INodeItem, ILinkItem } from '@/typings/custom-data';
+
 
 const DrawLink = (
   g:d3.Selection<SVGElement, unknown, HTMLElement, undefined>,
