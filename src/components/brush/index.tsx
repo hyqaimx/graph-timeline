@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { INodeItem } from '@/typings/custom-data';
+import { DEFAULT_BRUSH_COLOR } from '@/constants';
 
 
 const getBrush = (
@@ -9,7 +10,7 @@ const getBrush = (
   brushNodeColor?: string,
   onBrushChange?: (nodes: INodeItem[]) => void
 ) => {
-  let color = brushNodeColor || 'steelblue';
+  const color = brushNodeColor || DEFAULT_BRUSH_COLOR;
   /* 时间缩放 */
   const brushed = ({selection}:any) => {
     let value = [];

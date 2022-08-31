@@ -1,3 +1,4 @@
+import { DEFAULT_LINK_COLOR } from "@/constants";
 import * as d3 from "d3";
 
 // svg元素点击事件
@@ -13,10 +14,7 @@ export const bindSvgEvent = (
   svg.on('click', function(event){
     event.stopPropagation();
     const currentSelection = d3.select(this);
-    let color = '#F56565';
-    if(linkStyle && linkStyle.color) {
-      color = linkStyle.color;
-    }
+    const color = linkStyle?.color || DEFAULT_LINK_COLOR;
 
     // 去除节点的选中状态
     const nodes = currentSelection.selectAll('.nodes .selected');

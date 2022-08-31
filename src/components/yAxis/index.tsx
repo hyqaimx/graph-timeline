@@ -1,12 +1,14 @@
 import * as d3 from "d3";
 import { INodeItem, TColors } from "@/typings/custom-data";
+import { calcHeight, getThemes } from "@/utils";
+import { DEFAULT_LINE_WIDTH, DEFAULT_THEMES, DEFAULT_VERTEX_SIZE } from "@/constants";
 
 // 构建数据映射
 export const yRange = (data:INodeItem[], padding: number[], height: number) => {
   const values = data.map(item => item.name);
   const uniqueVals = values.filter((item, index) => values.indexOf(item) === index);
 
-  const realHeight = data.length * 30 > height - 20 ? data.length * 30 : height - 20;
+  const realHeight = calcHeight(data, height - 20);
   return d3.scalePoint()
            .domain([...uniqueVals])
            .range([realHeight - padding[2] , padding[0]]);
@@ -31,13 +33,7 @@ export const setYAxisStyle = (
     tickColor?: string;
   }
 ) => {
-  let themes: TColors = colors;
-
-  if (!colors || colors.length === 0) {
-    themes = ['#4795eb', '#419388', '#d83965'];
-  } else {
-    themes = colors;
-  }
+  const themes: TColors = getThemes(colors);
 
   // 去除y轴的竖线
   g.select('.domain').remove();
@@ -49,8 +45,8 @@ export const setYAxisStyle = (
       if (Array.isArray(themes) && themes.length > 0) {
         color = themes[i % themes.length];
       } else if (typeof themes === 'object')  {
-        const val = themes[d] || '#4795eb';
-
+        const val = themes[d] || DEFAULT_THEMES[i % DEFAULT_THEMES.length];
+        
         if (typeof val === 'string') {
           color = val;
         } else {
@@ -62,7 +58,7 @@ export const setYAxisStyle = (
       const tick = d3.select(this);
       // add circle node in yAxis
       tick.append('circle')
-        .attr('r', 6)
+        .attr('r', DEFAULT_VERTEX_SIZE)
         .attr('fill', color);
       // 设置文本颜色，和圆形颜色保持一致，设置hover
       tick.select('text')
@@ -72,7 +68,7 @@ export const setYAxisStyle = (
       tick.select('line')
         .attr('x1', supLineWidth)
         .attr('stroke', color)
-        .attr('stroke-width', 2);
+        .attr('stroke-width', DEFAULT_LINE_WIDTH);
     });
 
   // 设置y轴的样式

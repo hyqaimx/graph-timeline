@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { INodeItem } from '@/typings/custom-data';
 import { xAxis } from '@/components/xAxis';
+import { DEFAULT_NODE_SIZE } from '@/constants';
 
 const getZoom = (
   data: INodeItem[],
@@ -17,7 +18,7 @@ const getZoom = (
   /* 时间缩放 */
   const zoomed = (event:any) => {
     // 获取节点大小
-    let nodeSize = nodeStyle?.size || 5;
+    const nodeSize = nodeStyle?.size || DEFAULT_NODE_SIZE;
     // 重新计算比例尺
     const rx = event.transform.rescaleX(x);
     // 重新计算点位置
