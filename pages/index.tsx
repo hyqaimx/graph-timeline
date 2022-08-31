@@ -4,7 +4,7 @@ import GraphTimeLine from '../src';
 
 const App = () => {
   const [nodes, setNodes] = useState([
-    {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'red'},
+    {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'green'},
     {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
     {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
     {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},

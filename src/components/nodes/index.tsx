@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import { INodeItem, TColors } from '.';
+import { INodeItem, TColors } from '@/typings/custom-data';
+import { DEFAULT_NODE_COLOR, DEFAULT_NODE_SELECTED_COLOR, DEFAULT_NODE_SIZE, DEFAULT_THEMES } from '@/constants';
 
 const drawNodes = (
   g:d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
@@ -14,29 +15,12 @@ const drawNodes = (
   colors?: TColors,
   onSelectedNodesChange?: <T>(current: T, selectedNodes: T[]) => void
 ) => {
-  let color = '#F56565';
-  let selectedColor = '#148EF4';
-  let size = 5;
-  if(nodeStyle) {
-    if(nodeStyle.color) {
-      color = nodeStyle.color;
-    }
-    if(nodeStyle.selectedColor) {
-      selectedColor = nodeStyle.selectedColor;
-    }
-    if(nodeStyle.size) {
-      size = nodeStyle.size;
-    }
-  }
+  let color = nodeStyle?.color || DEFAULT_NODE_COLOR;
+  let selectedColor = nodeStyle?.selectedColor || DEFAULT_NODE_SELECTED_COLOR;
+  const size = nodeStyle?.size || DEFAULT_NODE_SIZE;
 
   // when has colors set or data has color attribute set node's color
-  let themes: TColors = colors;
-
-  if (!colors || colors.length === 0) {
-    themes = ['#4795eb', '#419388', '#d83965'];
-  } else {
-    themes = colors;
-  }
+  const themes: TColors = colors?.length ? colors : DEFAULT_THEMES;
   
   const nodesSelection = g
     .attr("class", "nodes")

@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
-import { ILinkItem, INodeItem } from '.';
+import { INodeItem, ILinkItem } from '@/typings/custom-data';
+import { DEFAULT_LINE_WIDTH, DEFAULT_LINK_COLOR, DEFAULT_LINK_SELECTED_COLOR, DEFAULT_NODE_SIZE, MAX_ARROW_SIZE } from '@/constants';
+
 
 const DrawLink = (
   g:d3.Selection<SVGElement, unknown, HTMLElement, undefined>,
@@ -17,18 +19,11 @@ const DrawLink = (
     size?: number;
   }
 ) => {
-  let color = '#F56565';
-  let selectedColor = '#148EF4';
-  if(linkStyle) {
-    if(linkStyle.color) {
-      color = linkStyle.color;
-    }
-    if(linkStyle.selectedColor) {
-      selectedColor = linkStyle.selectedColor;
-    }
-  }
-  let nodeSize = nodeStyle?.size || 5;
-  const arrowSize = nodeSize > 10 ? nodeSize : 10
+  const color = linkStyle?.color || DEFAULT_LINK_COLOR;
+  const selectedColor = linkStyle?.selectedColor || DEFAULT_LINK_SELECTED_COLOR;
+  const nodeSize = nodeStyle?.size || DEFAULT_NODE_SIZE;
+  const arrowSize = nodeSize > MAX_ARROW_SIZE ? nodeSize : MAX_ARROW_SIZE;
+
   // 预先定义箭头图标
   g.append("defs")
   .append("marker")
@@ -72,7 +67,7 @@ const DrawLink = (
     })
     .attr('pathLength', '90')
     .attr('stroke', color)
-    .attr('stroke-width', 2)
+    .attr('stroke-width', DEFAULT_LINE_WIDTH)
     .attr('marker-end', 'url(#arrow)');
 
   // 边点击事件
