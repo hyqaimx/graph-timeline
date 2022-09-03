@@ -43,7 +43,7 @@ let tempConfig = {};
 if (process.env.NODE_ENV === 'production') {
   tempConfig = {
     ...base,
-    entry: './src/Component/index.tsx',
+    entry: './src/index.tsx',
     output: {
       filename: 'index.js',
       path: path.resolve(__dirname, 'dist'),
