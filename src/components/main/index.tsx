@@ -51,7 +51,6 @@ const Timeline = ({
   onSelectedNodesChange,
   onSelectedLinksChange
 }: ITimelineProps) => {
-  // const
   const [padTop, padRight, padBottom, padLeft] = padding;
   const { xAxis: xAxisStyle, node: nodeStyle, link, background, brushNodeColor, colors } = options;
   const { show: showTooltip, format: tooltipFormat } = tooltip;
@@ -183,10 +182,10 @@ const Timeline = ({
       .attr('clip-path', 'url(#clipView)')
       .attr('width', realWidth - padLeft - padRight)
       .call(drawNodes, nodes, x, y, nodeStyle, colors, onSelectedNodesChange);
-
+    console.log(1);
     /* 增加tooltip */
     svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
-  }, [realWidth, height, nodes, links, padding, selectedItem])
+  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')
