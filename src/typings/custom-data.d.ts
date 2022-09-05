@@ -19,11 +19,13 @@ export interface IOptions {
         axisColor?: string;
         tickColor?: string;
     };
-    // yAxis?: {
+    yAxis?: {
+        // 渲染方向：从上到下、从下到上，默认从下到上
+        direction?: 'topToBottom' | 'bottomToTop'
     //   color?: string;
     //   axisColor?: string;
     //   tickColor?: string;
-    // };
+    };
     node?: {
         color?: string;
         size?: number;
