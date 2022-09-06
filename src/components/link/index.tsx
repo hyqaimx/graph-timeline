@@ -24,8 +24,19 @@ const drawLink = (
   const nodeSize = nodeStyle?.size || DEFAULT_NODE_SIZE;
   const arrowSize = nodeSize > MAX_ARROW_SIZE ? nodeSize : MAX_ARROW_SIZE;
 
+  const addArrowMarker = (color: string) => {
+    const arrowDefs = g.select('.arrow-markers-defs');
+    const arrow = arrowDefs.select(`#arrow-${color}`);
+    if (!arrow.empty()) return;
+
+    const baseArrow = arrowDefs.select(`#arrow`);
+
+    return baseArrow.clone(true).attr('id', `arrow-${color}`).select('path').attr('fill', `#${color}`);
+  }
+
   // 预先定义箭头图标
   g.append("defs")
+    .attr('class', 'arrow-markers-defs')
     .append("marker")
     .attr("id", "arrow")
     .attr("markerHeight", arrowSize)
@@ -36,6 +47,9 @@ const drawLink = (
     .append("path")
     .attr("fill", color)
     .attr("d", `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`);
+
+  // TODO 预先定义渐变色
+
   // 定义选择的箭头图标
   g.append("defs")
     .append("marker")
@@ -56,8 +70,8 @@ const drawLink = (
     .data(linkData)
     .join('path')
     .attr('d', d => {
-      const sourceData = data.filter(item => item.id === d.source)[0];
-      const targetData = data.filter(item => item.id === d.target)[0];
+      const sourceData = data.find(item => item.id === d.source);
+      const targetData = data.find(item => item.id === d.target);
       if (!sourceData || !targetData) return "";
       const x1 = x(new Date(sourceData.date));
       const x2 = x(new Date(targetData.date));
@@ -68,7 +82,17 @@ const drawLink = (
     // .attr('pathLength', '90')
     .attr('stroke', color)
     .attr('stroke-width', DEFAULT_LINE_WIDTH)
-    .attr('marker-end', 'url(#arrow)');
+    .attr('marker-end', d => {
+      const defaultMarker = 'url(#arrow)'
+      const nodes = g.select('.nodes');
+      const targetNode = nodes.select(`circle[d-id="${d.target}"]`);
+      if (!targetNode) return defaultMarker;
+      const fill = targetNode.attr('fill');
+      if (!fill) return defaultMarker;
+      
+      addArrowMarker(fill.replace(`#`, ''));
+      return `url(#arrow-${fill.replace(`#`, '')})`;
+    });
 
   // 边点击事件
   const linkClickHandle = function (event, data) {

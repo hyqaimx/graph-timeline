@@ -7,7 +7,8 @@ export const DEFAULT_NODE_COLOR = '#F56565';
 export const DEFAULT_NODE_SELECTED_COLOR = '#148EF4';
 
 // link
-export const DEFAULT_LINK_COLOR = '#F56565';
+// export const DEFAULT_LINK_COLOR = '#F56565';
+export const DEFAULT_LINK_COLOR = 'green';
 export const DEFAULT_LINK_SELECTED_COLOR = '#148EF4';
 // arrow
 export const MAX_ARROW_SIZE = 10;

@@ -19,9 +19,6 @@ const drawNodes = (
   let selectedColor = nodeStyle?.selectedColor || DEFAULT_NODE_SELECTED_COLOR;
   const size = nodeStyle?.size || DEFAULT_NODE_SIZE;
 
-  // when has colors set or data has color attribute set node's color
-  const themes: TColors = colors?.length ? colors : DEFAULT_THEMES;
-
   const nodesSelection = g
     .attr("class", "nodes")
     .selectAll('circle')
@@ -30,12 +27,15 @@ const drawNodes = (
     .attr('cx', d => x(new Date(d.date)))
     .attr('cy', d => y(String(d.name)) || null)
     .attr('r', size)
+    .attr('d-id', d => d.id)
     .each(function (d: INodeItem, i, nodes) {
       const group = d.name;
 
       if (d.color) {
+        // 节点颜色
         color = d.color;
       } else {
+        // 节点颜色和 yAxis 顶点颜色保持一致
         const currentGroup = d3.selectAll('.tick circle').filter(function (d: string) {
           return d === group;
         });

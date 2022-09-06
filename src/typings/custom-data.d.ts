@@ -2,6 +2,7 @@ export interface INodeItem {
     id: string;
     name: string;
     date: string;
+    color?: string;
     [prop: string]: any;
 }
 export interface ILinkItem {

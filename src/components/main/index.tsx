@@ -176,14 +176,15 @@ const Timeline = ({
       .call(setSelect, selectedItem)
       .call(setEvent, onSelect)
 
-    /* 绘制连线 */
-    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
-
     /* 绘制数据点 */
     svg.append('g')
       .attr('clip-path', 'url(#clipView)')
       .attr('width', realWidth - padLeft - padRight)
       .call(drawNodes, nodes, x, y, nodeStyle, colors, onSelectedNodesChange);
+
+    /* 绘制连线（先绘制节点） */
+    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
+    
     /* 增加tooltip */
     svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
   }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])

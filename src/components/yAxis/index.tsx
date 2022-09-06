@@ -49,13 +49,11 @@ export const setYAxisStyle = (
       } else if (typeof themes === 'object') {
         const val = themes[d] || DEFAULT_THEMES[i % DEFAULT_THEMES.length];
 
-        if (typeof val === 'string') {
-          color = val;
-        } else {
-          throw new Error('when colors is an object. The attribute must be a color string');
-        }
+        if (typeof val !== 'string') throw new Error('when colors is an object. The attribute must be a color string');
+        
+        color = val;
       } else {
-        throw new Error('colors need a string array or object');
+        throw new Error('colors needs to be a string array or an object');
       }
       const tick = d3.select(this);
       // add circle node in yAxis
