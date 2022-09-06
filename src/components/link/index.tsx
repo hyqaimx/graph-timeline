@@ -3,7 +3,7 @@ import { INodeItem, ILinkItem } from '@/typings/custom-data';
 import { DEFAULT_LINE_WIDTH, DEFAULT_LINK_COLOR, DEFAULT_LINK_SELECTED_COLOR, DEFAULT_NODE_SIZE, MAX_ARROW_SIZE } from '@/constants';
 
 
-const DrawLink = (
+const drawLink = (
   g: d3.Selection<SVGElement, unknown, HTMLElement, undefined>,
   data: INodeItem[],
   linkData: ILinkItem[],
@@ -65,7 +65,7 @@ const DrawLink = (
       const y2 = y(targetData.name);
       return `M ${x1},${y1 + nodeSize / 2} L ${x2},${y2 > y1 ? y2 - (nodeSize + arrowSize / 2) : y2 + (nodeSize + arrowSize / 2)}`;
     })
-    .attr('pathLength', '90')
+    // .attr('pathLength', '90')
     .attr('stroke', color)
     .attr('stroke-width', DEFAULT_LINE_WIDTH)
     .attr('marker-end', 'url(#arrow)');
@@ -109,4 +109,4 @@ const DrawLink = (
   linkSelection.on('click', linkClickHandle);
 }
 
-export default DrawLink;
+export default drawLink;

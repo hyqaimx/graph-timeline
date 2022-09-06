@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import DrawLink from "@/components/link";
+import drawLink from "@/components/link";
 import drawNodes from "@/components/nodes";
 import getZoom from "@/components/zoom";
 import { xAxis, xRange } from "@/components/xAxis";
@@ -177,7 +177,7 @@ const Timeline = ({
       .call(setEvent, onSelect)
 
     /* 绘制连线 */
-    svg.call(DrawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
+    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
 
     /* 绘制数据点 */
     svg.append('g')
