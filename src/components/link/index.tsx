@@ -90,8 +90,9 @@ const drawLink = (
       const fill = targetNode.attr('fill');
       if (!fill) return defaultMarker;
       
-      addArrowMarker(fill.replace(`#`, ''));
-      return `url(#arrow-${fill.replace(`#`, '')})`;
+      const colorId = fill.replace(`#`, '');
+      addArrowMarker(colorId);
+      return `url(#arrow-${colorId})`;
     });
 
   // 边点击事件
