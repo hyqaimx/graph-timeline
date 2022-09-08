@@ -23,9 +23,9 @@ export interface IOptions {
     yAxis?: {
         // 渲染方向：从上到下、从下到上，默认从下到上
         direction?: 'topToBottom' | 'bottomToTop'
+        axisColor?: string;
+        tickColor?: string;
     //   color?: string;
-    //   axisColor?: string;
-    //   tickColor?: string;
     };
     node?: {
         color?: string;

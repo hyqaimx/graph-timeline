@@ -14,7 +14,6 @@ export const bindSvgEvent = (
   svg.on('click', function (event) {
     event.stopPropagation();
     const currentSelection = d3.select(this);
-    const color = linkStyle?.color || DEFAULT_LINK_COLOR;
 
     // 去除节点的选中状态
     const nodes = currentSelection.selectAll('.nodes .selected');
@@ -36,12 +35,7 @@ export const bindSvgEvent = (
     const links = currentSelection.selectAll('.arrowLine .selected');
     // 判断当前有没有选中的边
     if (!links.empty()) {
-      links.each(function () {
-        d3.select(this)
-          .attr('stroke', color)
-          .attr('class', '')
-          .attr('marker-end', 'url(#arrow)')
-      })
+      currentSelection.selectAll('.arrowLine .selected').attr('class', '')
       // 需要触发边选中事件
       // 此时需要触发节点选中变化事件
       if (onSelectedLinksChange) {

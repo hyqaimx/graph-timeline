@@ -67,7 +67,8 @@ export const setYAxisStyle = (
       // 设置横线颜色
       tick.select('line')
         .attr('x1', supLineWidth)
-        .attr('stroke', color)
+        .attr('stroke', yAxisStyle?.tickColor ||  color)
+        .attr('stroke', '#e5e5e5')
         .attr('stroke-width', DEFAULT_LINE_WIDTH);
     });
 
