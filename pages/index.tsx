@@ -65,7 +65,7 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
       // useBrush={false}
       options={{
         colors: {
-          '馆长': 'purple',
+          '节点0': 'purple',
         },
         yAxis: {
           tickColor: '#e5e5e5',
