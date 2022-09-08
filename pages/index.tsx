@@ -70,6 +70,9 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
         yAxis: {
           tickColor: '#e5e5e5',
           direction: 'topToBottom'
+        },
+        link: {
+          selectedColor: 'yellow'
         }
       }}
       tooltip={{
