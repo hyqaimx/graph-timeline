@@ -1,24 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { nodes as ns, links as ls } from './data';
 import GraphTimeLine from '../src';
 
 const App = () => {
-  const [nodes, setNodes] = useState([
-    {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'green'},
-    {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
-    {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
-    {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
-    {id: '5',name: '节点3', date: '2021-11-24 18:10:10'},
-    {id: '6',name: '节点3', date: '2021-11-24 15:10:10'},
-    {id: '7',name: '节点3', date: '2021-11-24 23:10:10'},
-    {id: '8',name: '节点4', date: '2021-11-23 12:10:10'},
-    {id: '9',name: '节点5', date: '2021-11-25 15:12:10'},
-    {id: '10',name: '节点5', date: '2021-11-24 18:10:10'},
-  ]);
-  const [links, setLinks] = useState([
-    {source: '2', target: '4'},
-    {source: '10', target: '5'},
-  ]);
+  // const [nodes, setNodes] = useState([
+  //   {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'green'},
+  //   {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
+  //   {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
+  //   {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
+  //   {id: '5',name: '节点3', date: '2021-11-24 18:10:10'},
+  //   {id: '6',name: '节点3', date: '2021-11-24 15:10:10'},
+  //   {id: '7',name: '节点3', date: '2021-11-24 23:10:10'},
+  //   {id: '8',name: '节点4', date: '2021-11-23 12:10:10'},
+  //   {id: '9',name: '节点5', date: '2021-11-25 15:12:10'},
+  //   {id: '10',name: '节点5', date: '2021-11-24 18:10:10'},
+  // ]);
+  // const [links, setLinks] = useState([
+  //   {source: '2', target: '4'},
+  //   {source: '10', target: '5'},
+  // ]);
+
+  const [nodes, setNodes] = useState(ns);
+  const [links, setLinks] = useState(ls);
 
 const [selectedItem, setSelectedItem] = useState(['节点1']);
 
@@ -55,18 +59,24 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
   // }, [])
   return (
     <GraphTimeLine
-      height={500}
+      height={1000}
       nodes={nodes}
       links={links}
       // useBrush={false}
       options={{
         colors: {
-          '节点1': '#ffd666',
-          '节点3': '#a0d911'
+          '节点0': 'purple',
         },
-        node: {
-          size: 10
+        yAxis: {
+          tickColor: '#e5e5e5',
+          direction: 'topToBottom'
+        },
+        link: {
+          selectedColor: 'yellow'
         }
+      }}
+      tooltip={{
+        show: true
       }}
       selectedItem={selectedItem}
       onBrushChange={ (value) => {console.log(value)}}
@@ -74,12 +84,14 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
       onSelect={(selectedData, show, d) => {console.log(selectedData, d, show)}}
       onSelectedNodesChange={
         (current, selectedData) => {
-          console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
+          console.log('onSelectedNodesChange', 'current', current);
+          console.log('onSelectedNodesChange', 'selectedData', selectedData);
         }
       }
       onSelectedLinksChange={
         (current, selectedData) => {
-          console.log(`当前选中边：${JSON.stringify(current)}, 已选中边：${JSON.stringify(selectedData)}`)
+          console.log('onSelectedLinksChange', 'current', current);
+          console.log('onSelectedLinksChange', 'selectedData', selectedData);
         }
       }
     />

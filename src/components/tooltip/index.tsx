@@ -8,16 +8,16 @@ export const DrawTooltip = (
   links: ILinkItem[],
   nodes: INodeItem[],
   show = true,
-  format?: (data:INodeItem, links: ILinkItem[]) => ReactNode 
+  format?: (data: INodeItem, links: ILinkItem[]) => ReactNode
 ) => {
   // const tooltip = g.append('g')
   //   .attr('class', 'tooltip')
   //   .style('pointer-events', 'none');
   const mainDiv = document.getElementById('graph-timeline-main');
-  if(!mainDiv) throw new Error('找不到id为main的容器');
-  let tooltip:HTMLElement;
+  if (!mainDiv) throw new Error('找不到id为main的容器');
+  let tooltip: HTMLElement;
   const tooltipDiv = document.getElementById('timeline-tooltip');
-  if(!tooltipDiv) {
+  if (!tooltipDiv) {
     tooltip = document.createElement('div');
     tooltip.id = 'timeline-tooltip';
     tooltip.style.visibility = 'hidden';
@@ -30,21 +30,21 @@ export const DrawTooltip = (
     tooltip.style.boxShadow = '0 0 10px #DDD';
     tooltip.style.borderRadius = '2px';
     mainDiv.append(tooltip);
-  }else {
+  } else {
     tooltip = tooltipDiv;
   }
-  
+
   const entered = (event: any, data: INodeItem) => {
-    if(!show) return;
+    if (!show) return;
     const [x, y] = d3.pointer(event);
     const curLink = links.filter(item => item.source === data.id || item.target === data.id);
-    
+
     const textData = [`节点名称: ${data.name}`];
-    if(curLink.length !== 0) {
+    if (curLink.length !== 0) {
       curLink.forEach(item => {
         const sourceData = nodes.filter(node => node.id === item.source)[0];
         const targetData = nodes.filter(node => node.id === item.target)[0];
-        if(!sourceData || !targetData) return "";
+        if (!sourceData || !targetData) return "";
         textData.push(`起始节点: ${sourceData.name}`);
         textData.push(`目标节点: ${targetData.name}`);
       })
@@ -53,7 +53,7 @@ export const DrawTooltip = (
     // 设置展示位置
     const textSpan = (
       <>
-        {format? format(data, curLink) : textData.map(item => (
+        {format ? format(data, curLink) : textData.map(item => (
           <div key={item}>{item}</div>
         ))}
       </>
@@ -66,18 +66,18 @@ export const DrawTooltip = (
       const containerHeight = mainDiv.clientHeight;
       tooltip.style.left = (x + 20) + 'px';
       tooltip.style.top = (y - (height / 2)) + 'px';
-      if(y < 50) {
+      if (y < 50) {
         tooltip.style.top = y + 'px';
       }
-      if(containerWidth - x < width){
+      if (containerWidth - x < width) {
         // 将悬浮框置于左侧
         tooltip.style.left = (x - width) + 'px';
       }
-      if(y + height / 2 > containerHeight) {
+      if (y + height / 2 > containerHeight) {
         tooltip.style.top = (containerHeight - height - 20) + 'px'
       }
     });
-    
+
     tooltip.style.visibility = 'visible';
 
     // 内置的svg标签写法
