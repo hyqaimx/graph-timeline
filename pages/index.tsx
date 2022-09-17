@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { nodes as ns, links as ls } from './data';
 import GraphTimeLine from '../src';
+import './index.less'
 
 const App = () => {
   // const [nodes, setNodes] = useState([
@@ -59,7 +60,7 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
   // }, [])
   return (
     <GraphTimeLine
-      height={1000}
+      height={500}
       nodes={nodes}
       links={links}
       // useBrush={false}

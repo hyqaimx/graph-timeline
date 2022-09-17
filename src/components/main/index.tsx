@@ -64,12 +64,12 @@ const Timeline = ({
     // 设置容器的宽度以及自适应
     const listener = () => {
       if (outerRef.current) {
-        setWidth(outerRef.current.clientWidth);
+        setWidth(outerRef.current.clientWidth - 20);
       }
     }
 
     if (!width || width === '100%') {
-      setWidth(outerRef.current.clientWidth);
+      setWidth(outerRef.current.clientWidth - 20);
       window.addEventListener('resize', listener);
     } else {
       if (typeof width === 'number') {
