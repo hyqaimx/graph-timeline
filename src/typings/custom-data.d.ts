@@ -1,6 +1,8 @@
 export interface INodeItem {
-    id: string;
-    name: string;
+    id: string | number;
+    name?: string;
+    nodeId: string | number;
+    nodeName?: string;
     date: string;
     color?: string;
     [prop: string]: any;

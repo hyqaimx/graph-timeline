@@ -171,7 +171,7 @@ const Timeline = ({
     svg.append('g')
       .attr('class', 'yAxis')
       .attr('transform', `translate(${padLeft}, 0)`)
-      .call(yAxis, y)
+      .call(yAxis, y, nodes)
       .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
       .call(setSelect, selectedItem)
       .call(setEvent, onSelect)
@@ -219,16 +219,18 @@ const Timeline = ({
 
       svg.selectAll('.nodes circle')
         .each(function (d: INodeItem) {
-          const group = d.name;
+          const group = String(d.nodeId);
 
           if (d.color) {
+            // 节点颜色
             color = d.color;
           } else {
+            // 节点颜色和 yAxis 顶点颜色保持一致
             const currentGroup = d3.selectAll('.tick circle').filter(function (d: string) {
               return d === group;
             });
 
-            color = currentGroup.attr('fill');
+            color = currentGroup.attr('fill');        
           }
 
           const node = d3.select(this);

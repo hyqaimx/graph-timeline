@@ -6,7 +6,7 @@ import { DEFAULT_LINE_WIDTH, DEFAULT_THEMES, DEFAULT_VERTEX_SIZE } from "@/const
 // 构建数据映射
 export const yRange = (data: INodeItem[], padding: number[], height: number, yAxisStyle: IOptions['yAxis'] = {}) => {
   const { direction } = yAxisStyle;
-  const values = data.map(item => item.name);
+  const values = data.map(item => String(item.nodeId));
   const uniqueVals = values.filter((item, index) => values.indexOf(item) === index);
 
   const realHeight = calcHeight(data, height - 20);
@@ -17,9 +17,21 @@ export const yRange = (data: INodeItem[], padding: number[], height: number, yAx
 }
 
 // 构建y轴
-export const yAxis = (g: d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, y: d3.ScalePoint<string>, labelFormat: (data: any) => any) => {
+export const yAxis = (
+  g: d3.Selection<SVGGElement, undefined, HTMLElement, undefined>,
+  y: d3.ScalePoint<string>,
+  data: INodeItem[],
+  labelFormat: (id: string, index: number) => string
+) => {
   return g.call(d3.axisLeft(y)
-    .tickFormat(labelFormat)
+    .tickFormat((domainValue: any, index: number) => {
+      if (labelFormat) {
+        return labelFormat(domainValue, index)
+      }
+
+      // 根据ID获取到数据中的name
+      return data.find(item => String(item.nodeId) === domainValue).nodeName || '';
+    })
   )
 }
 

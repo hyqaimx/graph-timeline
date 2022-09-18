@@ -23,7 +23,7 @@ const getBrush = (
       value = circles
         .attr('fill', 'gray')
         .filter(d => {
-          const currentY = y(d.name);
+          const currentY = y(String(d.nodeId));
           const currentX = rx(new Date(d.date));
           if (!currentY) return false;
 

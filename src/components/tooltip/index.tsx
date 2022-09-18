@@ -10,11 +10,8 @@ export const DrawTooltip = (
   show = true,
   format?: (data: INodeItem, links: ILinkItem[]) => ReactNode
 ) => {
-  // const tooltip = g.append('g')
-  //   .attr('class', 'tooltip')
-  //   .style('pointer-events', 'none');
   const mainDiv = document.getElementById('graph-timeline-main');
-  if (!mainDiv) throw new Error('找不到id为main的容器');
+  if (!mainDiv) throw new Error('找不到id为graph-timeline-main的容器');
   let tooltip: HTMLElement;
   const tooltipDiv = document.getElementById('timeline-tooltip');
   if (!tooltipDiv) {
@@ -39,22 +36,23 @@ export const DrawTooltip = (
     const [x, y] = d3.pointer(event);
     const curLink = links.filter(item => item.source === data.id || item.target === data.id);
 
-    const textData = [`节点名称: ${data.name}`];
+    const textData = [{ id: data.nodeId, name: `节点名称: ${data.nodeName}` }];
     if (curLink.length !== 0) {
       curLink.forEach(item => {
         const sourceData = nodes.filter(node => node.id === item.source)[0];
         const targetData = nodes.filter(node => node.id === item.target)[0];
         if (!sourceData || !targetData) return "";
-        textData.push(`起始节点: ${sourceData.name}`);
-        textData.push(`目标节点: ${targetData.name}`);
+        textData.push({ id: sourceData.nodeId, name: `起始节点: ${sourceData.nodeName}` });
+        textData.push({ id: sourceData.nodeId, name: `目标节点: ${targetData.nodeName}` });
       })
     }
+
     // 使用div进行构建，更加灵活，可以实现用户自定义内容
     // 设置展示位置
     const textSpan = (
       <>
         {format ? format(data, curLink) : textData.map(item => (
-          <div key={item}>{item}</div>
+          <div key={item.id + item.name}>{item.name}</div>
         ))}
       </>
     )
@@ -64,8 +62,11 @@ export const DrawTooltip = (
       const width = tooltipDom.clientWidth;
       const containerWidth = mainDiv.clientWidth;
       const containerHeight = mainDiv.clientHeight;
+
+      const mainScrollY = mainDiv.scrollTop;
+
       tooltip.style.left = (x + 20) + 'px';
-      tooltip.style.top = (y - (height / 2)) + 'px';
+      tooltip.style.top = (y - (height / 2) - mainScrollY) + 'px';
       if (y < 50) {
         tooltip.style.top = y + 'px';
       }
@@ -79,36 +80,9 @@ export const DrawTooltip = (
     });
 
     tooltip.style.visibility = 'visible';
-
-    // 内置的svg标签写法
-    // tooltip.style('dispaly', null);
-    // tooltip.attr('transform', `translate(${position[0]}, ${position[1]})`);
-    // const path = tooltip.selectAll('path')
-    //   .data([,])
-    //   .join('path')
-    //     .attr('fill', 'white')
-    //     .attr('stroke', 'black');
-    // const text = tooltip.selectAll('text')
-    //   .data([,])
-    //   .join('text')
-    //   .call(text => text
-    //       .selectAll('tspan')
-    //       .data(textData)
-    //       .join('tspan')
-    //       .attr('x', 0)
-    //       .attr('y', (_, i) => `${ (i - textData.length) * 1.2}em`)
-    //       .attr('fill', 'black')
-    //       .text(d => d)
-    //     )
-    // const textNode = text.node() as SVGTextElement;
-    // const { x, y, width: w, height: h } = textNode.getBBox();
-    // text.attr("transform", `translate(${-w / 2},0)`);
-    // path.attr('d',`M${(-w/2) - 10},-12 v${- h - 10}h${w + 20}v${h + 10}h${-(w/2) - 7}l-3,5l-3,-5h${-(w/2) -7}`)
-    // tooltip.style('display', '');
   }
 
   const leaved = (event: any) => {
-    // tooltip.style('display', 'none');
     tooltip.style.visibility = 'hidden';
   }
 

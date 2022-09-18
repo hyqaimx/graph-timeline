@@ -25,11 +25,11 @@ const drawNodes = (
     .data(data)
     .join('circle')
     .attr('cx', d => x(new Date(d.date)))
-    .attr('cy', d => y(String(d.name)) || null)
+    .attr('cy', d => y(String(d.nodeId)) || null)
     .attr('r', size)
     .attr('d-id', d => d.id)
     .each(function (d: INodeItem, i, nodes) {
-      const group = d.name;
+      const group = String(d.nodeId);
 
       if (d.color) {
         // 节点颜色
@@ -40,7 +40,7 @@ const drawNodes = (
           return d === group;
         });
 
-        color = currentGroup.attr('fill');
+        color = currentGroup.attr('fill');        
       }
 
       const node = d3.select(this);

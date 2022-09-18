@@ -32,8 +32,8 @@ const getZoom = (
         if (!sourceData || !targetData) return "";
         const x1 = rx(new Date(sourceData.date));
         const x2 = rx(new Date(targetData.date));
-        const y1 = y(sourceData.name);
-        const y2 = y(targetData.name);
+        const y1 = y(String(sourceData.nodeId));
+        const y2 = y(String(targetData.nodeId));
         return `M ${x1},${y1} L ${x2},${y2 > y1 ? y2 - (nodeSize * 6 / 5) : y2 + (nodeSize * 6 / 5)}`;
       })
 

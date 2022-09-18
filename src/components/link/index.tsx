@@ -112,8 +112,8 @@ const drawLink = (
       if (!sourceData || !targetData) return "";
       const x1 = x(new Date(sourceData.date));
       const x2 = x(new Date(targetData.date));
-      const y1 = y(sourceData.name);
-      const y2 = y(targetData.name);
+      const y1 = y(String(sourceData.nodeId));
+      const y2 = y(String(targetData.nodeId));
 
       const my1 = y1 + nodeSize / 2;
       const ly2 = y2 > y1 ? y2 - (nodeSize + arrowSize / 2) : y2 + (nodeSize + arrowSize / 2);
@@ -138,8 +138,8 @@ const drawLink = (
 
       const x1 = x(new Date(sourceData.date));
       const x2 = x(new Date(targetData.date));
-      const y1 = y(sourceData.name);
-      const y2 = y(targetData.name);
+      const y1 = y(String(sourceData.nodeId));
+      const y2 = y(String(targetData.nodeId));
 
       const my1 = y1 + nodeSize / 2;
       const ly2 = y2 > y1 ? y2 - (nodeSize + arrowSize / 2) : y2 + (nodeSize + arrowSize / 2);
