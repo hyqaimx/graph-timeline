@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import DrawLink from "@/components/link";
+import drawLink from "@/components/link";
 import drawNodes from "@/components/nodes";
 import getZoom from "@/components/zoom";
 import { xAxis, xRange } from "@/components/xAxis";
@@ -10,11 +10,9 @@ import { DrawTooltip } from "@/components/tooltip";
 import { bindSvgEvent, unbindSvgEvent } from "@/components/event";
 import BrushImg from '@/assets/usebrush.png';
 import DisableBrush from '@/assets/unusebrush.png';
-import { INodeItem, ILinkItem, IOptions, TColors } from "@/typings/custom-data";
+import { INodeItem, ILinkItem, IOptions } from "@/typings/custom-data";
 import { calcHeight } from "@/utils";
 import { DEFAULT_NODE_COLOR } from "@/constants";
-
-
 export interface ITimelineProps {
   width?: number | "100%";
   height?: number;
@@ -52,62 +50,33 @@ const Timeline = ({
   onSelectedLinksChange
 }: ITimelineProps) => {
   const [padTop, padRight, padBottom, padLeft] = padding;
-  const { xAxis: xAxisStyle, node: nodeStyle, link, background, brushNodeColor, colors } = options;
+  const { xAxis: xAxisStyle, yAxis: yAxisStyle, node: nodeStyle, link, background, brushNodeColor, colors } = options;
   const { show: showTooltip, format: tooltipFormat } = tooltip;
 
   const [realWidth, setWidth] = useState<number>(1000);
   const [isBrush, setBrush] = useState(false);
   const outerRef = useRef<HTMLDivElement>(null);
 
+  // 组件安装卸载：resize 事件监听
   useEffect(() => {
+    if (!outerRef.current) return;
+
     // 设置容器的宽度以及自适应
     const listener = () => {
       if (outerRef.current) {
-        setWidth(outerRef.current.clientWidth);
+        setWidth(outerRef.current.clientWidth - 20);
       }
     }
 
-    if (outerRef.current) {
-      outerRef.current.innerHTML = "";
-      if (!width || width === '100%') {
-        setWidth(outerRef.current.clientWidth);
-        window.addEventListener('resize', listener);
+    if (!width || width === '100%') {
+      setWidth(outerRef.current.clientWidth - 20);
+      window.addEventListener('resize', listener);
+    } else {
+      if (typeof width === 'number') {
+        setWidth(width);
       } else {
-        if (typeof width === 'number') {
-          setWidth(width);
-        } else {
-          throw Error("宽度只能设置为数字或'100%'")
-        }
+        throw Error("宽度只能设置为数字或'100%'")
       }
-
-      // 初始化画板
-      // 单独创建x轴画板
-      const xAxisSvg = d3.create('svg')
-        .attr('id', 'xAxis-container')
-        .attr('width', realWidth)
-        .attr('height', height)
-        .style('position', 'absolute')
-        .style('left', 0)
-        .style("z-index", -1)
-        .style("pointer-events", "none");
-
-      // 创建主画板包含元素
-      const main = d3.create('div')
-        .style('overflow-y', 'auto')
-        .style('height', `${height - padBottom}px`)
-        .attr('id', 'graph-timeline-main');
-      // 创建主画板
-      main.append('svg')
-        .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
-        .attr('width', realWidth)
-        .attr('height', height)
-        .attr('id', 'graph-timeline-svg')
-        .style("background-color", background || '#F5F5F5')
-        .style("display", 'block')
-        .call(bindSvgEvent, link, onSelectedNodesChange, onSelectedLinksChange);
-
-      outerRef.current.append(xAxisSvg.node() || "<div>xAxis build fail</div>");
-      outerRef.current.append(main.node() || "<div>body build fail</div>");
     }
 
     // 卸载事件监听
@@ -117,9 +86,41 @@ const Timeline = ({
     }
   }, [])
 
+  // 初始化画板
+  useEffect(() => {
+    if (!outerRef.current) return;
+    outerRef.current.innerHTML = "";
+    
+    // 单独创建x轴画板
+    const xAxisSvg = d3.create('svg')
+      .attr('id', 'xAxis-container')
+      .style('position', 'absolute')
+      .style('left', 0)
+      .style("z-index", -1)
+      .style("pointer-events", "none");
+
+    // 创建主画板包含元素
+    const main = d3.create('div')
+      .style('overflow-y', 'auto')
+      .style('height', `${height - padBottom}px`)
+      .attr('id', 'graph-timeline-main');
+    // 创建主画板
+    main.append('svg')
+      .attr('viewBox', `0, 0, ${realWidth}, ${height}`)
+      .attr('width', realWidth)
+      .attr('height', height)
+      .attr('id', 'graph-timeline-svg')
+      .style("background-color", background || '#F5F5F5')
+      .style("display", 'block')
+      .call(bindSvgEvent, link, onSelectedNodesChange, onSelectedLinksChange);
+
+    outerRef.current.append(xAxisSvg.node() || "<div>xAxis build fail</div>");
+    outerRef.current.append(main.node() || "<div>body build fail</div>");
+  }, [])
+
   const { x, y, zoom, brush } = useMemo(() => {
     const x = xRange(nodes, padding, realWidth);
-    const y = yRange(nodes, padding, height - padBottom);
+    const y = yRange(nodes, padding, height - padBottom, yAxisStyle);
     const zoom = getZoom(nodes, x, y, nodeStyle, xAxisStyle, timeLabelFormat);
     const brush = getBrush(nodes, x, y, brushNodeColor, onBrushChange);
     return { x, y, zoom, brush };
@@ -127,7 +128,8 @@ const Timeline = ({
 
   useEffect(() => {
     if (!outerRef.current) return;
-    // 先绘画x轴
+
+    // 绘画x轴
     const xAxisSvg = d3.select('#xAxis-container')
       .attr('width', realWidth)
       .attr('height', height);
@@ -151,7 +153,7 @@ const Timeline = ({
       .attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
       .attr('width', realWidth)
       .attr('height', realHeight);
-
+      
     if (svg.empty()) return;
 
     svg.html("");
@@ -169,20 +171,20 @@ const Timeline = ({
     svg.append('g')
       .attr('class', 'yAxis')
       .attr('transform', `translate(${padLeft}, 0)`)
-      .call(yAxis, y)
+      .call(yAxis, y, nodes)
       .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
       .call(setSelect, selectedItem)
       .call(setEvent, onSelect)
-
-    /* 绘制连线 */
-    svg.call(DrawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
 
     /* 绘制数据点 */
     svg.append('g')
       .attr('clip-path', 'url(#clipView)')
       .attr('width', realWidth - padLeft - padRight)
       .call(drawNodes, nodes, x, y, nodeStyle, colors, onSelectedNodesChange);
-    console.log(1);
+
+    /* 绘制连线（先绘制节点） */
+    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
+    
     /* 增加tooltip */
     svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
   }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
@@ -217,16 +219,18 @@ const Timeline = ({
 
       svg.selectAll('.nodes circle')
         .each(function (d: INodeItem) {
-          const group = d.name;
+          const group = String(d.nodeId);
 
           if (d.color) {
+            // 节点颜色
             color = d.color;
           } else {
+            // 节点颜色和 yAxis 顶点颜色保持一致
             const currentGroup = d3.selectAll('.tick circle').filter(function (d: string) {
               return d === group;
             });
 
-            color = currentGroup.attr('fill');
+            color = currentGroup.attr('fill');        
           }
 
           const node = d3.select(this);
