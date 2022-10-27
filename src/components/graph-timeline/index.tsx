@@ -51,17 +51,10 @@ const GraphTimeline: React.FC<IProps> = ({
         if (!selection || !size) return;
 
         // 创建画布
-        const updater = selection.selectAll('svg')
+        selection.selectAll('svg')
                 .data([size])
                 .attr('width', d => d.width)
                 .attr('height', d => d.height);
-        
-        updater.enter()
-                .append('svg')
-                .attr('width', d => d.width)
-                .attr('height', d => d.height);
-
-        updater.exit().remove();
 
     }, [selection, size])
 
