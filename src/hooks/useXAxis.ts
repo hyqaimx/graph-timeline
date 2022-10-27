@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo } from 'react';
 import { extent } from 'd3-array';
 import { scaleTime } from 'd3-scale';
 import { axisTop } from 'd3-axis';
+import { select, selector } from 'd3-selection';
 import { map } from 'lodash';
 import dayjs from 'dayjs';
 import { useSafeState } from 'ahooks';
@@ -10,7 +11,7 @@ import type { Selection } from 'd3-selection';
 import type { IEdge, IYAxisStyle } from '../types';
 
 export interface IProps extends Partial<{
-    svg: Selection<SVGSVGElement, any, any, any>
+    wrapper: Selection<HTMLDivElement, any, any, any>
     edges: IEdge[]
     size: { width: number; height: number }
 }> {
@@ -18,34 +19,38 @@ export interface IProps extends Partial<{
 }
 
 export default ({
-    svg,
+    wrapper,
     edges = [],
     size,
     yAxis: { width: yWidth }
 }: IProps) => {
     const [xAxis, setXAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
     const xScale = useMemo(() => {
-        if (!svg || !edges?.length || !size) return;
+        if (!wrapper || !edges?.length || !size) return;
 
         const minAndMax = extent(edges, ({properties: { createdTime }}) => createdTime);
         return scaleTime()
                 .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
-                .range([0, size.width])
+                .range([0, size.width - yWidth])
                 .nice()
-    }, [svg, edges, size])
+    }, [wrapper, edges, size])
 
     // render x 轴
     useEffect(() => {
-        if (!xScale || !svg) return;
+        if (!xScale || !wrapper) return;
 
-        const xAxis = svg.append('g')
+        const svg = wrapper.select('svg');
+        const xAxis = svg.selectAll('.xAxis')
+            .data([yWidth])
+            .enter()
+            .append('g')
             .attr('class', 'axis xAxis')
-            .attr("transform", `translate(${yWidth}, 0)`)
+            .attr("transform", yWidth => `translate(${yWidth}, 0)`)
             
         xAxis.call(axisTop(xScale))
 
         setXAxis(xAxis)
-    }, [svg, xScale])
+    }, [wrapper, xScale])
 
 
     return {

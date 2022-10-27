@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { select } from 'd3-selection';
 import { axisTop } from 'd3-axis';
 import { zoom } from 'd3-zoom';
@@ -31,41 +31,46 @@ const GraphTimeline: React.FC<IProps> = ({
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const size = useSize(containerRef);
-    const [svg, setSvg] = useSafeState<Selection<SVGSVGElement, any, any, any>>()
 
-    const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yAxis), [yAxis]);
     
-    const { xScale, xAxis } = useXAxis({ svg, edges, size, yAxis: yAxisStyle })
-
-    const { yScale } = useYAxis({ svg, nodes, size, yAxis: yAxisStyle})
-
     const selection = useMemo(() => {
         if (!containerRef.current) return;
 
         return select(containerRef.current)
     }, [containerRef.current]);
 
-    useEffect(() => {
+
+    const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yAxis), [yAxis]);
+    
+    const { xScale, xAxis } = useXAxis({ wrapper: selection, edges, size, yAxis: yAxisStyle })
+
+    const { yScale } = useYAxis({ wrapper: selection, nodes, size, yAxis: yAxisStyle})
+
+
+    useUpdateEffect(() => {
         if (!selection || !size) return;
 
-        selection.selectAll('svg').remove();
-
         // 创建画布
-        const svg = selection.append('svg')
-                .attr('width', size.width)
-                .attr('height', size.height);
+        const updater = selection.selectAll('svg')
+                .data([size])
+                .attr('width', d => d.width)
+                .attr('height', d => d.height);
+        
+        updater.enter()
+                .append('svg')
+                .attr('width', d => d.width)
+                .attr('height', d => d.height);
 
-        setSvg(svg);
+        updater.exit().remove();
+
     }, [selection, size])
 
     useUpdateEffect(() => {
-        if (!svg || !xScale || !yScale || !xAxis) return;
-
+        if (!xScale || !yScale || !xAxis) return;
     
-        const zoomed = zoom().on('start', () => {
+        const zoomed: any = zoom().on('start', () => {
             console.log('start')
         }).on('zoom', (event) => {
-            console.log('zoom')
             const rx = event.transform.rescaleX(xScale);
 
             xAxis.call(axisTop(rx));
@@ -73,13 +78,15 @@ const GraphTimeline: React.FC<IProps> = ({
             console.log('end')
         })
 
-        svg.call(zoomed)
+        selection?.select('svg').call(zoomed)
 
-    }, [svg, xScale, yScale, xAxis])
+    }, [xScale, yScale, xAxis])
 
     return (
         <div className={`${classPrefix}-wrapper ${wrapperClassName}`} >
-            <div className={`${classPrefix} ${className}`} ref={containerRef} />
+            <div className={`${classPrefix} ${className}`} ref={containerRef}>
+                <svg></svg>
+            </div>
         </div>
     )
 };

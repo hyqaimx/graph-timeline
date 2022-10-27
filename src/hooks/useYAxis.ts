@@ -6,7 +6,7 @@ import type { Selection } from 'd3-selection';
 import type { INode, IYAxisStyle } from '../types';
 
 export interface IProps extends Partial<{
-    svg: Selection<SVGSVGElement, any, any, any>
+    wrapper: Selection<HTMLDivElement, any, any, any>
     nodes: INode[]
     size: { width: number; height: number }
 }> {
@@ -14,35 +14,38 @@ export interface IProps extends Partial<{
 }
 
 export default ({
-    svg,
+    wrapper,
     nodes = [],
     size,
     yAxis: { width: yWidth }
 }: IProps) => {
     const yScale = useMemo(() => {
-        if (!svg || !nodes?.length || !size) return;
+        if (!wrapper || !nodes?.length || !size) return;
 
         const ids = map(nodes, ({ id }) => id);
 
         return scalePoint()
                 .domain(ids)
                 .range([0, size.height])
-    }, [svg, nodes, size])
+    }, [wrapper, nodes, size])
 
     // render x 轴
     useEffect(() => {
-        if (!yScale || !svg || !size) return;
+        if (!yScale || !wrapper || !size) return;
 
-        const yAxis = svg.append('g')
+        const yAxis = wrapper.select('svg').selectAll('.yAxis')
+            .data([size])
+            .enter()
+            .append('g')
             .attr('class', 'axis yAxis')
-            .attr("transform", `translate(${size.width}, 40)`)
+            .attr("transform", size => `translate(${size.width}, 40)`)
             
         yAxis.call(axisLeft(yScale).tickSize(size.width - yWidth).tickPadding(3))
 
         // 删除 y 轴竖线
         yAxis.selectAll('.domain').remove()
             
-    }, [svg, yScale, size])
+    }, [wrapper, yScale, size])
 
     
     return {
