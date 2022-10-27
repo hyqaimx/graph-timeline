@@ -14,7 +14,22 @@ export interface INode extends Partial<{
 }> {
     id: string;
 }
+export interface ITypeStyle {
+    color?: string;
+    labelColor?: string;
+    bgLineColor?: string;
+}
+export interface IData  {
+    edges: IEdge[];
+    nodes: INode[];
+    nodeTypes?: Record<string, ITypeStyle>;
+    typeFromKey?: string;
+}
 
 export interface IYAxisStyle {
     width: number
+}
+
+export interface IXAxisStyle {
+    height: number
 }

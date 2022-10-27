@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { extent } from 'd3-array';
 import { scaleTime } from 'd3-scale';
 import { axisTop } from 'd3-axis';
-import { select, selector } from 'd3-selection';
 import { map } from 'lodash';
 import dayjs from 'dayjs';
 import { useSafeState } from 'ahooks';
@@ -39,8 +38,7 @@ export default ({
     useEffect(() => {
         if (!xScale || !wrapper) return;
 
-        const svg = wrapper.select('svg');
-        const xAxis = svg.selectAll('.xAxis')
+        const xAxis = wrapper.select('svg').selectAll('.xAxis')
             .data([yWidth])
             .enter()
             .append('g')
