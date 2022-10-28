@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { useSafeState } from 'ahooks';
 import { scalePoint } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { map } from 'lodash';
@@ -24,6 +25,7 @@ export default ({
     typeFromKey = FROM_KEY['type'],
     nodeTypes
 }: IProps) => {
+    const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
     const yScale = useMemo(() => {
         if (!wrapper || !nodes?.length || !size) return;
 
@@ -34,17 +36,25 @@ export default ({
                 .range([0, size.height])
     }, [wrapper, nodes, size])
 
-    // render x 轴
+    // init y 轴 selection
     useEffect(() => {
-        if (!yScale || !wrapper || !size) return;
+        if (!wrapper || !size) return;
 
         const yAxis = wrapper.select('svg').selectAll('.yAxis')
             .data([size])
             .enter()
             .append('g')
             .attr('class', 'axis yAxis')
-            .attr("transform", size => `translate(${size.width}, ${xHeight})`)
             
+        setYAxis(yAxis);
+    }, [wrapper])
+
+    // render y 轴
+    useEffect(() => {
+        if (!yAxis || !yScale ||!size) return;
+
+        yAxis.attr("transform", `translate(${size.width}, ${xHeight})`);
+
         yAxis.call(axisLeft(yScale).tickSize(size.width - yWidth).tickPadding(3))
 
         // 删除 y 轴竖线
@@ -58,8 +68,7 @@ export default ({
                 if (!typeKey || !nodeTypes?.[typeKey as string]?.bgLineColor) return DEFAULT_TYPE_STYLE['bgLineColor'] as string;
                 return nodeTypes[typeKey as string].bgLineColor as string;
             })
-    }, [wrapper, yScale, size])
-
+    }, [yAxis, yScale, size])
     
     return {
         yScale

@@ -35,7 +35,7 @@ export default ({
     
     // render x 轴
     useEffect(() => {
-        if (!xScale || !yScale || !wrapper) return;
+        if (!wrapper) return;
 
         const chart = wrapper.select('svg').selectAll('.__chart')
             .data([yWidth])
@@ -44,16 +44,21 @@ export default ({
             .attr('class', '__chart')
             .attr("transform", yWidth => `translate(${yWidth}, ${xHeight})`);
 
+        setChart(chart);
+    }, [wrapper]);
+
+    useEffect(() => {
+        if (!chart || !size) return;
         // start 节点
-        chart.selectAll('.__circle.__start')
+        const startUpdater = chart.selectAll('.__circle.__start')
             .data(edges)
             .attr('cx', (edge: IEdge) => {
                 return xScale(formatTime(edge.properties.createdTime));
             })
             .attr('cy', (edge: IEdge) => {
                 return yScale(edge.start);
-            })
-            .enter()
+            });
+        startUpdater.enter()
             .append('circle')
             .attr('class', '__circle __start')
             .attr('r', 3)
@@ -69,9 +74,10 @@ export default ({
             .attr('cy', (edge: IEdge) => {
                 return yScale(edge.start);
             });
+        startUpdater.exit().remove();
         
         // end 节点
-        chart.selectAll('.__circle.__end')
+        const endUpdater = chart.selectAll('.__circle.__end')
             .data(edges)
             .attr('cx', (edge: IEdge) => {
                 return xScale(formatTime(edge.properties.createdTime));
@@ -79,7 +85,7 @@ export default ({
             .attr('cy', (edge: IEdge) => {
                 return yScale(edge.end);
             })
-            .enter()
+        endUpdater.enter()
             .append('circle')
             .attr('class', '__circle __end')
             .attr('r', 3)
@@ -89,11 +95,24 @@ export default ({
             .attr('cy', (edge: IEdge) => {
                 return yScale(edge.end);
             });
+        endUpdater.exit().remove();
 
         // 连线
-        chart.selectAll('.__line')
+        const lineUpdater = chart.selectAll('.__line')
             .data(edges)
-            .enter()
+            .attr('x1', (edge: IEdge) => {
+                return xScale(formatTime(edge.properties.createdTime));
+            })
+            .attr('y1', (edge: IEdge) => {
+                return yScale(edge.start);
+            })
+            .attr('x2', (edge: IEdge) => {
+                return xScale(formatTime(edge.properties.createdTime));
+            })
+            .attr('y2', (edge: IEdge) => {
+                return yScale(edge.end);
+            });
+        lineUpdater.enter()
             .append('line')
             .attr('class', '__line')
             .attr('x1', (edge: IEdge) => {
@@ -109,10 +128,8 @@ export default ({
                 return yScale(edge.end);
             })
             .attr('style', `stroke:#8c8c8c;stroke-width:2`);
-
-
-        setChart(chart);
-    }, [wrapper, xScale, yScale])
+        lineUpdater.exit().remove();
+    }, [chart, size, xScale, yScale]);
 
     return {
         chart

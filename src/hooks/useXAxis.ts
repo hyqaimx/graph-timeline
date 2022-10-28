@@ -27,13 +27,12 @@ export default ({
     const xScale = useMemo(() => {
         if (!wrapper || !edges?.length || !size) return;
 
-        
         const minAndMax = extent(edges, ({properties: { createdTime }}) => createdTime);
         return scaleTime()
-                .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
-                .range([0, size.width - yWidth])
-                .nice()
-    }, [wrapper, edges, size])
+            .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
+            .range([0, size.width - yWidth])
+            .nice()
+    }, [wrapper, edges, size]);
 
     useEffect(() => {
         if (!wrapper) return;
@@ -48,13 +47,11 @@ export default ({
         setXAxis(xAxis)
     }, [wrapper])
 
-
     useEffect(() => {
         if (!xAxis || !xScale || !size) return;
         
         xAxis.call(axisTop(xScale))
     }, [xAxis, size, xScale])
-
 
     return {
         xScale,
