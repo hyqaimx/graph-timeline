@@ -27,6 +27,7 @@ export default ({
     const xScale = useMemo(() => {
         if (!wrapper || !edges?.length || !size) return;
 
+        
         const minAndMax = extent(edges, ({properties: { createdTime }}) => createdTime);
         return scaleTime()
                 .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
@@ -34,9 +35,8 @@ export default ({
                 .nice()
     }, [wrapper, edges, size])
 
-    // render x 轴
     useEffect(() => {
-        if (!xScale || !wrapper) return;
+        if (!wrapper) return;
 
         const xAxis = wrapper.select('svg').selectAll('.xAxis')
             .data([yWidth])
@@ -44,11 +44,16 @@ export default ({
             .append('g')
             .attr('class', 'axis xAxis')
             .attr("transform", yWidth => `translate(${yWidth}, 0)`)
-            
-        xAxis.call(axisTop(xScale))
-
+          
         setXAxis(xAxis)
-    }, [wrapper, xScale])
+    }, [wrapper])
+
+
+    useEffect(() => {
+        if (!xAxis || !xScale || !size) return;
+        
+        xAxis.call(axisTop(xScale))
+    }, [xAxis, size, xScale])
 
 
     return {
