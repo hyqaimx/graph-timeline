@@ -1,14 +1,9 @@
-import React, { CSSProperties, useMemo, useRef } from 'react';
-import { select } from 'd3-selection';
-import { axisTop } from 'd3-axis';
-import { zoom } from 'd3-zoom';
-import { classPrefix, DEFAULT_XAXIS_STYLE, DEFAULT_YAXIS_STYLE, FROM_KEY } from '../../common/constants';
-import useXAxis from '../../hooks/useXAxis';
-import useYAxis from '../../hooks/useYAxis';
-import useChart from '../../hooks/useChart';
-import { useSize, useUpdateEffect } from 'ahooks';
-import { assign } from 'lodash';
-import type { IData, IEdge, INode, IXAxisStyle, IYAxisStyle } from '../../types';
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { classPrefix } from '../../common/constants';
+import GraphContext from '../../context';
+import { useService } from './service';
+import Graph from './graph';
+import type { IData, IXAxisStyle, IYAxisStyle } from '../../types';
 
 import './index.less';
 
@@ -25,82 +20,31 @@ export interface IProps extends Partial<{
 const GraphTimeline: React.FC<IProps> = ({
     wrapperClassName = '',
     className = '',
-    data: { nodes, edges, typeFromKey = FROM_KEY['type'], nodeTypes  },
+    data,
     style,
     yAxis: yStyleSettings,
     xAxis: xStyleSettings
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
-    const size = useSize(containerRef);
-    const selection = useMemo(() => {
-        if (!containerRef.current) return;
-
-        return select(containerRef.current)
-    }, [containerRef.current]);
-    const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yStyleSettings), [yStyleSettings]);
-    const xAxisStyle = useMemo(() => assign(DEFAULT_XAXIS_STYLE, xStyleSettings), [xStyleSettings])
-    const { xScale, xAxis } = useXAxis({
-        wrapper: selection,
-        edges,
-        size,
-        yAxis: yAxisStyle
-    });
-    const { yScale } = useYAxis({
-        wrapper: selection,
-        nodes,
-        size,
-        yAxis: yAxisStyle,
-        xAxis: xAxisStyle,
-        typeFromKey,
-        nodeTypes
-    });
-    const { chart } = useChart({
-        wrapper: selection,
-        nodes,
-        edges,
-        size,
-        yAxis: yAxisStyle,
-        xAxis: xAxisStyle,
-        xScale,
-        yScale,
-        typeFromKey,
-        nodeTypes
+    const value = useService({
+        containerRef,
+        data,
+        xAxis: xStyleSettings,
+        yAxis: yStyleSettings
     });
 
-    useUpdateEffect(() => {
-        if (!selection || !size) return;
-
-        // 创建画布
-        selection.selectAll('svg')
-                .data([size])
-                .attr('width', d => d.width)
-                .attr('height', d => d.height);
-
-    }, [selection, size])
-
-    useUpdateEffect(() => {
-        if (!xScale || !yScale || !xAxis) return;
-
-        const zoomed: any = zoom().on('start', () => {
-            console.log('start')
-        }).on('zoom', (event) => {
-            const rx = event.transform.rescaleX(xScale);
-
-            xAxis.call(axisTop(rx));
-        }).on('end', () => {
-            console.log('end')
-        })
-
-        selection?.select('svg').call(zoomed)
-
-    }, [xScale, yScale, xAxis])
+    console.log('value', value)
 
     return (
-        <div className={`${classPrefix}-wrapper ${wrapperClassName}`} >
-            <div className={`${classPrefix} ${className}`} ref={containerRef}>
-                <svg></svg>
+        <GraphContext.Provider
+            value={value}
+        >
+            <div className={`${classPrefix}-wrapper ${wrapperClassName}`}>
+                <div className={`${classPrefix} ${className}`} ref={containerRef}>
+                    <Graph />
+                </div>
             </div>
-        </div>
+        </GraphContext.Provider>
     )
 };
 

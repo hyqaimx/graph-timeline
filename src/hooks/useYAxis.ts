@@ -1,30 +1,23 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useContext } from 'react';
 import { useSafeState } from 'ahooks';
 import { scalePoint } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
-import { map } from 'lodash';
+import { map, wrap } from 'lodash';
 import type { Selection } from 'd3-selection';
-import type { IData, INode, IXAxisStyle, IYAxisStyle } from '../types';
-import { DEFAULT_TYPE_STYLE, FROM_KEY } from '../common/constants';
+import GraphContext from '../context';
+import type { INode  } from '../types';
+import { DEFAULT_TYPE_STYLE } from '../common/constants';
 
-export interface IProps extends Partial<{
-    wrapper: Selection<HTMLDivElement, any, any, any>
-    nodes: INode[]
-    size: { width: number; height: number }
-}>,  Pick<IData, 'nodeTypes' | 'typeFromKey'> {
-    xAxis: IXAxisStyle
-    yAxis: IYAxisStyle
-}
-
-export default ({
-    wrapper,
-    nodes = [],
-    size,
-    xAxis: {height: xHeight},
-    yAxis: { width: yWidth },
-    typeFromKey = FROM_KEY['type'],
-    nodeTypes
-}: IProps) => {
+export default () => {
+    const {
+        wrapper,
+        nodes,
+        size, 
+        xAxisStyle: {height: xHeight}, 
+        yAxisStyle: { width: yWidth }, 
+        typeFromKey,
+        nodeTypes
+    } = useContext(GraphContext);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
     const yScale = useMemo(() => {
         if (!wrapper || !nodes?.length || !size) return;
@@ -45,13 +38,14 @@ export default ({
             .enter()
             .append('g')
             .attr('class', 'axis yAxis')
+            .attr('transform', (size) => `translate(${size.width}, ${xHeight})`)
             
         setYAxis(yAxis);
-    }, [wrapper])
+    }, [wrapper, size])
 
     // render y 轴
     useEffect(() => {
-        if (!yAxis || !yScale ||!size) return;
+        if (!yAxis || !yScale ||!size || !nodes?.length) return;
 
         yAxis.attr("transform", `translate(${size.width}, ${xHeight})`);
 
@@ -68,7 +62,7 @@ export default ({
                 if (!typeKey || !nodeTypes?.[typeKey as string]?.bgLineColor) return DEFAULT_TYPE_STYLE['bgLineColor'] as string;
                 return nodeTypes[typeKey as string].bgLineColor as string;
             })
-    }, [yAxis, yScale, size])
+    }, [yAxis, yScale, size, nodes, nodeTypes])
     
     return {
         yScale
