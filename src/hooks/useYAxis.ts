@@ -2,7 +2,7 @@ import { useEffect, useMemo, useContext } from 'react';
 import { useSafeState } from 'ahooks';
 import { scalePoint } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
-import { map, wrap } from 'lodash';
+import { map } from 'lodash';
 import type { Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { INode  } from '../types';

@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import type { RefObject } from 'react';
 import { useSize } from 'ahooks';
 import { parseIntCssVal } from '../utils';
-
+import type { TNoPaddingSize } from '../types';
 
 export default (target: RefObject<HTMLDivElement>) => {
     const size = useSize(target);
-    const [noPaddingSize, setNoPaddingSize] = useState<{width: number; height: number}>();
+    const [noPaddingSize, setNoPaddingSize] = useState<TNoPaddingSize>();
 
     useEffect(() => {
         if (!size || !target.current) return;
@@ -23,7 +23,11 @@ export default (target: RefObject<HTMLDivElement>) => {
 
         setNoPaddingSize({
             width: width - pl - pr,
-            height: height - pt - pb
+            height: height - pt - pb,
+            paddingLeft: pl,
+            paddingRight: pr,
+            paddingTop: pt,
+            paddingBottom: pb
         });
         
     }, [size, target])

@@ -34,3 +34,12 @@ export interface IYAxisStyle {
 
 export interface IXAxisStyle {
 }
+
+export type TNoPaddingSize = {
+    width: number;
+    height: number;
+    paddingLeft: number;
+    paddingRight: number;
+    paddingTop: number;
+    paddingBottom: number;
+};

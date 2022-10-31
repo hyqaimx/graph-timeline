@@ -76,6 +76,7 @@ export default ({
             .data(edges.filter(edge => !!(edge.end && nodesMap[edge.end])));
         const endEnter = end.enter()
             .append('circle')
+            .attr('d-id', edge => edge.end)
             .attr('class', '__circle __end') as any;
         
         end.merge(endEnter)
