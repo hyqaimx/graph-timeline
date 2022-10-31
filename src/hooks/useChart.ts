@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useMemo } from 'react';
 import { useSafeState } from 'ahooks';
 import { DEFAULT_TYPE_STYLE } from '../common/constants';
 import type { Selection } from 'd3-selection';
@@ -26,6 +26,14 @@ export default ({
         nodeTypes
     } = useContext(GraphContext);
     const [chart, setChart] = useSafeState<Selection<SVGGElement, any, any, any>>()
+
+    const nodesMap = useMemo(() => {
+        const m: Record<string, INode> = {};
+        nodes.forEach(node => {
+            m[node.id] = node;
+        })
+        return m;
+    }, [nodes])
     
     // init chart Element
     useEffect(() => {
@@ -42,7 +50,7 @@ export default ({
         if (!chart || !size) return;
         // start 节点
         const start = chart.selectAll('.__circle.__start')
-            .data(edges.filter(edge => !!edge.start))
+            .data(edges.filter(edge => !!(edge.start && nodesMap[edge.start])))
         const startEnter = start.enter()
             .append('circle')
             .attr('class', '__circle __start') as any;
@@ -65,7 +73,7 @@ export default ({
         
         // end 节点（有 end 才绘制，如果没有就不绘制）
         const end = chart.selectAll('.__circle.__end')
-            .data(edges.filter(edge => !!edge.end));
+            .data(edges.filter(edge => !!(edge.end && nodesMap[edge.end])));
         const endEnter = end.enter()
             .append('circle')
             .attr('class', '__circle __end') as any;
@@ -82,7 +90,7 @@ export default ({
 
         // 连线（有 start & end 的才画线）
         const line = chart.selectAll('.__line')
-            .data(edges.filter(edge => !!(edge.end && edge.start)));
+            .data(edges.filter(edge => !!(edge.end && edge.start && nodesMap[edge.start] && nodesMap[edge.end])));
         const lineEnter = line.enter()
             .append('line')
             .attr('class', '__line') as any;
