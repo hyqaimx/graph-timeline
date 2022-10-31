@@ -33,14 +33,12 @@ export default () => {
     useEffect(() => {
         if (!wrapper || !size) return;
 
-        const yAxis = wrapper.select('svg').selectAll('.yAxis')
-            .data([size])
-            .enter()
-            .append('g')
-            .attr('class', 'axis yAxis')
-            .attr('transform', (size) => `translate(${size.width}, ${xHeight})`)
+        let yAxis = wrapper.select('svg').selectAll('.yAxis').data([size]);
+        const yAxisEnter = yAxis.enter().append('g').attr('class', 'axis yAxis') as any;
             
-        setYAxis(yAxis);
+        yAxis = yAxis.merge(yAxisEnter).attr('transform', (size) => `translate(${size.width}, ${xHeight})`)
+            
+        setYAxis(yAxis as any);
     }, [wrapper, size])
 
     // render y 轴

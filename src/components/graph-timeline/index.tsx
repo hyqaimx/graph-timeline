@@ -33,8 +33,6 @@ const GraphTimeline: React.FC<IProps> = ({
         yAxis: yStyleSettings
     });
 
-    console.log('value', value)
-
     return (
         <GraphContext.Provider
             value={value}

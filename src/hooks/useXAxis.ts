@@ -28,14 +28,13 @@ export default () => {
     useEffect(() => {
         if (!wrapper || !size) return;
 
-        const xAxis = wrapper.select('svg').selectAll('.xAxis')
-            .data([yWidth])
-            .enter()
-            .append('g')
-            .attr('class', 'axis xAxis')
+        let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
+        const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
+
+        xAxis = xAxis.merge(xAxisEnter as any)
             .attr("transform", yWidth => `translate(${yWidth}, 0)`)
           
-        setXAxis(xAxis)
+        setXAxis(xAxis as any)
     }, [wrapper, size])
 
     useEffect(() => {

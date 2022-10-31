@@ -31,57 +31,46 @@ export default ({
     useEffect(() => {
         if (!wrapper || !size) return;
 
-        const chart = wrapper.select('svg').selectAll('.__chart')
-            .data([yWidth])
-            .enter()
-            .append('g')
-            .attr('class', '__chart')
-            .attr("transform", yWidth => `translate(${yWidth}, ${xHeight})`);
+        let chart = wrapper.select('svg').selectAll('.__chart').data([yWidth])
+        const chartEnter = chart.enter().append('g').attr('class', '__chart') as any;
+        chart = chart.merge(chartEnter).attr("transform", yWidth => `translate(${yWidth}, ${xHeight})`);
 
-        setChart(chart);
+        setChart(chart as any);
     }, [wrapper, size]);
 
     useEffect(() => {
         if (!chart || !size) return;
         // start 节点
-        const startUpdater = chart.selectAll('.__circle.__start')
+        const start = chart.selectAll('.__circle.__start')
             .data(edges.filter(edge => !!edge.start))
-            .attr('cx', (edge: IEdge) => {
-                return xScale(formatTime(edge.properties.createdTime));
-            })
-            .attr('cy', (edge: IEdge) => {
-                return yScale(edge.start);
-            });
-        startUpdater.enter()
+        const startEnter = start.enter()
             .append('circle')
-            .attr('class', '__circle __start')
-            .attr('r', 3)
-            .attr('fill', (edge: IEdge) => {
-                const node = getNodeById(nodes, edge.start);
-                const typeKey = node?.[typeFromKey as keyof INode];
-                if (!typeKey || !nodeTypes?.[typeKey as string]?.color) return DEFAULT_TYPE_STYLE['color'] as string;
-                return nodeTypes[typeKey as string].color as string;
-            })
-            .attr('cx', (edge: IEdge) => {
-                return xScale(formatTime(edge.properties.createdTime));
-            })
-            .attr('cy', (edge: IEdge) => {
-                return yScale(edge.start);
-            });
-        startUpdater.exit().remove();
+            .attr('class', '__circle __start') as any;
+        
+        start.merge(startEnter)
+                    .attr('r', 3)
+                    .attr('fill', (edge: IEdge) => {
+                        const node = getNodeById(nodes, edge.start);
+                        const typeKey = node?.[typeFromKey as keyof INode];
+                        if (!typeKey || !nodeTypes?.[typeKey as string]?.color) return DEFAULT_TYPE_STYLE['color'] as string;
+                        return nodeTypes[typeKey as string].color as string;
+                    })
+                    .attr('cx', (edge: IEdge) => {
+                        return xScale(formatTime(edge.properties.createdTime));
+                    })
+                    .attr('cy', (edge: IEdge) => {
+                        return yScale(edge.start);
+                    });
+        start.exit().remove();
         
         // end 节点（有 end 才绘制，如果没有就不绘制）
-        const endUpdater = chart.selectAll('.__circle.__end')
-            .data(edges.filter(edge => !!edge.end))
-            .attr('cx', (edge: IEdge) => {
-                return xScale(formatTime(edge.properties.createdTime));
-            })
-            .attr('cy', (edge: IEdge) => {
-                return yScale(edge.end);
-            })
-        endUpdater.enter()
+        const end = chart.selectAll('.__circle.__end')
+            .data(edges.filter(edge => !!edge.end));
+        const endEnter = end.enter()
             .append('circle')
-            .attr('class', '__circle __end')
+            .attr('class', '__circle __end') as any;
+        
+        end.merge(endEnter)
             .attr('r', 3)
             .attr('cx', (edge: IEdge) => {
                 return xScale(formatTime(edge.properties.createdTime));
@@ -89,26 +78,16 @@ export default ({
             .attr('cy', (edge: IEdge) => {
                 return yScale(edge.end);
             });
-        endUpdater.exit().remove();
+        end.exit().remove();
 
         // 连线（有 start & end 的才画线）
-        const lineUpdater = chart.selectAll('.__line')
-            .data(edges.filter(edge => !!(edge.end && edge.start)))
-            .attr('x1', (edge: IEdge) => {
-                return xScale(formatTime(edge.properties.createdTime));
-            })
-            .attr('y1', (edge: IEdge) => {
-                return yScale(edge.start);
-            })
-            .attr('x2', (edge: IEdge) => {
-                return xScale(formatTime(edge.properties.createdTime));
-            })
-            .attr('y2', (edge: IEdge) => {
-                return yScale(edge.end);
-            });
-        lineUpdater.enter()
+        const line = chart.selectAll('.__line')
+            .data(edges.filter(edge => !!(edge.end && edge.start)));
+        const lineEnter = line.enter()
             .append('line')
-            .attr('class', '__line')
+            .attr('class', '__line') as any;
+        
+        line.merge(lineEnter)
             .attr('x1', (edge: IEdge) => {
                 return xScale(formatTime(edge.properties.createdTime));
             })
@@ -122,7 +101,7 @@ export default ({
                 return yScale(edge.end);
             })
             .attr('style', `stroke:#8c8c8c;stroke-width:2`);
-        lineUpdater.exit().remove();
+        line.exit().remove();
     }, [chart, size, xScale, yScale, edges, nodes]);
 
     return {
