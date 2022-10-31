@@ -16,11 +16,6 @@ export interface INode extends Partial<{
 }> {
     id: string;
 }
-
-// 数组 nodes 转换为 obj 格式，增加内部使用的排序字段 __order
-export interface IObjNode extends INode {
-    __order: number;
-}
 export interface ITypeStyle {
     color?: string;
     labelColor?: string;
