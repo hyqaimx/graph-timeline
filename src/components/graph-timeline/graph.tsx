@@ -40,6 +40,7 @@ export default () => {
             console.log('end')
         })
 
+        wrapper.select('svg').call(zoomed)
     }, [xScale, yScale, xAxis, wrapper, size])
     return (
         <svg></svg>

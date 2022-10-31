@@ -8,7 +8,6 @@ import { useSafeState } from 'ahooks';
 import { TIME_FORMAT } from '../common/constants';
 import GraphContext from '../context';
 import type { Selection } from 'd3-selection';
-import { formatTime } from '../utils';
 
 export default () => {
     const { wrapper, edges, size, yAxisStyle: { width: yWidth } } = useContext(GraphContext);
