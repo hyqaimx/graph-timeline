@@ -29,14 +29,14 @@ export default ({
     
     // init chart Element
     useEffect(() => {
-        if (!wrapper || !size) return;
+        if (!wrapper) return;
 
         let chart = wrapper.select('svg').selectAll('.__chart').data([yWidth])
         const chartEnter = chart.enter().append('g').attr('class', '__chart') as any;
         chart = chart.merge(chartEnter).attr("transform", yWidth => `translate(${yWidth}, ${xHeight})`);
 
         setChart(chart as any);
-    }, [wrapper, size]);
+    }, [wrapper]);
 
     useEffect(() => {
         if (!chart || !size) return;

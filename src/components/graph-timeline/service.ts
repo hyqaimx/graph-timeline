@@ -26,10 +26,10 @@ export const useService = ({
     const xAxisStyle = useMemo(() => assign(DEFAULT_XAXIS_STYLE, xAxis), [xAxis]);
 
     useEffect(() => {
-        if (!containerRef.current) return;
+        if (!containerRef.current || !size) return;
         
         setSelection(select(containerRef.current));
-    }, [containerRef.current])
+    }, [containerRef.current, size])
 
     return {
         wrapper: selection,

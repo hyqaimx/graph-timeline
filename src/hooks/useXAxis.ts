@@ -26,7 +26,7 @@ export default () => {
     }, [wrapper, edges, size]);
 
     useEffect(() => {
-        if (!wrapper || !size) return;
+        if (!wrapper) return;
 
         let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
         const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
@@ -35,13 +35,13 @@ export default () => {
             .attr("transform", yWidth => `translate(${yWidth}, 0)`)
           
         setXAxis(xAxis as any)
-    }, [wrapper, size])
+    }, [wrapper])
 
     useEffect(() => {
-        if (!xAxis || !xScale || !size) return;
+        if (!xAxis || !xScale) return;
         
         xAxis.call(axisTop(xScale))
-    }, [xAxis, size, xScale])
+    }, [xAxis, xScale])
 
     return {
         xScale,
