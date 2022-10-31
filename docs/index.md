@@ -6,6 +6,7 @@ Demo:
 ```tsx
 import React from 'react';
 import { GraphTimeline } from 'graph-timeline-v2';
+import './index.less'
 
 const data = {
   "typeFromKey": "group",
@@ -1377,12 +1378,12 @@ const data = {
 }
 
 export default () => (
-    <div style={{ height: 800 }}> 
-        <GraphTimeline
-            data={data}
-            yAxis={{ width: 200 }}
-        />
-    </div>
+    <GraphTimeline
+        data={data}
+        yAxis={{ width: 200 }}
+        style={{ height: 800, padding: 30 }}
+        className="test"
+    />
 );
 ```
 

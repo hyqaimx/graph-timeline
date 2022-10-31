@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useMemo, useState } from "react";
 import { assign } from 'lodash';
 import { select } from 'd3-selection';
-import { useSize } from 'ahooks';
+import useNoPaddingSize from '../../hooks/useNoPaddingSize';
 import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE } from "../../common/constants";
 import { IData, IXAxisStyle, IYAxisStyle } from "../../types";
 import type { Selection } from 'd3-selection';
@@ -19,7 +19,7 @@ export const useService = ({
     yAxis,
     xAxis
 }: IServiceProps) => {
-    const size = useSize(containerRef);
+    const size = useNoPaddingSize(containerRef);
     const [selection, setSelection] = useState<Selection<HTMLDivElement, unknown, null, undefined>>();
 
     const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yAxis), [yAxis]);
@@ -27,7 +27,7 @@ export const useService = ({
 
     useEffect(() => {
         if (!containerRef.current || !size) return;
-        
+
         setSelection(select(containerRef.current));
     }, [containerRef.current, size])
 

@@ -1,4 +1,4 @@
-import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import React, { CSSProperties, useRef } from 'react';
 import { classPrefix } from '../../common/constants';
 import GraphContext from '../../context';
 import { useService } from './service';
@@ -12,7 +12,7 @@ export interface IProps extends Partial<{
     className: string;
     yAxis: Partial<IYAxisStyle>;
     xAxis: Partial<IXAxisStyle>
-    style: Omit<CSSProperties, 'padding' | 'margin'>;
+    style: CSSProperties;
 }> {
     data: IData
 }
@@ -38,7 +38,7 @@ const GraphTimeline: React.FC<IProps> = ({
             value={value}
         >
             <div className={`${classPrefix}-wrapper ${wrapperClassName}`}>
-                <div className={`${classPrefix} ${className}`} ref={containerRef}>
+                <div className={`${classPrefix} ${className}`} ref={containerRef} style={style}>
                     <Graph />
                 </div>
             </div>

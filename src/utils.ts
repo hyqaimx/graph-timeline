@@ -9,3 +9,8 @@ export const formatTime = (time: number | string) => {
 export const getNodeById = (nodes: INode[], id: string | number) => {
     return nodes?.find(node => node.id === id);
 }
+
+export const parseIntCssVal = (originVal: string) => {
+    const val = originVal?.match(/\d+/g)?.[0];
+    return val ? parseInt(val) : 0;
+}
