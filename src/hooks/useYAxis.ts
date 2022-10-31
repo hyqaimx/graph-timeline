@@ -13,7 +13,7 @@ export default () => {
         wrapper,
         nodes,
         size, 
-        xAxisStyle: {height: xHeight}, 
+        xAxisStyle, 
         yAxisStyle: { width: yWidth }, 
         typeFromKey,
         nodeTypes
@@ -36,7 +36,7 @@ export default () => {
         let yAxis = wrapper.select('svg').selectAll('.yAxis').data([size]);
         const yAxisEnter = yAxis.enter().append('g').attr('class', 'axis yAxis') as any;
             
-        yAxis = yAxis.merge(yAxisEnter).attr('transform', (size) => `translate(${size.width}, ${xHeight})`)
+        yAxis = yAxis.merge(yAxisEnter).attr('transform', (size) => `translate(${size.width}, 0)`)
             
         setYAxis(yAxis as any);
     }, [wrapper, size])
@@ -45,7 +45,7 @@ export default () => {
     useEffect(() => {
         if (!yAxis || !yScale ||!size || !nodes?.length) return;
 
-        yAxis.attr("transform", `translate(${size.width}, ${xHeight})`);
+        yAxis.attr("transform", `translate(${size.width},0)`);
 
         yAxis.call(axisLeft(yScale).tickSize(size.width - yWidth).tickPadding(3))
 

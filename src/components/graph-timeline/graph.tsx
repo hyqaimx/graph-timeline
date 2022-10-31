@@ -1,8 +1,7 @@
 import React, { useContext } from 'react';
-import { select } from 'd3-selection';
 import { axisTop } from 'd3-axis';
 import { zoom } from 'd3-zoom';
-import { useSize, useUpdateEffect } from 'ahooks';
+import { useUpdateEffect } from 'ahooks';
 import useXAxis from '../../hooks/useXAxis';
 import useYAxis from '../../hooks/useYAxis';
 import useChart from '../../hooks/useChart';

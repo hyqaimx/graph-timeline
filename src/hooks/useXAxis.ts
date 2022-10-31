@@ -39,7 +39,10 @@ export default () => {
     useEffect(() => {
         if (!xAxis || !xScale) return;
         
-        xAxis.call(axisTop(xScale))
+        xAxis.call(axisTop(xScale));
+
+        // 取消 x 轴下方横线的显示
+        xAxis.selectAll('.domain').remove()
     }, [xAxis, xScale])
 
     return {

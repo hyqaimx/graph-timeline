@@ -25,7 +25,6 @@ export interface ITypeStyle {
     color?: string;
     labelColor?: string;
     bgLineColor?: string;
-    groupBy: string[];
 }
 export interface IData  {
     edges?: IEdge[];
@@ -39,5 +38,4 @@ export interface IYAxisStyle {
 }
 
 export interface IXAxisStyle {
-    height: number
 }

@@ -5,10 +5,11 @@ export const classPrefix = 'graph-timeline';
 export const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 export const DEFAULT_YAXIS_STYLE: IYAxisStyle = {
+    // TODO 左侧内容的宽度（最好是能够自适应，目前是配置形式）
     width: 100
 }
 export const DEFAULT_XAXIS_STYLE: IXAxisStyle = {
-    height: 10
+    
 }
 
 export const FROM_KEY = {

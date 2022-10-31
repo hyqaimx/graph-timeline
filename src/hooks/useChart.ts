@@ -20,7 +20,7 @@ export default ({
         edges = [],
         nodes = [],
         size,
-        xAxisStyle: {height: xHeight},
+        xAxisStyle,
         yAxisStyle: { width: yWidth },
         typeFromKey,
         nodeTypes
@@ -33,7 +33,7 @@ export default ({
 
         let chart = wrapper.select('svg').selectAll('.__chart').data([yWidth])
         const chartEnter = chart.enter().append('g').attr('class', '__chart') as any;
-        chart = chart.merge(chartEnter).attr("transform", yWidth => `translate(${yWidth}, ${xHeight})`);
+        chart = chart.merge(chartEnter).attr("transform", yWidth => `translate(${yWidth}, 0)`);
 
         setChart(chart as any);
     }, [wrapper]);
