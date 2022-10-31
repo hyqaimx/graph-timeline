@@ -8,40 +8,41 @@ import useChart from '../../hooks/useChart';
 import GraphContext from '../../context';
 
 export default () => {
-    const {wrapper, size} = useContext(GraphContext)
-    const { xScale, xAxis } = useXAxis();
-    const { yScale } = useYAxis();
-    const { chart } = useChart({
-        xScale,
-        yScale
-    });
+  const { wrapper, size } = useContext(GraphContext);
+  const { xScale, xAxis } = useXAxis();
+  const { yScale } = useYAxis();
+  const { chart, setTransform } = useChart({
+    xScale,
+    yScale,
+  });
 
-    useUpdateEffect(() => {
-        if (!wrapper || !size) return;
-        // 更新画布大小
-        wrapper.selectAll('svg')
-                .data([size])
-                .attr('width', d => d.width)
-                .attr('height', d => d.height);
+  useUpdateEffect(() => {
+    if (!wrapper || !size) return;
+    // 更新画布大小
+    wrapper
+      .selectAll('svg')
+      .data([size])
+      .attr('width', (d) => d.width)
+      .attr('height', (d) => d.height);
+  }, [wrapper, size]);
 
-    }, [wrapper, size])
+  useUpdateEffect(() => {
+    if (!xScale || !yScale || !xAxis || !wrapper || !size) return;
 
-    useUpdateEffect(() => {
-        if (!xScale || !yScale || !xAxis || !wrapper || !size) return;
+    const zoomed: any = zoom()
+      .on('start', () => {
+        console.log('start');
+      })
+      .on('zoom', (event) => {
+        const rx = event.transform.rescaleX(xScale);
+        setTransform(event.transform);
+        xAxis.call(axisTop(rx));
+      })
+      .on('end', () => {
+        console.log('end');
+      });
 
-        const zoomed: any = zoom().on('start', () => {
-            console.log('start')
-        }).on('zoom', (event) => {
-            const rx = event.transform.rescaleX(xScale);
-
-            xAxis.call(axisTop(rx));
-        }).on('end', () => {
-            console.log('end')
-        })
-
-        wrapper.select('svg').call(zoomed)
-    }, [xScale, yScale, xAxis, wrapper, size])
-    return (
-        <svg></svg>
-    )
-}
+    wrapper.select('svg').call(zoomed);
+  }, [xScale, yScale, xAxis, wrapper, size]);
+  return <svg></svg>;
+};
