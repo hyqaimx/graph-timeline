@@ -78,12 +78,18 @@ export default ({ xScale, yScale }: IProps) => {
     const endEnter = end
       .enter()
       .append('circle')
-      .attr('d-id', (edge) => edge.end)
       .attr('class', '__circle __end') as any;
 
     end
       .merge(endEnter)
       .attr('r', 3)
+      .attr('fill', (edge: IEdge) => {
+        const node = getNodeById(nodes, edge.end);
+        const typeKey = node?.[typeFromKey as keyof INode];
+        if (!typeKey || !nodeTypes?.[typeKey as string]?.color)
+          return DEFAULT_TYPE_STYLE['color'] as string;
+        return nodeTypes[typeKey as string].color as string;
+      })
       .attr('cx', (edge: IEdge) => {
         return theScale(formatTime(edge.properties.createdTime));
       })
