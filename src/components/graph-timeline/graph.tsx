@@ -25,22 +25,28 @@ export default () => {
       .attr('height', (d) => d.height);
   }, [wrapper, size]);
 
+  /**
+   * 监听时间轴的缩放
+   */
   useUpdateEffect(() => {
-    if (!wrapper) return;
+    if (!wrapper || !size) return;
 
     const zoomed: any = zoom()
       .on('start', () => {
-        console.log('start');
+        //console.log('start');
       })
       .on('zoom', (event) => {
         setTransform?.(event.transform);
       })
+      .translateExtent([
+        [-size.width / 2, 0],
+        [size?.width * 1.5, size.height],
+      ])
       .on('end', () => {
-        console.log('end');
+        //console.log('end');
       });
 
     wrapper.select('svg').call(zoomed);
-  }, [wrapper]);
-  
+  }, [wrapper, size]);
   return <svg></svg>;
 };
