@@ -78,7 +78,10 @@ export default ({ xScale, yScale }: IProps) => {
 
     end
       .merge(endEnter)
-      .attr('r', 3)
+      .attr('r', (edge: IEdge) => {
+        const node = nodesMap?.[edge.end]; 
+        return getCurrNodeStyle?.('radius', node) || null;
+      })
       .attr('fill', (edge: IEdge) => {
         const node = nodesMap?.[edge.end];
         return getCurrNodeStyle?.('color', node) || null;
