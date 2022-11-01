@@ -8,10 +8,10 @@ import useChart from '../../hooks/useChart';
 import GraphContext from '../../context';
 
 export default () => {
-  const { wrapper, size } = useContext(GraphContext);
+  const { wrapper, size, setTransform } = useContext(GraphContext);
   const { xScale, xAxis } = useXAxis();
   const { yScale } = useYAxis();
-  const { chart, setTransform } = useChart({
+  const { chart } = useChart({
     xScale,
     yScale,
   });
@@ -34,9 +34,7 @@ export default () => {
         console.log('start');
       })
       .on('zoom', (event) => {
-        const rx = event.transform.rescaleX(xScale);
-        setTransform(event.transform);
-        xAxis.call(axisTop(rx));
+        setTransform?.(event.transform);
       })
       .on('end', () => {
         console.log('end');

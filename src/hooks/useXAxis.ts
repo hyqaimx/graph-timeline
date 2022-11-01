@@ -10,43 +10,46 @@ import GraphContext from '../context';
 import type { Selection } from 'd3-selection';
 
 export default () => {
-    const { wrapper, edges, size, yAxisStyle: { width: yWidth } } = useContext(GraphContext);
-    
-    const [xAxis, setXAxis] = useSafeState<Selection<SVGGElement, any, any, any>>();
+  const {
+    wrapper,
+    edges,
+    size,
+    yAxisStyle: { width: yWidth },
+    transform,
+  } = useContext(GraphContext);
 
-    const xScale = useMemo(() => {
-        if (!wrapper || !edges?.length || !size) return;
+  const [xAxis, setXAxis] = useSafeState<Selection<SVGGElement, any, any, any>>();
 
-        const minAndMax = extent(edges, ({properties: { createdTime }}) => createdTime);
-        return scaleTime()
-            .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
-            .range([0, size.width - yWidth])
-            .nice()
-    }, [wrapper, edges, size]);
+  const xScale = useMemo(() => {
+    if (!wrapper || !edges?.length || !size) return;
 
-    useEffect(() => {
-        if (!wrapper) return;
+    const minAndMax = extent(edges, ({ properties: { createdTime } }) => createdTime);
+    return scaleTime()
+      .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
+      .range([0, size.width - yWidth])
+      .nice();
+  }, [wrapper, edges, size]);
 
-        let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
-        const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
+  useEffect(() => {
+    if (!wrapper) return;
 
-        xAxis = xAxis.merge(xAxisEnter as any)
-            .attr("transform", yWidth => `translate(${yWidth}, 0)`)
-          
-        setXAxis(xAxis as any)
-    }, [wrapper])
+    let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
+    const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
 
-    useEffect(() => {
-        if (!xAxis || !xScale) return;
-        
-        xAxis.call(axisTop(xScale));
+    xAxis = xAxis.merge(xAxisEnter as any).attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
 
-        // 取消 x 轴下方横线的显示
-        xAxis.selectAll('.domain').remove()
-    }, [xAxis, xScale])
+    setXAxis(xAxis as any);
+  }, [wrapper]);
 
-    return {
-        xScale,
-        xAxis
-    }
-}
+  useEffect(() => {
+    if (!xAxis || !xScale) return;
+    transform ? xAxis.call(axisTop(transform.rescaleX(xScale))) : xAxis.call(axisTop(xScale));
+    // 取消 x 轴下方横线的显示
+    xAxis.selectAll('.domain').remove();
+  }, [xAxis, xScale, transform]);
+
+  return {
+    xScale,
+    xAxis,
+  };
+};

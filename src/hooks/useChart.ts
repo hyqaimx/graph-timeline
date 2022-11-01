@@ -21,9 +21,9 @@ export default ({ xScale, yScale }: IProps) => {
     yAxisStyle: { width: yWidth },
     typeFromKey,
     nodeTypes,
+    transform,
   } = useContext(GraphContext);
   const [chart, setChart] = useSafeState<Selection<SVGGElement, any, any, any>>();
-  const [transform, setTransform] = useSafeState<any>();
 
   const nodesMap = useMemo(() => {
     const m: Record<string, INode> = {};
@@ -75,10 +75,7 @@ export default ({ xScale, yScale }: IProps) => {
     const end = chart
       .selectAll('.__circle.__end')
       .data(edges.filter((edge) => !!(edge.end && nodesMap[edge.end])));
-    const endEnter = end
-      .enter()
-      .append('circle')
-      .attr('class', '__circle __end') as any;
+    const endEnter = end.enter().append('circle').attr('class', '__circle __end') as any;
 
     end
       .merge(endEnter)
@@ -128,6 +125,5 @@ export default ({ xScale, yScale }: IProps) => {
 
   return {
     chart,
-    setTransform,
   };
 };
