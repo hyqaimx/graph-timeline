@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { axisTop } from 'd3-axis';
 import { zoom } from 'd3-zoom';
 import { useUpdateEffect } from 'ahooks';
 import useXAxis from '../../hooks/useXAxis';
@@ -9,7 +8,7 @@ import GraphContext from '../../context';
 
 export default () => {
   const { wrapper, size, setTransform } = useContext(GraphContext);
-  const { xScale, xAxis } = useXAxis();
+  const { xScale } = useXAxis();
   const { yScale } = useYAxis();
   const { chart } = useChart({
     xScale,
@@ -27,7 +26,7 @@ export default () => {
   }, [wrapper, size]);
 
   useUpdateEffect(() => {
-    if (!xScale || !yScale || !xAxis || !wrapper || !size) return;
+    if (!wrapper) return;
 
     const zoomed: any = zoom()
       .on('start', () => {
@@ -41,6 +40,6 @@ export default () => {
       });
 
     wrapper.select('svg').call(zoomed);
-  }, [xScale, yScale, xAxis, wrapper, size]);
+  }, [wrapper]);
   return <svg></svg>;
 };

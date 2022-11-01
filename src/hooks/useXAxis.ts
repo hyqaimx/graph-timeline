@@ -24,11 +24,12 @@ export default () => {
     if (!wrapper || !edges?.length || !size) return;
 
     const minAndMax = extent(edges, ({ properties: { createdTime } }) => createdTime);
-    return scaleTime()
+    const scale =  scaleTime()
       .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
       .range([0, size.width - yWidth])
       .nice();
-  }, [wrapper, edges, size]);
+    return transform?.rescaleX(scale) || scale;
+  }, [wrapper, edges, size, transform]);
 
   useEffect(() => {
     if (!wrapper) return;
@@ -43,10 +44,10 @@ export default () => {
 
   useEffect(() => {
     if (!xAxis || !xScale) return;
-    transform ? xAxis.call(axisTop(transform.rescaleX(xScale))) : xAxis.call(axisTop(xScale));
+    xAxis.call(axisTop(xScale))
     // 取消 x 轴下方横线的显示
     xAxis.selectAll('.domain').remove();
-  }, [xAxis, xScale, transform]);
+  }, [xAxis, xScale]);
 
   return {
     xScale,

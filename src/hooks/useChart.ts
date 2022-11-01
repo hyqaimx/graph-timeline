@@ -46,7 +46,6 @@ export default ({ xScale, yScale }: IProps) => {
 
   useEffect(() => {
     if (!chart || !size) return;
-    const theScale = transform?.rescaleX(xScale) || xScale;
     // start 节点
     const start = chart
       .selectAll('.__circle.__start')
@@ -64,7 +63,7 @@ export default ({ xScale, yScale }: IProps) => {
         return nodeTypes[typeKey as string].color as string;
       })
       .attr('cx', (edge: IEdge) => {
-        return theScale(formatTime(edge.properties.createdTime));
+        return xScale(formatTime(edge.properties.createdTime));
       })
       .attr('cy', (edge: IEdge) => {
         return yScale(edge.start);
@@ -88,7 +87,7 @@ export default ({ xScale, yScale }: IProps) => {
         return nodeTypes[typeKey as string].color as string;
       })
       .attr('cx', (edge: IEdge) => {
-        return theScale(formatTime(edge.properties.createdTime));
+        return xScale(formatTime(edge.properties.createdTime));
       })
       .attr('cy', (edge: IEdge) => {
         return yScale(edge.end);
@@ -108,13 +107,13 @@ export default ({ xScale, yScale }: IProps) => {
     line
       .merge(lineEnter)
       .attr('x1', (edge: IEdge) => {
-        return theScale(formatTime(edge.properties.createdTime));
+        return xScale(formatTime(edge.properties.createdTime));
       })
       .attr('y1', (edge: IEdge) => {
         return yScale(edge.start);
       })
       .attr('x2', (edge: IEdge) => {
-        return theScale(formatTime(edge.properties.createdTime));
+        return xScale(formatTime(edge.properties.createdTime));
       })
       .attr('y2', (edge: IEdge) => {
         return yScale(edge.end);
