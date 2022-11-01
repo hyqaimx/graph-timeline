@@ -20,7 +20,7 @@ export default () => {
         const minAndMax = extent(edges, ({properties: { createdTime }}) => createdTime);
         return scaleTime()
             .domain(map(minAndMax, time => dayjs(time, TIME_FORMAT)))
-            .range([0, size.width - yWidth - size.paddingLeft - size.paddingRight])
+            .range([0, size.width - yWidth])
             .nice()
     }, [wrapper, edges, size]);
 
