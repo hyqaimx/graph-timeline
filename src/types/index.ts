@@ -18,13 +18,17 @@ export interface INode extends Partial<{
 }
 export interface ITypeStyle {
     color?: string;
-    labelColor?: string;
+    radius?: number;
     bgLineColor?: string;
+    bgLineStyle?: 'dashed' | 'solid';
 }
 export interface IData  {
     edges?: IEdge[];
     nodes?: INode[];
+    // 分类型
     nodeTypes?: Record<string, ITypeStyle>;
+    // 没有类型，统一设置所有节点样式
+    nodeStyle?: ITypeStyle;
     typeFromKey?: string;
 }
 
@@ -35,11 +39,12 @@ export interface IYAxisStyle {
 export interface IXAxisStyle {
 }
 
-export type TNoPaddingSize = {
+export interface TNoPaddingSize {
     width: number;
     height: number;
     paddingLeft: number;
     paddingRight: number;
     paddingTop: number;
     paddingBottom: number;
-};
+}
+

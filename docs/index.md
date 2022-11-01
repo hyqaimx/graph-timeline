@@ -13,8 +13,15 @@ const data = {
   "nodeTypes": {
     "SPerson": {
       "color": "red",
-      "bgLineColor": "red"
+      "radius": 4,
+      // "bgLineColor": "red",
+      "bgLineStyle": "dashed"
     }
+  },
+  "nodeStyle": {
+    "radius": 3,
+    "color": "green",
+    "bgLineStyle": "dashed"
   },
   "nodes": [
     {
@@ -11162,7 +11169,6 @@ export default () => (
         data={data}
         yAxis={{ width: 200 }}
         style={{ height: 1200, padding: 30 }}
-        className="test"
     />
 );
 ```

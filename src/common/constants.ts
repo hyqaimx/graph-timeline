@@ -19,8 +19,10 @@ export const FROM_KEY = {
 export const DEFAULT_TYPE_STYLE: ITypeStyle = {
     // 默认节点颜色
     color: '#8c8c8c',
-    // 默认 y轴 label 颜色
-    labelColor: '#141414',
+    // 半径
+    radius: 3,
     // 默认背景线颜色
-    bgLineColor: '#d9d9d9'
+    bgLineColor: '#d9d9d9',
+    // 背景线实线还是虚线
+    bgLineStyle: 'solid'
 }

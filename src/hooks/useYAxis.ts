@@ -16,7 +16,8 @@ export default () => {
         xAxisStyle, 
         yAxisStyle: { width: yWidth }, 
         typeFromKey,
-        nodeTypes
+        nodeTypes,
+        getCurrNodeStyle
     } = useContext(GraphContext);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
     const yScale = useMemo(() => {
@@ -56,9 +57,11 @@ export default () => {
         yAxis.selectAll('.tick line')
             .data(nodes)
             .attr('stroke', (node: INode) => {
-                const typeKey = node?.[typeFromKey as keyof INode];
-                if (!typeKey || !nodeTypes?.[typeKey as string]?.bgLineColor) return DEFAULT_TYPE_STYLE['bgLineColor'] as string;
-                return nodeTypes[typeKey as string].bgLineColor as string;
+                return getCurrNodeStyle?.('bgLineColor', node) || null;
+            })
+            .attr('stroke-dasharray', (node: INode) => {
+                const style = getCurrNodeStyle?.('bgLineStyle', node);
+                return style === 'solid' ? null : '5'
             })
     }, [yAxis, yScale, size, nodes, nodeTypes])
     

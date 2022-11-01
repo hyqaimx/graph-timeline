@@ -4,7 +4,7 @@ import { DEFAULT_TYPE_STYLE } from '../common/constants';
 import type { Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { IEdge, INode } from '../types';
-import { formatTime, getNodeById } from '../utils';
+import { formatTime } from '../utils';
 
 export interface IProps {
   xScale: any;
@@ -21,7 +21,7 @@ export default ({ xScale, yScale }: IProps) => {
     yAxisStyle: { width: yWidth },
     typeFromKey,
     nodeTypes,
-    transform,
+    getCurrNodeStyle
   } = useContext(GraphContext);
   const [chart, setChart] = useSafeState<Selection<SVGGElement, any, any, any>>();
 
@@ -54,13 +54,13 @@ export default ({ xScale, yScale }: IProps) => {
 
     start
       .merge(startEnter)
-      .attr('r', 3)
+      .attr('r', (edge: IEdge) => {
+        const node = nodesMap?.[edge.start]; 
+        return getCurrNodeStyle?.('radius', node) || null;
+      })
       .attr('fill', (edge: IEdge) => {
-        const node = getNodeById(nodes, edge.start);
-        const typeKey = node?.[typeFromKey as keyof INode];
-        if (!typeKey || !nodeTypes?.[typeKey as string]?.color)
-          return DEFAULT_TYPE_STYLE['color'] as string;
-        return nodeTypes[typeKey as string].color as string;
+        const node = nodesMap?.[edge.start];
+        return getCurrNodeStyle?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(formatTime(edge.properties.createdTime));
@@ -80,11 +80,8 @@ export default ({ xScale, yScale }: IProps) => {
       .merge(endEnter)
       .attr('r', 3)
       .attr('fill', (edge: IEdge) => {
-        const node = getNodeById(nodes, edge.end);
-        const typeKey = node?.[typeFromKey as keyof INode];
-        if (!typeKey || !nodeTypes?.[typeKey as string]?.color)
-          return DEFAULT_TYPE_STYLE['color'] as string;
-        return nodeTypes[typeKey as string].color as string;
+        const node = nodesMap?.[edge.end];
+        return getCurrNodeStyle?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(formatTime(edge.properties.createdTime));
@@ -120,7 +117,7 @@ export default ({ xScale, yScale }: IProps) => {
       })
       .attr('style', `stroke:#8c8c8c;stroke-width:2`);
     line.exit().remove();
-  }, [chart, size, xScale, yScale, edges, nodes, transform]);
+  }, [chart, size, xScale, yScale, edges, nodes]);
 
   return {
     chart,

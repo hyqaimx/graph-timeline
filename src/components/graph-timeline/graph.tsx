@@ -41,5 +41,6 @@ export default () => {
 
     wrapper.select('svg').call(zoomed);
   }, [wrapper]);
+  
   return <svg></svg>;
 };
