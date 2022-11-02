@@ -27,7 +27,7 @@ const data = {
   },
   "edgeStyle": {
     "width": 2,
-    "gradientReverse": false
+    "gradientReverse": true
   },
   "nodes": [
     {

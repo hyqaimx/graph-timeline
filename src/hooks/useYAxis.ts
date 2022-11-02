@@ -6,7 +6,6 @@ import { map } from 'lodash';
 import type { Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { INode  } from '../types';
-import { DEFAULT_NODE_TYPE_STYLE } from '../common/constants';
 
 export default () => {
     const {
@@ -25,7 +24,7 @@ export default () => {
 
         return scalePoint()
                 .domain(ids)
-                .range([0, size.height])
+                .range([30, size.height - 30])
     }, [wrapper, nodes, size])
 
     // init y 轴 selection

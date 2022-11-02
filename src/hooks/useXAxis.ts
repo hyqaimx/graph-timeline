@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useContext } from 'react';
 import { extent } from 'd3-array';
 import { scaleTime } from 'd3-scale';
-import { axisTop } from 'd3-axis';
+import { axisTop, axisBottom } from 'd3-axis';
 import { map } from 'lodash';
 import dayjs from 'dayjs';
 import { useSafeState } from 'ahooks';
 import { TIME_FORMAT } from '../common/constants';
 import GraphContext from '../context';
-import type { Selection } from 'd3-selection';
+import type { BaseType, Selection } from 'd3-selection';
 
 export default () => {
   const {
@@ -18,7 +18,8 @@ export default () => {
     transform,
   } = useContext(GraphContext);
 
-  const [xAxis, setXAxis] = useSafeState<Selection<SVGGElement, any, any, any>>();
+  const [xAxisTop, setXAxisTop] = useSafeState<Selection<SVGGElement, any, any, any>>();
+  const [xAxisBottom, setXAxisBottom] = useSafeState<Selection<SVGGElement, any, any, any>>();
 
   const minAndMax = useMemo(() => {
     if (!edges?.length) return;
@@ -36,26 +37,36 @@ export default () => {
   }, [wrapper, minAndMax, size, transform]);
 
   useEffect(() => {
-    if (!wrapper) return;
+    if (!wrapper || !size) return;
+    // top
+    let xAxisTop: any = wrapper.select('svg').selectAll('.xAxisTop').data([null]);
+    const xAxisTopEnter: any = xAxisTop.enter().append('g').attr('class', 'axis xAxisTop');
 
-    let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
-    const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
+    xAxisTop = xAxisTop.merge(xAxisTopEnter);
 
-    xAxis = xAxis.merge(xAxisEnter as any);
-    // .attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
+    setXAxisTop(xAxisTop);
 
-    setXAxis(xAxis as any);
-  }, [wrapper]);
+    // bottom
+    let xAxisBottom: any = wrapper.select('svg').selectAll('.xAxisBottom').data([null]);
+    const xAxisBottomEnter: any = xAxisBottom.enter().append('g').attr('class', 'axis xAxisBottom').attr('transform', `translate(0, ${size.height})`);
+
+    xAxisBottom = xAxisBottom.merge(xAxisBottomEnter);
+
+    setXAxisBottom(xAxisBottom);
+  }, [wrapper, size]);
 
   useEffect(() => {
-    if (!xAxis || !xScale) return;
-    xAxis.call(axisTop(xScale));
-    // 取消 x 轴下方横线的显示
-    xAxis.selectAll('.domain').remove();
-  }, [xAxis, xScale]);
+    if (!xAxisTop || !xScale) return;
+    xAxisTop.call(axisTop(xScale));
+  }, [xAxisTop, xScale]);
+
+  useEffect(() => {
+    if (!xAxisBottom || !xScale) return;
+    xAxisBottom.call(axisBottom(xScale));
+  }, [xAxisBottom, xScale]);
 
   return {
     xScale,
-    xAxis,
+    xAxisTop,
   };
 };
