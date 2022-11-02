@@ -20,16 +20,20 @@ export default () => {
 
   const [xAxis, setXAxis] = useSafeState<Selection<SVGGElement, any, any, any>>();
 
-  const xScale = useMemo(() => {
-    if (!wrapper || !edges?.length || !size) return;
+  const minAndMax = useMemo(() => {
+    if (!edges?.length) return;
+    return extent(edges, ({ properties: { createdTime } }) => createdTime)
+  }, [edges])
 
-    const minAndMax = extent(edges, ({ properties: { createdTime } }) => createdTime);
+  const xScale = useMemo(() => {
+    if (!wrapper || !size || !minAndMax) return;
+
     const scale = scaleTime()
       .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
       .range([yWidth, size.width])
       .nice();
     return transform?.rescaleX(scale) || scale;
-  }, [wrapper, edges, size, transform]);
+  }, [wrapper, minAndMax, size, transform]);
 
   useEffect(() => {
     if (!wrapper) return;

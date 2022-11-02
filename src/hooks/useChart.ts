@@ -1,11 +1,9 @@
 import { useContext, useEffect, useMemo } from 'react';
-import { useSafeState, useUpdate, useUpdateEffect } from 'ahooks';
-import { DEFAULT_TYPE_STYLE } from '../common/constants';
+import { useSafeState } from 'ahooks';
 import type { Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { IEdge, INode } from '../types';
-import { formatTime, getNodeById } from '../utils';
-import { extent } from 'd3-array';
+import { formatTime } from '../utils';
 
 export interface IProps {
   xScale: any;
@@ -20,9 +18,8 @@ export default ({ xScale, yScale }: IProps) => {
     size,
     xAxisStyle,
     yAxisStyle: { width: yWidth },
-    typeFromKey,
-    nodeTypes,
     getCurrNodeStyle,
+    getCurrEdgeStyle
   } = useContext(GraphContext);
 
   const [chart, setChart] = useSafeState<Selection<SVGGElement, any, any, any>>();
@@ -142,7 +139,14 @@ export default ({ xScale, yScale }: IProps) => {
       .attr('y2', (edge: IEdge) => {
         return yScale(edge.end);
       })
-      .attr('style', `stroke:#8c8c8c;stroke-width:2`);
+      .attr('stroke', (edge: IEdge) => {
+        const stroke = getCurrEdgeStyle?.('color', edge) || null;
+        return stroke;
+      })
+      .attr('stroke-width', (edge: IEdge) => {
+        const width = getCurrEdgeStyle?.('width', edge) || null;
+        return width;
+      })
     line.exit().remove();
   }, [chart, size, xScale, yScale, edges, nodes]);
 

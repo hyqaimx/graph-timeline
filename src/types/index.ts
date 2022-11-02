@@ -1,5 +1,3 @@
-import type { ScalePoint, ScaleTime } from "d3-scale";
-
 export interface IEdge {
     start: string;
     end: string;
@@ -7,6 +5,8 @@ export interface IEdge {
         createdTime: string;
         count: number;
     }
+    // 样式分类
+    type?: string;
 }
 
 export interface INode extends Partial<{
@@ -16,20 +16,39 @@ export interface INode extends Partial<{
 }> {
     id: string;
 }
-export interface ITypeStyle {
+export interface INodeTypeStyle {
+    // 节点颜色
     color?: string;
+    // 半径
     radius?: number;
+    // 背景线颜色
     bgLineColor?: string;
+    // 背景线实线还是虚线；默认 solid 实线
     bgLineStyle?: 'dashed' | 'solid';
+
+    // TODO y轴 配置：写在 yAxisStyle 还是 写在这里？最好是这里，可以分类型配置；但是宽度可以统一在 yAxis 中配置
+    yLabelWidth?: number;
+    yLabelColor?: string;
+    yLabelFontSize?: number;
+}
+export interface IEdgeTypeStyle {
+    // 颜色默认起始节点到中止节点渐变，也可特殊定义
+    color?: string;
+    // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；
+    gradientReverse?: boolean;
+    // 线的宽度
+    width?: number;
 }
 export interface IData  {
     edges?: IEdge[];
     nodes?: INode[];
     // 分类型
-    nodeTypes?: Record<string, ITypeStyle>;
+    nodeTypes?: Record<string, INodeTypeStyle>;
     // 没有类型，统一设置所有节点样式
-    nodeStyle?: ITypeStyle;
-    typeFromKey?: string;
+    nodeStyle?: INodeTypeStyle;
+    nodeTypeFromKey?: string;
+    edgeTypes?: Record<string, IEdgeTypeStyle>;
+    edgeStyle?: IEdgeTypeStyle;
 }
 
 export interface IYAxisStyle {

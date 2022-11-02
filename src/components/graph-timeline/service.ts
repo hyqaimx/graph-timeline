@@ -2,8 +2,8 @@ import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { assign } from 'lodash';
 import { select } from 'd3-selection';
 import useNoPaddingSize from '../../hooks/useNoPaddingSize';
-import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE, DEFAULT_TYPE_STYLE } from '../../common/constants';
-import { IData, INode, ITypeStyle, IXAxisStyle, IYAxisStyle } from '../../types';
+import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE, DEFAULT_NODE_TYPE_STYLE, DEFAULT_EDGE_TYPE_STYLE } from '../../common/constants';
+import { IData, IEdge, IEdgeTypeStyle, INode, INodeTypeStyle, IXAxisStyle, IYAxisStyle } from '../../types';
 import type { Selection } from 'd3-selection';
 import { useSafeState } from 'ahooks';
 import { ZoomTransform } from 'd3-zoom';
@@ -17,7 +17,15 @@ export interface IServiceProps {
 // 数据处理 & 格式转换
 export const useService = ({
   containerRef,
-  data: { nodes = [], edges = [], typeFromKey = FROM_KEY['type'], nodeTypes, nodeStyle },
+  data: {
+    nodes = [],
+    edges = [],
+    nodeTypeFromKey = FROM_KEY['type'],
+    nodeTypes,
+    nodeStyle,
+    edgeTypes,
+    edgeStyle
+  },
   yAxis,
   xAxis,
 }: IServiceProps) => {
@@ -34,27 +42,35 @@ export const useService = ({
     setSelection(select(containerRef.current));
   }, [containerRef.current, size]);
 
-  const getCurrNodeStyle = useCallback((key: keyof ITypeStyle, node?: INode) => {
-    const typeKey = node?.[typeFromKey as keyof INode];
+  const getCurrNodeStyle = useCallback((key: keyof INodeTypeStyle, node?: INode) => {
+    const typeKey = node?.[nodeTypeFromKey as keyof INode];
     // 有分类样式
     if (typeKey && nodeTypes?.[typeKey as string]?.[key])  return nodeTypes[typeKey as string][key];
     // 无分类样式，有统一样式
     if (nodeStyle?.[key]) return nodeStyle[key];
     // 内部默认样式
-    return DEFAULT_TYPE_STYLE[key] || null;
-  }, [typeFromKey, nodeTypes, nodeStyle])
+    return DEFAULT_NODE_TYPE_STYLE[key] || null;
+  }, [nodeTypeFromKey, nodeTypes, nodeStyle])
+
+  const getCurrEdgeStyle = useCallback((key: keyof IEdgeTypeStyle, edge?: IEdge) => {
+    // 有分类样式
+    if (edge?.type && edgeTypes?.[edge.type]?.[key]) return edgeTypes[edge.type][key];
+    // 无分类样式，有统一样式
+    if (edgeStyle?.[key]) return edgeStyle[key];
+    // 内部默认样式
+    return DEFAULT_EDGE_TYPE_STYLE[key] || null;
+  }, [edgeTypes, edgeStyle])
 
   return {
     wrapper: selection,
     size,
     nodes,
     edges,
-    typeFromKey,
-    nodeTypes,
     yAxisStyle,
     xAxisStyle,
     transform,
     setTransform,
-    getCurrNodeStyle
+    getCurrNodeStyle,
+    getCurrEdgeStyle
   };
 };

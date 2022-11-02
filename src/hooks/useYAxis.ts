@@ -6,7 +6,7 @@ import { map } from 'lodash';
 import type { Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { INode  } from '../types';
-import { DEFAULT_TYPE_STYLE } from '../common/constants';
+import { DEFAULT_NODE_TYPE_STYLE } from '../common/constants';
 
 export default () => {
     const {
@@ -15,8 +15,6 @@ export default () => {
         size, 
         xAxisStyle, 
         yAxisStyle: { width: yWidth }, 
-        typeFromKey,
-        nodeTypes,
         getCurrNodeStyle
     } = useContext(GraphContext);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
@@ -63,7 +61,7 @@ export default () => {
                 const style = getCurrNodeStyle?.('bgLineStyle', node);
                 return style === 'solid' ? null : '5'
             })
-    }, [yAxis, yScale, size, nodes, nodeTypes])
+    }, [yAxis, yScale, size, nodes])
     
     return {
         yScale
