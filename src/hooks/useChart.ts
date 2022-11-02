@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo } from 'react';
 import { useSafeState } from 'ahooks';
-import type { Selection } from 'd3-selection';
+import type { BaseType, Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { IEdge, INode } from '../types';
 import { formatTime } from '../utils';
@@ -22,7 +22,7 @@ export default ({ xScale, yScale }: IProps) => {
     getCurrEdgeStyle
   } = useContext(GraphContext);
 
-  const [chart, setChart] = useSafeState<Selection<SVGGElement, any, any, any>>();
+  const [chart, setChart] = useSafeState<Selection<BaseType, null, BaseType, unknown>>();
 
   const nodesMap = useMemo(() => {
     const m: Record<string, INode> = {};
@@ -35,12 +35,11 @@ export default ({ xScale, yScale }: IProps) => {
   // init chart Element
   useEffect(() => {
     if (!wrapper) return;
-    let chart = wrapper.select('svg').selectAll('.__chart').data([yWidth]);
-    const chartEnter = chart.enter().append('g').attr('class', '__chart') as any;
-    chart = chart.merge(chartEnter);
-    // .attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
+    let chart = wrapper.select('svg').selectAll('g.__chart').data([null]);
+    const chartEnter: any = chart.enter().append('g').attr('class', '__chart');
+    chart = chart.merge(chartEnter)
 
-    setChart(chart as any);
+    setChart(chart);
   }, [wrapper]);
 
   useEffect(() => {
@@ -57,7 +56,7 @@ export default ({ xScale, yScale }: IProps) => {
               xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
-    const startEnter = start.enter().append('circle').attr('class', '__circle __start') as any;
+    const startEnter: any = start.enter().append('circle').attr('class', '__circle __start');
 
     start
       .merge(startEnter)
@@ -89,7 +88,7 @@ export default ({ xScale, yScale }: IProps) => {
               xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
-    const endEnter = end.enter().append('circle').attr('class', '__circle __end') as any;
+    const endEnter: any = end.enter().append('circle').attr('class', '__circle __end');
 
     end
       .merge(endEnter)
@@ -123,7 +122,7 @@ export default ({ xScale, yScale }: IProps) => {
               xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
-    const lineEnter = line.enter().append('line').attr('class', '__line') as any;
+    const lineEnter: any = line.enter().append('line').attr('class', '__line');
 
     line
       .merge(lineEnter)
