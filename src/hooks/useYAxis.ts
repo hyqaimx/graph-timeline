@@ -60,6 +60,12 @@ export default () => {
                 const style = getCurrNodeStyle?.('bgLineStyle', node);
                 return style === 'solid' ? null : '5'
             })
+
+        yAxis.selectAll('.tick')
+            .data(nodes)
+            .attr('color', (node: INode) => {
+                return getCurrNodeStyle?.('color', node) || null;
+            })
     }, [yAxis, yScale, size, nodes])
     
     return {

@@ -32,5 +32,5 @@ export const DEFAULT_EDGE_TYPE_STYLE: IEdgeTypeStyle = {
     // 宽度
     width: 2,
     // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；
-    gradientReverse: false
+    reverse: false
 }

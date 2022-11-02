@@ -36,7 +36,7 @@ export interface IEdgeTypeStyle {
     // 颜色默认起始节点到中止节点渐变，也可特殊定义
     color?: string;
     // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；
-    gradientReverse?: boolean;
+    reverse?: boolean;
     // 线的宽度
     width?: number;
 }

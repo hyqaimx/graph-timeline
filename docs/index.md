@@ -12,22 +12,22 @@ const data = {
   "nodeTypeFromKey": "group",
   "nodeTypes": {
     "SPerson": {
-      "color": "rgba(255,0,0,1)",
+      "color": "rgba(53,127,31,1)",
       "radius": 4,
-      "bgLineColor": "rgba(255,0,0,.3)",
+      "bgLineColor": "rgba(53,127,31,0.3)",
       "bgLineStyle": "solid"
     }
   },
   "nodeStyle": {
     "radius": 4,
-    "color": "green",
-    "bgLineColor": "rgba(0,0,0,.1)",
+    "color": "rgba(255,0,0,1)",
+    "bgLineColor": "rgba(255,0,0,.3)",
     // "bgLineStyle": "dashed"
     "bgLineStyle": "solid"
   },
   "edgeStyle": {
     "width": 2,
-    "gradientReverse": true
+    "reverse": true
   },
   "nodes": [
     {

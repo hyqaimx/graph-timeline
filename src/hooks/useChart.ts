@@ -56,13 +56,13 @@ export default ({ xScale, yScale }: IProps) => {
     return m;
   }, [nodes]);
 
-  const insertGradient = useCallback((startColor: string, endColor: string, gradientReverse: boolean = false) => {
+  const insertGradient = useCallback((startColor: string, endColor: string, reverse: boolean = false) => {
     if (!wrapper) return;
     const startCompileColor = compileColor(startColor);
     const endCompileColor = compileColor(endColor);
 
     let id = [startCompileColor, endCompileColor];
-    if (gradientReverse) id.push('r');
+    if (reverse) id.push('r');
     const gradientId = id.join('_')
 
     const defs = wrapper.select('defs.__gradient');
@@ -74,7 +74,7 @@ export default ({ xScale, yScale }: IProps) => {
         .attr('gradientUnits', 'userSpaceOnUse')
 
 
-    if (!gradientReverse) {
+    if (!reverse) {
       // 正向渐变：start -> end
       gradient = gradient.attr('x2', "0%")
             .attr('y2', '100%')
@@ -138,11 +138,13 @@ export default ({ xScale, yScale }: IProps) => {
     start
       .merge(startEnter)
       .attr('r', (edge: IEdge) => {
+        
         const node = nodesMap?.[edge.start];
         return getCurrNodeStyle?.('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
-        const node = nodesMap?.[edge.start];
+        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.end : edge.start];
         return getCurrNodeStyle?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
@@ -174,7 +176,8 @@ export default ({ xScale, yScale }: IProps) => {
         return getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
-        const node = nodesMap?.[edge.end];
+        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.start : edge.end];
         return getCurrNodeStyle?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
@@ -222,7 +225,7 @@ export default ({ xScale, yScale }: IProps) => {
         if (stroke && stroke !== 'gradient') return stroke;
 
         // 默认配置：渐变
-        const gradientReverse = getCurrEdgeStyle?.<IEdgeTypeStyle['gradientReverse']>('gradientReverse', edge);
+        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
         const startNode = nodesMap?.[edge.start];
         const endNode = nodesMap?.[edge.end];
         
@@ -234,7 +237,7 @@ export default ({ xScale, yScale }: IProps) => {
         // 如果起始配色相同，直接使用，不再设置渐变配置；
         if (startColor === endColor) return startColor;
 
-        const gradientId = insertGradient(startColor, endColor, gradientReverse);
+        const gradientId = insertGradient(startColor, endColor, reverse);
 
         return `url(#${gradientId})`;
       })
@@ -243,7 +246,8 @@ export default ({ xScale, yScale }: IProps) => {
         return width;
       })
       .attr('marker-end', (edge: IEdge) => {
-        const endNode = nodesMap?.[edge.end];
+        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+        const endNode = nodesMap?.[reverse ? edge.start : edge.end];
         const endColor = getCurrNodeStyle?.('color', endNode) as string;
         const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', endNode)  as number;
 
