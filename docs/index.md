@@ -22,7 +22,8 @@ const data = {
     "radius": 4,
     "color": "green",
     "bgLineColor": "rgba(0,0,0,.1)",
-    "bgLineStyle": "dashed"
+    // "bgLineStyle": "dashed"
+    "bgLineStyle": "solid"
   },
   "edgeStyle": {
     "width": 2,

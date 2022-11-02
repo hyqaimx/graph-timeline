@@ -4,6 +4,7 @@ import type { BaseType, Selection } from 'd3-selection';
 import GraphContext from '../context';
 import type { IEdge, IEdgeTypeStyle, INode, INodeTypeStyle } from '../types';
 import { compileColor, formatTime } from '../utils';
+import { DEFAULT_NODE_TYPE_STYLE } from '../common/constants';
 
 export interface IProps {
   xScale: any;
@@ -37,7 +38,14 @@ export default ({ xScale, yScale }: IProps) => {
         .data([null])
         .enter()
         .append('defs')
-        .attr('class', '__gradient')
+        .attr('class', '__gradient');
+    
+    // init arrow marker defs
+    wrapper.select('svg').selectAll('defs.__arrow')
+        .data([null])
+        .enter()
+        .append('defs')
+        .attr('class', '__arrow');
   }, [wrapper]);
 
   const nodesMap = useMemo(() => {
@@ -87,6 +95,28 @@ export default ({ xScale, yScale }: IProps) => {
         .attr('stop-color', d => d.color);
     
     return gradientId;
+  }, [wrapper])
+
+  const insertArrow = useCallback((color: string, arrowSize: number = DEFAULT_NODE_TYPE_STYLE['radius'] as number) => {
+    if (!wrapper) return;
+    const arrowId = compileColor(color);
+
+    const defs = wrapper.select('defs.__arrow');
+      
+    if (defs.select(`#${arrowId}`).size()) return arrowId;
+
+    defs.insert("marker")
+        .attr("id", arrowId)
+        .attr("markerHeight", arrowSize)
+        .attr("markerWidth", arrowSize)
+        .attr("refX", arrowSize / 2)
+        .attr("refY", arrowSize / 4)
+        .attr("orient", "auto")
+        .insert("path")
+        .attr("fill", color)
+        .attr("d", `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`)
+
+    return arrowId
   }, [wrapper])
 
   useEffect(() => {
@@ -183,7 +213,9 @@ export default ({ xScale, yScale }: IProps) => {
         return xScale(formatTime(edge.properties.createdTime));
       })
       .attr('y2', (edge: IEdge) => {
-        return yScale(edge.end);
+        const node = nodesMap?.[edge.end];
+        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) as number;
+        return yScale(edge.end) - endRadius * 2;
       })
       .attr('stroke', (edge: IEdge) => {
         const stroke = getCurrEdgeStyle?.('color', edge) || null;
@@ -209,6 +241,14 @@ export default ({ xScale, yScale }: IProps) => {
       .attr('stroke-width', (edge: IEdge) => {
         const width = getCurrEdgeStyle?.<IEdgeTypeStyle['width']>('width', edge) || null;
         return width;
+      })
+      .attr('marker-end', (edge: IEdge) => {
+        const endNode = nodesMap?.[edge.end];
+        const endColor = getCurrNodeStyle?.('color', endNode) as string;
+        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', endNode)  as number;
+
+        const arrowId = insertArrow(endColor, endRadius ? endRadius * 2 : undefined);
+        return `url(#${arrowId})`
       })
     line.exit().remove();
   }, [chart, size, xScale, yScale, edges, nodes]);
