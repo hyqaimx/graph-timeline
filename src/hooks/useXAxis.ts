@@ -24,9 +24,9 @@ export default () => {
     if (!wrapper || !edges?.length || !size) return;
 
     const minAndMax = extent(edges, ({ properties: { createdTime } }) => createdTime);
-    const scale =  scaleTime()
+    const scale = scaleTime()
       .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
-      .range([0, size.width - yWidth])
+      .range([yWidth, size.width])
       .nice();
     return transform?.rescaleX(scale) || scale;
   }, [wrapper, edges, size, transform]);
@@ -37,14 +37,15 @@ export default () => {
     let xAxis = wrapper.select('svg').selectAll('.xAxis').data([yWidth]);
     const xAxisEnter = xAxis.enter().append('g').attr('class', 'axis xAxis');
 
-    xAxis = xAxis.merge(xAxisEnter as any).attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
+    xAxis = xAxis.merge(xAxisEnter as any);
+    // .attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
 
     setXAxis(xAxis as any);
   }, [wrapper]);
 
   useEffect(() => {
     if (!xAxis || !xScale) return;
-    xAxis.call(axisTop(xScale))
+    xAxis.call(axisTop(xScale));
     // 取消 x 轴下方横线的显示
     xAxis.selectAll('.domain').remove();
   }, [xAxis, xScale]);

@@ -38,10 +38,10 @@ export default () => {
       .on('zoom', (event) => {
         setTransform?.(event.transform);
       })
-      .translateExtent([
-        [-size.width / 2, 0],
-        [size?.width * 1.5, size.height],
-      ])
+      //   .translateExtent([
+      //     [-size.width / 2, 0],
+      //     [size?.width * 1.5, size.height],
+      //   ])
       .on('end', () => {
         //console.log('end');
       });

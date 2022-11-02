@@ -40,7 +40,8 @@ export default ({ xScale, yScale }: IProps) => {
     if (!wrapper) return;
     let chart = wrapper.select('svg').selectAll('.__chart').data([yWidth]);
     const chartEnter = chart.enter().append('g').attr('class', '__chart') as any;
-    chart = chart.merge(chartEnter).attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
+    chart = chart.merge(chartEnter);
+    // .attr('transform', (yWidth) => `translate(${yWidth}, 0)`);
 
     setChart(chart as any);
   }, [wrapper]);
@@ -55,8 +56,8 @@ export default ({ xScale, yScale }: IProps) => {
           .filter((edge) => !!(edge.start && nodesMap[edge.start]))
           .filter(
             (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= 0 &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width - yWidth,
+              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+              xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
     const startEnter = start.enter().append('circle').attr('class', '__circle __start') as any;
@@ -87,8 +88,8 @@ export default ({ xScale, yScale }: IProps) => {
           .filter((edge) => !!(edge.end && nodesMap[edge.end]))
           .filter(
             (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= 0 &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width - yWidth,
+              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+              xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
     const endEnter = end.enter().append('circle').attr('class', '__circle __end') as any;
@@ -121,8 +122,8 @@ export default ({ xScale, yScale }: IProps) => {
           )
           .filter(
             (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= 0 &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width - yWidth,
+              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+              xScale(formatTime(edge.properties.createdTime)) <= size.width,
           ),
       );
     const lineEnter = line.enter().append('line').attr('class', '__line') as any;
