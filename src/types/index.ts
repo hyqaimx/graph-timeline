@@ -1,3 +1,4 @@
+export type ValueOf<T> = T[keyof T];
 export interface IEdge {
     start: string;
     end: string;

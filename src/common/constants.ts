@@ -28,7 +28,7 @@ export const DEFAULT_NODE_TYPE_STYLE: INodeTypeStyle = {
 }
 export const DEFAULT_EDGE_TYPE_STYLE: IEdgeTypeStyle = {
     // 颜色默认起始节点到中止节点渐变，也可特殊定义
-    color: '#8c8c8c',
+    color: 'gradient',
     // 宽度
     width: 2,
     // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；

@@ -2,7 +2,7 @@ import { Selection } from 'd3-selection';
 import { ZoomTransform } from 'd3-zoom';
 import { createContext, Dispatch, SetStateAction } from 'react';
 import { DEFAULT_XAXIS_STYLE, DEFAULT_YAXIS_STYLE } from '../common/constants';
-import type { IData, IEdge, INode, INodeTypeStyle, IEdgeTypeStyle, IXAxisStyle, IYAxisStyle, TNoPaddingSize } from '../types';
+import type { IData, IEdge, INode, INodeTypeStyle, IEdgeTypeStyle, IXAxisStyle, IYAxisStyle, TNoPaddingSize, ValueOf } from '../types';
 
 export interface IContextProps
   extends Pick<IData, 'nodes' | 'edges' | 'nodeTypeFromKey'> {
@@ -12,8 +12,8 @@ export interface IContextProps
   size?: TNoPaddingSize;
   transform?: ZoomTransform;
   setTransform?: Dispatch<SetStateAction<ZoomTransform | undefined>>;
-  getCurrNodeStyle?: (key: keyof INodeTypeStyle, node?: INode) => string | number | undefined
-  getCurrEdgeStyle?: (key: keyof IEdgeTypeStyle, edge?: IEdge) => string | number | undefined
+  getCurrNodeStyle?: <ValueType extends ValueOf<INodeTypeStyle> = string>(key: keyof INodeTypeStyle, node?: INode) => ValueType
+  getCurrEdgeStyle?: <ValueType extends ValueOf<IEdgeTypeStyle> = string>(key: keyof IEdgeTypeStyle, edge?: IEdge) => ValueType
 }
 export default createContext<IContextProps>({
   xAxisStyle: DEFAULT_XAXIS_STYLE,

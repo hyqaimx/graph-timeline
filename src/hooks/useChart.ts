@@ -1,9 +1,9 @@
-import { useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { useSafeState } from 'ahooks';
 import type { BaseType, Selection } from 'd3-selection';
 import GraphContext from '../context';
-import type { IEdge, INode } from '../types';
-import { formatTime } from '../utils';
+import type { IEdge, IEdgeTypeStyle, INode, INodeTypeStyle } from '../types';
+import { compileColor, formatTime } from '../utils';
 
 export interface IProps {
   xScale: any;
@@ -24,6 +24,22 @@ export default ({ xScale, yScale }: IProps) => {
 
   const [chart, setChart] = useSafeState<Selection<BaseType, null, BaseType, unknown>>();
 
+  useEffect(() => {
+    if (!wrapper) return;
+    // init chart Element
+    let chart = wrapper.select('svg').selectAll('g.__chart').data([null]);
+    const chartEnter: any = chart.enter().append('g').attr('class', '__chart');
+    chart = chart.merge(chartEnter);
+    setChart(chart);
+
+    // init gradient defs
+    wrapper.select('svg').selectAll('defs.__gradient')
+        .data([null])
+        .enter()
+        .append('defs')
+        .attr('class', '__gradient')
+  }, [wrapper]);
+
   const nodesMap = useMemo(() => {
     const m: Record<string, INode> = {};
     nodes.forEach((node) => {
@@ -32,15 +48,46 @@ export default ({ xScale, yScale }: IProps) => {
     return m;
   }, [nodes]);
 
-  // init chart Element
-  useEffect(() => {
+  const insertGradient = useCallback((startColor: string, endColor: string, gradientReverse: boolean = false) => {
     if (!wrapper) return;
-    let chart = wrapper.select('svg').selectAll('g.__chart').data([null]);
-    const chartEnter: any = chart.enter().append('g').attr('class', '__chart');
-    chart = chart.merge(chartEnter)
+    const startCompileColor = compileColor(startColor);
+    const endCompileColor = compileColor(endColor);
 
-    setChart(chart);
-  }, [wrapper]);
+    let id = [startCompileColor, endCompileColor];
+    if (gradientReverse) id.push('r');
+    const gradientId = id.join('_')
+
+    const defs = wrapper.select('defs.__gradient');
+      
+    if (defs.select(`#${gradientId}`).size()) return gradientId;
+
+    let gradient = defs.insert('linearGradient')
+        .attr('id', gradientId)
+        .attr('gradientUnits', 'userSpaceOnUse')
+
+
+    if (!gradientReverse) {
+      // 正向渐变：start -> end
+      gradient = gradient.attr('x2', "0%")
+            .attr('y2', '100%')
+    } else {
+      // 反向渐变： end -> start
+      gradient = gradient.attr('x1', "100%")
+            .attr('y1', '100%')
+    }
+
+    gradient.selectAll('stop')
+        .data([
+          {color: startColor, offset: "5%"},
+          {color: endColor, offset: "95%"}
+        ])
+        .enter()
+        .append('stop')
+        .attr('offset', d => d.offset)
+        .attr('stop-color', d => d.color);
+    
+    return gradientId;
+  }, [wrapper])
 
   useEffect(() => {
     if (!chart || !size) return;
@@ -94,7 +141,7 @@ export default ({ xScale, yScale }: IProps) => {
       .merge(endEnter)
       .attr('r', (edge: IEdge) => {
         const node = nodesMap?.[edge.end];
-        return getCurrNodeStyle?.('radius', node) || null;
+        return getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
         const node = nodesMap?.[edge.end];
@@ -140,10 +187,27 @@ export default ({ xScale, yScale }: IProps) => {
       })
       .attr('stroke', (edge: IEdge) => {
         const stroke = getCurrEdgeStyle?.('color', edge) || null;
-        return stroke;
+        if (stroke && stroke !== 'gradient') return stroke;
+
+        // 默认配置：渐变
+        const gradientReverse = getCurrEdgeStyle?.<IEdgeTypeStyle['gradientReverse']>('gradientReverse', edge);
+        const startNode = nodesMap?.[edge.start];
+        const endNode = nodesMap?.[edge.end];
+        
+        const startColor = getCurrNodeStyle?.('color', startNode);
+        const endColor = getCurrNodeStyle?.('color', endNode);
+
+        // 其中一个不存在，就使用某个定点的配色;
+        if (!startColor || !endColor) return startColor || endColor || null;
+        // 如果起始配色相同，直接使用，不再设置渐变配置；
+        if (startColor === endColor) return startColor;
+
+        const gradientId = insertGradient(startColor, endColor, gradientReverse);
+
+        return `url(#${gradientId})`;
       })
       .attr('stroke-width', (edge: IEdge) => {
-        const width = getCurrEdgeStyle?.('width', edge) || null;
+        const width = getCurrEdgeStyle?.<IEdgeTypeStyle['width']>('width', edge) || null;
         return width;
       })
     line.exit().remove();

@@ -19,13 +19,14 @@ const data = {
     }
   },
   "nodeStyle": {
-    "radius": 3,
+    "radius": 4,
     "color": "green",
     "bgLineColor": "rgba(0,0,0,.1)",
     "bgLineStyle": "dashed"
   },
   "edgeStyle": {
-    "width": 2
+    "width": 2,
+    "gradientReverse": false
   },
   "nodes": [
     {
