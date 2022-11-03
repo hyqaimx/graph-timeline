@@ -24,6 +24,7 @@ export interface INodeTypeStyle {
     radius?: number;
     // 背景线颜色
     bgLineColor?: string;
+    bgLineColorOpacity?: number;
     // 背景线实线还是虚线；默认 solid 实线
     bgLineStyle?: 'dashed' | 'solid';
 

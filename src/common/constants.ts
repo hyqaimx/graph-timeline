@@ -21,8 +21,8 @@ export const DEFAULT_NODE_TYPE_STYLE: INodeTypeStyle = {
     color: '#8c8c8c',
     // 半径
     radius: 3,
-    // 默认背景线颜色
-    bgLineColor: '#d9d9d9',
+    // 默认不透明
+    bgLineColorOpacity: 1,
     // 背景线实线还是虚线
     bgLineStyle: 'solid'
 }

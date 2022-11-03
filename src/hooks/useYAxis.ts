@@ -50,22 +50,33 @@ export default () => {
         // 删除 y 轴竖线
         yAxis.selectAll('.domain').remove()
 
+        // 设置节点统一颜色 
+        yAxis.selectAll('.tick')
+            .data(nodes)
+            .attr('color', (node: INode) => {
+                return getCurrNodeStyle?.('color', node) || null;
+            });
+
         // 设置线的背景色
         yAxis.selectAll('.tick line')
             .data(nodes)
             .attr('stroke', (node: INode) => {
-                return getCurrNodeStyle?.('bgLineColor', node) || null;
+                const bgLineColor = getCurrNodeStyle?.('bgLineColor', node);
+                if (bgLineColor) return bgLineColor;
+
+                // 如果节点有配色会使用当前节点颜色
+                return 'currentColor';
+            })
+            .attr('opacity', (node: INode) => {
+                const opacity = getCurrNodeStyle?.('bgLineColorOpacity', node) || 1;
+                return opacity;
             })
             .attr('stroke-dasharray', (node: INode) => {
                 const style = getCurrNodeStyle?.('bgLineStyle', node);
                 return style === 'solid' ? null : '5'
             })
 
-        yAxis.selectAll('.tick')
-            .data(nodes)
-            .attr('color', (node: INode) => {
-                return getCurrNodeStyle?.('color', node) || null;
-            })
+        
     }, [yAxis, yScale, size, nodes])
     
     return {

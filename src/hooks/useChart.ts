@@ -56,35 +56,23 @@ export default ({ xScale, yScale }: IProps) => {
     return m;
   }, [nodes]);
 
-  const insertGradient = useCallback((startColor: string, endColor: string, reverse: boolean = false) => {
+  const insertGradient = useCallback((startColor: string, endColor: string) => {
     if (!wrapper) return;
     const startCompileColor = compileColor(startColor);
     const endCompileColor = compileColor(endColor);
 
-    let id = [startCompileColor, endCompileColor];
-    if (reverse) id.push('r');
-    const gradientId = id.join('_')
+    const gradientId = [startCompileColor, endCompileColor].join('_');
 
     const defs = wrapper.select('defs.__gradient');
       
     if (defs.select(`#${gradientId}`).size()) return gradientId;
 
-    let gradient = defs.insert('linearGradient')
+    defs.insert('linearGradient')
         .attr('id', gradientId)
         .attr('gradientUnits', 'userSpaceOnUse')
-
-
-    if (!reverse) {
-      // 正向渐变：start -> end
-      gradient = gradient.attr('x2', "0%")
-            .attr('y2', '100%')
-    } else {
-      // 反向渐变： end -> start
-      gradient = gradient.attr('x1', "100%")
-            .attr('y1', '100%')
-    }
-
-    gradient.selectAll('stop')
+        .attr('x2', "0%")
+        .attr('y2', '100%')
+        .selectAll('stop')
         .data([
           {color: startColor, offset: "5%"},
           {color: endColor, offset: "95%"}
@@ -237,7 +225,7 @@ export default ({ xScale, yScale }: IProps) => {
         // 如果起始配色相同，直接使用，不再设置渐变配置；
         if (startColor === endColor) return startColor;
 
-        const gradientId = insertGradient(startColor, endColor, reverse);
+        const gradientId = insertGradient(reverse ? endColor : startColor, reverse ? startColor : endColor);
 
         return `url(#${gradientId})`;
       })
@@ -247,12 +235,12 @@ export default ({ xScale, yScale }: IProps) => {
       })
       .attr('marker-end', (edge: IEdge) => {
         const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
-        const endNode = nodesMap?.[reverse ? edge.start : edge.end];
-        const endColor = getCurrNodeStyle?.('color', endNode) as string;
-        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', endNode)  as number;
+        const node = nodesMap?.[reverse ? edge.start : edge.end];
+        const color = getCurrNodeStyle?.('color', node) as string;
+        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node)  as number;
 
-        const arrowId = insertArrow(endColor, endRadius ? endRadius * 2 : undefined);
-        return `url(#${arrowId})`
+        const arrowId = insertArrow(color, endRadius ? endRadius * 2 : undefined);
+        return `url(#${arrowId})`;
       })
     line.exit().remove();
   }, [chart, size, xScale, yScale, edges, nodes]);
