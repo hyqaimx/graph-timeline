@@ -5,6 +5,7 @@ import GraphContext from '../context';
 import type { IEdge, IEdgeTypeStyle, INode, INodeTypeStyle } from '../types';
 import { compileColor, formatTime } from '../utils';
 import { DEFAULT_NODE_TYPE_STYLE } from '../common/constants';
+import { extent } from 'd3-array';
 
 export interface IProps {
   xScale: any;
@@ -20,7 +21,7 @@ export default ({ xScale, yScale }: IProps) => {
     xAxisStyle,
     yAxisStyle: { width: yWidth },
     getCurrNodeStyle,
-    getCurrEdgeStyle
+    getCurrEdgeStyle,
   } = useContext(GraphContext);
 
   const [chart, setChart] = useSafeState<Selection<BaseType, null, BaseType, unknown>>();
@@ -34,18 +35,22 @@ export default ({ xScale, yScale }: IProps) => {
     setChart(chart);
 
     // init gradient defs
-    wrapper.select('svg').selectAll('defs.__gradient')
-        .data([null])
-        .enter()
-        .append('defs')
-        .attr('class', '__gradient');
-    
+    wrapper
+      .select('svg')
+      .selectAll('defs.__gradient')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__gradient');
+
     // init arrow marker defs
-    wrapper.select('svg').selectAll('defs.__arrow')
-        .data([null])
-        .enter()
-        .append('defs')
-        .attr('class', '__arrow');
+    wrapper
+      .select('svg')
+      .selectAll('defs.__arrow')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__arrow');
   }, [wrapper]);
 
   const nodesMap = useMemo(() => {
@@ -56,59 +61,83 @@ export default ({ xScale, yScale }: IProps) => {
     return m;
   }, [nodes]);
 
-  const insertGradient = useCallback((startColor: string, endColor: string) => {
-    if (!wrapper) return;
-    const startCompileColor = compileColor(startColor);
-    const endCompileColor = compileColor(endColor);
+  const insertGradient = useCallback(
+    (startColor: string, endColor: string) => {
+      if (!wrapper) return;
+      const startCompileColor = compileColor(startColor);
+      const endCompileColor = compileColor(endColor);
 
-    const gradientId = [startCompileColor, endCompileColor].join('_');
+      const gradientId = [startCompileColor, endCompileColor].join('_');
 
-    const defs = wrapper.select('defs.__gradient');
-      
-    if (defs.select(`#${gradientId}`).size()) return gradientId;
+      const defs = wrapper.select('defs.__gradient');
 
-    defs.insert('linearGradient')
+      if (defs.select(`#${gradientId}`).size()) return gradientId;
+
+      defs
+        .insert('linearGradient')
         .attr('id', gradientId)
         .attr('gradientUnits', 'userSpaceOnUse')
-        .attr('x2', "0%")
+        .attr('x2', '0%')
         .attr('y2', '100%')
         .selectAll('stop')
         .data([
-          {color: startColor, offset: "5%"},
-          {color: endColor, offset: "95%"}
+          { color: startColor, offset: '5%' },
+          { color: endColor, offset: '95%' },
         ])
         .enter()
         .append('stop')
-        .attr('offset', d => d.offset)
-        .attr('stop-color', d => d.color);
-    
-    return gradientId;
-  }, [wrapper])
+        .attr('offset', (d) => d.offset)
+        .attr('stop-color', (d) => d.color);
 
-  const insertArrow = useCallback((color: string, arrowSize: number = DEFAULT_NODE_TYPE_STYLE['radius'] as number) => {
-    if (!wrapper) return;
-    const arrowId = compileColor(color);
+      return gradientId;
+    },
+    [wrapper],
+  );
 
-    const defs = wrapper.select('defs.__arrow');
-      
-    if (defs.select(`#${arrowId}`).size()) return arrowId;
+  const insertArrow = useCallback(
+    (color: string, arrowSize: number = DEFAULT_NODE_TYPE_STYLE['radius'] as number) => {
+      if (!wrapper) return;
+      const arrowId = compileColor(color);
 
-    defs.insert("marker")
-        .attr("id", arrowId)
-        .attr("markerHeight", arrowSize)
-        .attr("markerWidth", arrowSize)
-        .attr("refX", arrowSize / 2)
-        .attr("refY", arrowSize / 4)
-        .attr("orient", "auto")
-        .insert("path")
-        .attr("fill", color)
-        .attr("d", `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`)
+      const defs = wrapper.select('defs.__arrow');
 
-    return arrowId
-  }, [wrapper])
+      if (defs.select(`#${arrowId}`).size()) return arrowId;
+
+      defs
+        .insert('marker')
+        .attr('id', arrowId)
+        .attr('markerHeight', arrowSize)
+        .attr('markerWidth', arrowSize)
+        .attr('refX', arrowSize / 2)
+        .attr('refY', arrowSize / 4)
+        .attr('orient', 'auto')
+        .insert('path')
+        .attr('fill', color)
+        .attr('d', `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`);
+
+      return arrowId;
+    },
+    [wrapper],
+  );
+
+  const timeGapTotal = useMemo(() => {
+    if (!edges?.length) return;
+    const minAndMax = extent(edges, ({ properties: { createdTime } }) => createdTime);
+    return Number(minAndMax[1]) - Number(minAndMax[0]);
+  }, [edges]);
 
   useEffect(() => {
     if (!chart || !size) return;
+
+    //判断是热力泳道图还是点线 根据当前缩放等级下的时间段长度和整个数据的时间段长度比值决定
+
+    if (xScale && timeGapTotal) {
+      const left = xScale.invert(yWidth);
+      const right = xScale.invert(size.width);
+      const timeGap = right - left;
+      let ratio = timeGap / timeGapTotal;
+      ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
+    }
     // start 节点
     const start = chart
       .selectAll('.__circle.__start')
@@ -126,7 +155,6 @@ export default ({ xScale, yScale }: IProps) => {
     start
       .merge(startEnter)
       .attr('r', (edge: IEdge) => {
-        
         const node = nodesMap?.[edge.start];
         return getCurrNodeStyle?.('radius', node) || null;
       })
@@ -216,7 +244,7 @@ export default ({ xScale, yScale }: IProps) => {
         const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
         const startNode = nodesMap?.[edge.start];
         const endNode = nodesMap?.[edge.end];
-        
+
         const startColor = getCurrNodeStyle?.('color', startNode);
         const endColor = getCurrNodeStyle?.('color', endNode);
 
@@ -225,7 +253,10 @@ export default ({ xScale, yScale }: IProps) => {
         // 如果起始配色相同，直接使用，不再设置渐变配置；
         if (startColor === endColor) return startColor;
 
-        const gradientId = insertGradient(reverse ? endColor : startColor, reverse ? startColor : endColor);
+        const gradientId = insertGradient(
+          reverse ? endColor : startColor,
+          reverse ? startColor : endColor,
+        );
 
         return `url(#${gradientId})`;
       })
@@ -237,11 +268,11 @@ export default ({ xScale, yScale }: IProps) => {
         const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
         const node = nodesMap?.[reverse ? edge.start : edge.end];
         const color = getCurrNodeStyle?.('color', node) as string;
-        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node)  as number;
+        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) as number;
 
         const arrowId = insertArrow(color, endRadius ? endRadius * 2 : undefined);
         return `url(#${arrowId})`;
-      })
+      });
     line.exit().remove();
   }, [chart, size, xScale, yScale, edges, nodes]);
 

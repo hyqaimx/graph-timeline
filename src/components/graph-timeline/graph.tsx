@@ -61,7 +61,6 @@ export default () => {
 
   useUpdateEffect(() => {
     if (!wrapper || !size || !edgesExtent || !xScale) return;
-    console.log(edgesExtent.maxScale);
     const zoomed: any = zoom()
       .on('start', () => {
         //console.log('start');
