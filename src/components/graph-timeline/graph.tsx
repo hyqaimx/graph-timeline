@@ -1,13 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { zoom } from 'd3-zoom';
-import { useUpdateEffect } from 'ahooks';
+import { useSafeState, useUpdateEffect } from 'ahooks';
 import useXAxis from '../../hooks/useXAxis';
 import useYAxis from '../../hooks/useYAxis';
 import useChart from '../../hooks/useChart';
 import GraphContext from '../../context';
+import { extent } from 'd3-array';
+import { formatTime } from '../../utils';
+import { INode } from '../../types';
 
 export default () => {
-  const { wrapper, size, setTransform } = useContext(GraphContext);
+  const {
+    wrapper,
+    size,
+    setTransform,
+    edges = [],
+    nodes = [],
+    yAxisStyle: { width: yWidth },
+  } = useContext(GraphContext);
   const { xScale } = useXAxis();
   const { yScale } = useYAxis();
   const { chart } = useChart({
@@ -28,9 +38,30 @@ export default () => {
   /**
    * 监听时间轴的缩放
    */
-  useUpdateEffect(() => {
-    if (!wrapper || !size) return;
+  const edgesExtent = useMemo(() => {
+    if (!edges?.length) return;
+    const timeStamps = new Set(edges.map((edge) => edge.properties.createdTime));
+    const timeArray = [...timeStamps].sort();
+    let minGap = Number.MAX_SAFE_INTEGER;
+    let ans = 0;
+    for (let i = 1; i < timeArray.length; i++) {
+      const diff = Math.abs(Number(timeArray[i]) - Number(timeArray[i - 1]));
+      minGap = minGap > diff ? diff : minGap;
+      if (minGap === diff) {
+        ans = i;
+      }
+    }
+    const maxGap = Number(timeArray[timeArray.length - 1]) - Number(timeArray[0]);
+    return {
+      maxScale: maxGap / minGap,
+    };
+  }, [edges]);
 
+  const [minScale, setMinScale] = useSafeState();
+
+  useUpdateEffect(() => {
+    if (!wrapper || !size || !edgesExtent || !xScale) return;
+    console.log(edgesExtent.maxScale);
     const zoomed: any = zoom()
       .on('start', () => {
         //console.log('start');
@@ -38,10 +69,11 @@ export default () => {
       .on('zoom', (event) => {
         setTransform?.(event.transform);
       })
-      //   .translateExtent([
-      //     [-size.width / 2, 0],
-      //     [size?.width * 1.5, size.height],
-      //   ])
+      .scaleExtent([0.1, edgesExtent.maxScale * 0.6])
+      .translateExtent([
+        [-size.width / 2, 0],
+        [size?.width * 1.5, size.height],
+      ])
       .on('end', () => {
         //console.log('end');
       });
