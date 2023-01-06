@@ -85,15 +85,15 @@ const App = () => {
         <GraphTimeLine
           nodes={timelineNodes}
           selectedItem={selectedNodes}
-          links={[]}
+          links={[
+            {source: '1', target: '2'},
+            {source: '3', target: '5'},
+          ]}
           options={{
             colors: {
               'node1': '#ffd666',
               'node5': '#a0d911'
             },
-            node: {
-              size: 10
-            }
           }}
           onSelect={handleNodeChange}
         />

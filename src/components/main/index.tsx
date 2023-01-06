@@ -187,7 +187,21 @@ const Timeline = ({
     
     /* 增加tooltip */
     svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
-  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
+  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)]);
+
+  // TODO:split different element render logic，implement partial update
+  // useEffect(() => {
+  //   const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg');
+      
+  //   if (svg.empty()) return;
+
+  //   const yAxis = svg.select('.yAxis');
+
+  //   if (yAxis.empty()) return;
+  //   console.log(yAxis, selectedItem);
+
+  //   yAxis.call(setSelect, selectedItem)
+  // }, [JSON.stringify(selectedItem)])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')

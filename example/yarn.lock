@@ -1783,10 +1783,10 @@ graceful-fs@^4.1.2, graceful-fs@^4.2.4, graceful-fs@^4.2.6, graceful-fs@^4.2.9:
   resolved "https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.10.tgz"
   integrity sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
 
-graph-timeline@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/graph-timeline/-/graph-timeline-1.1.5.tgz#3402cbf01b834f51526ea81fffb1df8ea1dfa834"
-  integrity sha512-cJbd/mmWqNxul+y3r5kQBjciDyO3PzEVcNgEP8rQ+lDFy+7tNTFID35ZvcUfyFR9qKH7zaJGzDM2OILaF516Ww==
+graph-timeline@^1.1.6:
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/graph-timeline/-/graph-timeline-1.1.6.tgz#5a7adf48b038b6a77feeeebce94c2abecd98ca3b"
+  integrity sha512-gHb4bYSz5SYhZkCMvl879HEmE0PbsfXkYL0+Hwual3+MchLjTmejYS/2cWFk/RXW7ILkTA5l9wHBtGstp3dKIw==
   dependencies:
     "@types/react-dom" "^17.0.11"
     d3 "^6.2.0"
