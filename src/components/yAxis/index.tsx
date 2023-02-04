@@ -139,9 +139,16 @@ export const setEvent = (g: d3.Selection<SVGGElement, undefined, HTMLElement, un
 // 设置y轴项选中的情况
 export const setSelect = (g: d3.Selection<SVGGElement, undefined, HTMLElement, undefined>, selectedItem: string[]) => {
   g.selectAll('.tick')
-    .filter(function (d: string, i) { return selectedItem.includes(d) })
-    .each(function () {
+    .each(function (d: string) {
       const tick = d3.select(this);
-      drawRect(tick);
+      const path = tick.selectAll('path');
+
+      if (selectedItem.includes(d)) {
+        if (path.empty()) {
+          drawRect(tick);
+        }
+      } else {
+        path.remove()
+      }
     })
 }

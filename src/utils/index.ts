@@ -6,7 +6,7 @@ import { INodeItem, TColors } from "@/typings/custom-data";
  * @param nodes 
  */
 export const calcHeight = (nodes: INodeItem[], minHeight: number) => {
-    const uniqNames = new Set(nodes.map(n => n.name));
+    const uniqNames = new Set(nodes.map(n => n.nodeId));
     return uniqNames.size * DEFAULT_LINE_HEIGHT > minHeight ? uniqNames.size * DEFAULT_LINE_HEIGHT : minHeight;
 }
 

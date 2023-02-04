@@ -11,6 +11,7 @@ const App = () => {
   const selectEvent = (e: any) => {
     const { selectedItems, select } = e;
     const modelData = selectedItems.nodes.map(item => item.getModel());
+    console.log(modelData);
     setSelectNodes(modelData.map(item => item.id))
   }
   
@@ -85,15 +86,15 @@ const App = () => {
         <GraphTimeLine
           nodes={timelineNodes}
           selectedItem={selectedNodes}
-          links={[]}
+          links={[
+            {source: '1', target: '2'},
+            {source: '3', target: '5'},
+          ]}
           options={{
             colors: {
               'node1': '#ffd666',
               'node5': '#a0d911'
             },
-            node: {
-              size: 10
-            }
           }}
           onSelect={handleNodeChange}
         />

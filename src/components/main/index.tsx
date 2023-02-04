@@ -36,7 +36,7 @@ export interface ITimelineProps {
 const Timeline = ({
   width,
   height = 300,
-  padding = [20, 20, 20, 50],
+  padding = [20, 0, 20, 50],
   nodes = [],
   links = [],
   useBrush = true,
@@ -73,7 +73,7 @@ const Timeline = ({
       window.addEventListener('resize', listener);
     } else {
       if (typeof width === 'number') {
-        setWidth(width);
+        setWidth(width - 18);
       } else {
         throw Error("宽度只能设置为数字或'100%'")
       }
@@ -126,12 +126,32 @@ const Timeline = ({
     return { x, y, zoom, brush };
   }, [nodes, realWidth])
 
+  const realHeight = calcHeight(nodes, height - padBottom);
+
   useEffect(() => {
     if (!outerRef.current) return;
 
-    // 绘画x轴
-    const xAxisSvg = d3.select('#xAxis-container')
+    // 绘画主体部分
+    const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg')
+      .attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
       .attr('width', realWidth)
+      .attr('height', realHeight);
+      
+    if (svg.empty()) return;
+
+    svg.html("");
+    // 绘画底图, 计算绘图所需真正高度
+    svg.attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
+      .attr('width', realWidth)
+  }, [realWidth, height, JSON.stringify(padding), realHeight]);
+
+  // 绘画x轴
+  useEffect(() => {
+    const xAxisSvg = d3.select('#xAxis-container');
+
+    if (xAxisSvg.empty()) return;
+
+    xAxisSvg.attr('width', realWidth)
       .attr('height', height);
     xAxisSvg.html("");
     // 将x轴添加到画板
@@ -146,48 +166,57 @@ const Timeline = ({
       gx.selectAll('text').attr('fill', color || 'currentColor');
       gx.selectAll('line').attr('stroke', tickColor || 'currentColor')
     }
+  }, [realWidth, height, xAxisStyle, padBottom])
 
-    // 绘画主体部分
-    const realHeight = calcHeight(nodes, height - padBottom);
-    const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg')
-      .attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
-      .attr('width', realWidth)
-      .attr('height', realHeight);
-      
+  // 将y轴添加到面板
+  useEffect(() => {
+    const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg');
     if (svg.empty()) return;
 
-    svg.html("");
-    // 绘画底图, 计算绘图所需真正高度
-    svg.attr('viewBox', `0, 0, ${realWidth}, ${realHeight}`)
-      .attr('width', realWidth)
-
-    // 设置剪切区域
-    svg.append('clipPath')
-      .attr('id', 'clipView')
-      .append('path')
-      .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
-
-    // 将y轴添加到面板
-    svg.append('g')
+    const yAxisSvg = svg.select('.yAxis');
+    if (yAxisSvg.empty()) {
+      svg.append('g')
       .attr('class', 'yAxis')
       .attr('transform', `translate(${padLeft}, 0)`)
       .call(yAxis, y, nodes)
       .call(setYAxisStyle, realWidth - padRight - padLeft, nodes, colors)
       .call(setSelect, selectedItem)
       .call(setEvent, onSelect)
+      
+    } else {
+      yAxisSvg
+        .call(setSelect, selectedItem)
+        .call(setEvent, onSelect)
+    }
+  }, [JSON.stringify(nodes), padLeft, padRight, realWidth, colors, JSON.stringify(selectedItem)])
 
-    /* 绘制数据点 */
+  useEffect(() => {
+    const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg');
+    if (svg.empty()) return;
+
+    /* 绘制数据点以及连线（先绘制节点） */
     svg.append('g')
       .attr('clip-path', 'url(#clipView)')
-      .attr('width', realWidth - padLeft - padRight)
+      .attr('width', realWidth)
       .call(drawNodes, nodes, x, y, nodeStyle, colors, onSelectedNodesChange);
-
-    /* 绘制连线（先绘制节点） */
-    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
     
+    svg.call(drawLink, nodes, links, x, y, onSelectedLinksChange, link, nodeStyle);
+
     /* 增加tooltip */
     svg.call(DrawTooltip, links, nodes, showTooltip, tooltipFormat);
-  }, [realWidth, height, JSON.stringify(nodes), JSON.stringify(links), JSON.stringify(padding), JSON.stringify(selectedItem)])
+  }, [realWidth, padLeft, padRight, JSON.stringify(nodes), JSON.stringify(links), nodeStyle, JSON.stringify(colors), link])
+
+
+  // 设置剪切区域
+  useEffect(() => {
+    const svg = d3.select<SVGElement, unknown>('#graph-timeline-svg');
+    if (svg.empty()) return;
+
+    svg.append('clipPath')
+      .attr('id', 'clipView')
+      .append('path')
+      .attr('d', `M${padLeft},0 h${realWidth - padLeft - padRight} v${realHeight} h${-(realWidth - padLeft - padRight)} v${-realHeight}z`)
+  }, [padLeft, realWidth, padRight, realHeight])
 
   useEffect(() => {
     const svg = d3.select<SVGGElement, undefined>('#graph-timeline-svg')
@@ -246,7 +275,7 @@ const Timeline = ({
   }, [isBrush, realWidth])
 
   return (
-    <div className="container" style={{ position: 'relative' }}>
+    <div className="container" style={{ position: 'relative', width, height }}>
       {useBrush &&
         <div
           onClick={() => setBrush(!isBrush)}
