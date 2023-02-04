@@ -11,6 +11,7 @@ const App = () => {
   const selectEvent = (e: any) => {
     const { selectedItems, select } = e;
     const modelData = selectedItems.nodes.map(item => item.getModel());
+    console.log(modelData);
     setSelectNodes(modelData.map(item => item.id))
   }
   

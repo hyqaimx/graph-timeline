@@ -37,6 +37,7 @@ export const DrawTooltip = (
     const curLink = links.filter(item => item.source === data.id || item.target === data.id);
 
     const textData = [{ id: data.nodeId, name: `节点名称: ${data.nodeName}` }];
+
     if (curLink.length !== 0) {
       curLink.forEach(item => {
         const sourceData = nodes.filter(node => node.id === item.source)[0];

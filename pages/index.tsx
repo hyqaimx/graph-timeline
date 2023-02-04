@@ -37,11 +37,11 @@ const App = () => {
 
   const [selectedItem, setSelectedItem] = useState(['1']);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-
-  //   }, 5000)
-  // }, [])
+  useEffect(() => {
+    setTimeout(() => {
+      setSelectedItem(['1', '2'])
+    }, 5000)
+  }, [])
 
   // const newData = useMemo(() => {
   //   return nodes.map(item => ({
@@ -53,6 +53,7 @@ const App = () => {
 
   return (
     <GraphTimeLine
+      // width={1500}
       height={500}
       nodes={nodes}
       links={links}

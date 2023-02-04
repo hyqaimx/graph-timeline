@@ -128,7 +128,7 @@ const drawLink = (
       const nodes = g.select('.nodes');
       const sourceNode = nodes.select(`circle[d-id="${d.source}"]`);
       const targetNode = nodes.select(`circle[d-id="${d.target}"]`);
-      if (!sourceNode || !targetNode) return defaultColor;
+      if (sourceNode.empty() || targetNode.empty()) return defaultColor;
       const sourceData = data.find(item => item.id === d.source);
       const targetData = data.find(item => item.id === d.target);
       if (!sourceData || !targetData) return defaultColor;
@@ -152,7 +152,7 @@ const drawLink = (
       const defaultMarker = 'url(#arrow)';
       const nodes = g.select('.nodes');
       const targetNode = nodes.select(`circle[d-id="${d.target}"]`);
-      if (!targetNode) return defaultMarker;
+      if (targetNode.empty()) return defaultMarker;
       const fill = targetNode.attr('fill');
       if (!fill) return defaultMarker;
       

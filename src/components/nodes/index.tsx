@@ -36,11 +36,14 @@ const drawNodes = (
         color = d.color;
       } else {
         // 节点颜色和 yAxis 顶点颜色保持一致
+        const yAsixNode = d3.selectAll('.tick circle');
+        if (yAsixNode.empty()) return;
+
         const currentGroup = d3.selectAll('.tick circle').filter(function (d: string) {
           return d === group;
         });
 
-        color = currentGroup.attr('fill');        
+        color = currentGroup.attr('fill');       
       }
 
       const node = d3.select(this);
