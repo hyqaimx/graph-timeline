@@ -7,6 +7,8 @@
 npm install graph-timeline
 ````
 ## 使用示例
+在线的展示案例可以看[这里](https://codesandbox.io/s/graph-timeline-example-jfi377)
+
 example展示了和antv G6的联动使用效果，
 你可以进入example目录然后运行项目查看效果
 
