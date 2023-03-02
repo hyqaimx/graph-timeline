@@ -5,7 +5,8 @@ import GraphContext from '../context';
 import type { IEdge, IEdgeTypeStyle, INode, INodeTypeStyle } from '../types';
 import { compileColor, formatTime } from '../utils';
 import { DEFAULT_NODE_TYPE_STYLE } from '../common/constants';
-import { extent } from 'd3-array';
+import { extent, max } from 'd3-array';
+import { scaleLinear } from 'd3-scale';
 
 export interface IProps {
   xScale: any;
@@ -136,144 +137,237 @@ export default ({ xScale, yScale }: IProps) => {
       const right = xScale.invert(size.width);
       const timeGap = right - left;
       let ratio = timeGap / timeGapTotal;
-      ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
-    }
-    // start 节点
-    const start = chart
-      .selectAll('.__circle.__start')
-      .data(
-        edges
-          .filter((edge) => !!(edge.start && nodesMap[edge.start]))
-          .filter(
-            (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width,
-          ),
-      );
-    const startEnter: any = start.enter().append('circle').attr('class', '__circle __start');
-
-    start
-      .merge(startEnter)
-      .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.start];
-        return getCurrNodeStyle?.('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
-        const node = nodesMap?.[reverse ? edge.end : edge.start];
-        return getCurrNodeStyle?.('color', node) || null;
-      })
-      .attr('cx', (edge: IEdge) => {
-        return xScale(formatTime(edge.properties.createdTime));
-      })
-      .attr('cy', (edge: IEdge) => {
-        return yScale(edge.start);
-      });
-    start.exit().remove();
-
-    // end 节点（有 end 才绘制，如果没有就不绘制）
-    const end = chart
-      .selectAll('.__circle.__end')
-      .data(
-        edges
-          .filter((edge) => !!(edge.end && nodesMap[edge.end]))
-          .filter(
-            (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width,
-          ),
-      );
-    const endEnter: any = end.enter().append('circle').attr('class', '__circle __end');
-
-    end
-      .merge(endEnter)
-      .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.end];
-        return getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
-        const node = nodesMap?.[reverse ? edge.start : edge.end];
-        return getCurrNodeStyle?.('color', node) || null;
-      })
-      .attr('cx', (edge: IEdge) => {
-        return xScale(formatTime(edge.properties.createdTime));
-      })
-      .attr('cy', (edge: IEdge) => {
-        return yScale(edge.end);
-      });
-    end.exit().remove();
-
-    // 连线（有 start & end 的才画线&在范围内）
-    const line = chart
-      .selectAll('.__line')
-      .data(
-        edges
-          .filter(
-            (edge) => !!(edge.end && edge.start && nodesMap[edge.start] && nodesMap[edge.end]),
-          )
-          .filter(
-            (edge) =>
-              xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
-              xScale(formatTime(edge.properties.createdTime)) <= size.width,
-          ),
-      );
-    const lineEnter: any = line.enter().append('line').attr('class', '__line');
-
-    line
-      .merge(lineEnter)
-      .attr('x1', (edge: IEdge) => {
-        return xScale(formatTime(edge.properties.createdTime));
-      })
-      .attr('y1', (edge: IEdge) => {
-        return yScale(edge.start);
-      })
-      .attr('x2', (edge: IEdge) => {
-        return xScale(formatTime(edge.properties.createdTime));
-      })
-      .attr('y2', (edge: IEdge) => {
-        const node = nodesMap?.[edge.end];
-        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) as number;
-        return yScale(edge.end) - endRadius * 2;
-      })
-      .attr('stroke', (edge: IEdge) => {
-        const stroke = getCurrEdgeStyle?.('color', edge) || null;
-        if (stroke && stroke !== 'gradient') return stroke;
-
-        // 默认配置：渐变
-        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
-        const startNode = nodesMap?.[edge.start];
-        const endNode = nodesMap?.[edge.end];
-
-        const startColor = getCurrNodeStyle?.('color', startNode);
-        const endColor = getCurrNodeStyle?.('color', endNode);
-
-        // 其中一个不存在，就使用某个定点的配色;
-        if (!startColor || !endColor) return startColor || endColor || null;
-        // 如果起始配色相同，直接使用，不再设置渐变配置；
-        if (startColor === endColor) return startColor;
-
-        const gradientId = insertGradient(
-          reverse ? endColor : startColor,
-          reverse ? startColor : endColor,
+      // ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
+      if (ratio > 0.5) {
+        chart.selectAll('.__circle.__start').remove();
+        chart.selectAll('.__circle.__end').remove();
+        chart.selectAll('.__line').remove();
+        const currentData = edges.filter(
+          (edge) =>
+            xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+            xScale(formatTime(edge.properties.createdTime)) <= size.width,
         );
 
-        return `url(#${gradientId})`;
-      })
-      .attr('stroke-width', (edge: IEdge) => {
-        const width = getCurrEdgeStyle?.<IEdgeTypeStyle['width']>('width', edge) || null;
-        return width;
-      })
-      .attr('marker-end', (edge: IEdge) => {
-        const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
-        const node = nodesMap?.[reverse ? edge.start : edge.end];
-        const color = getCurrNodeStyle?.('color', node) as string;
-        const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) as number;
+        //当前事件列表数据映射到时间块内的数量统计列表
+        const currentTicks = xScale.ticks();
+        //时间块数量
+        const timeBlockNum = (currentTicks.length - 1) * 2;
+        const tickDiff = Math.floor(currentTicks[1] - currentTicks[0]) / 2;
+        const heatMapData = new Map();
+        for (const edge of currentData) {
+          const timeStamp = edge.properties.createdTime;
+          const i = Math.floor((Number(timeStamp) - Number(currentTicks[0])) / tickDiff);
+          if (edge.start) {
+            const node = edge.start;
+            const arr = heatMapData.get(node);
+            if (arr) {
+              arr[i] = arr[i] + 1;
+            } else {
+              const temp = new Array(timeBlockNum).fill(0);
+              temp[i] = temp[i] + 1;
+              heatMapData.set(node, temp);
+            }
+          }
+          if (edge.end) {
+            const node = edge.end;
+            const arr = heatMapData.get(node);
+            if (arr) {
+              arr[i] = arr[i] + 1;
+            } else {
+              const temp = new Array(timeBlockNum).fill(0);
+              temp[i] = temp[i] + 1;
+              heatMapData.set(node, temp);
+            }
+          }
+        }
+        interface THeatMapItem {
+          node: string;
+          count: number;
+          time: number;
+        }
+        const ans: THeatMapItem[] = [];
+        heatMapData.forEach((value, key) => {
+          for (let i = 0; i < timeBlockNum; i++) {
+            ans.push({
+              node: key,
+              count: value[i],
+              time: i,
+            });
+          }
+        });
+        const colorScale = scaleLinear([0, max(ans, (d) => d.count) || 1], ['#0571b0', '#ca0020']);
+        const opacityScale = scaleLinear([0, max(ans, (d) => d.count) || 1], [0.1, 1]);
 
-        const arrowId = insertArrow(color, endRadius ? endRadius * 2 : undefined);
-        return `url(#${arrowId})`;
-      });
-    line.exit().remove();
+        const cellWidth = xScale(currentTicks[1]) - xScale(currentTicks[0]),
+          cellHeight = 14;
+        const heatMapChart = chart
+          .selectAll('.__heatmap')
+          .data(ans.filter((item) => item.count > -1));
+        const heatMapChartEnter: any = heatMapChart
+          .enter()
+          .append('rect')
+          .attr('class', '__heatmap');
+
+        heatMapChart
+          .merge(heatMapChartEnter)
+          .attr('x', (item) => {
+            return xScale(Number(currentTicks[0]) + item.time * tickDiff);
+          })
+          .attr('y', (item) => {
+            return yScale(item.node) - cellHeight / 2;
+          })
+          .attr('width', cellWidth)
+          .attr('height', cellHeight)
+          // .attr("fill", d => colorScale(d.count));
+          .attr('fill', (d) => getCurrNodeStyle?.('color', nodesMap?.[d.node]) || null)
+          .attr('fill-opacity', (d) => opacityScale(d.count));
+        heatMapChart.exit().remove();
+      } else {
+        chart.selectAll('.__heatmap').remove();
+        // start 节点
+        const start = chart
+          .selectAll('.__circle.__start')
+          .data(
+            edges
+              .filter((edge) => !!(edge.start && nodesMap[edge.start]))
+              .filter(
+                (edge) =>
+                  xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+                  xScale(formatTime(edge.properties.createdTime)) <= size.width,
+              ),
+          );
+        const startEnter: any = start.enter().append('circle').attr('class', '__circle __start');
+
+        start
+          .merge(startEnter)
+          .attr('r', (edge: IEdge) => {
+            const node = nodesMap?.[edge.start];
+            return getCurrNodeStyle?.('radius', node) || null;
+          })
+          .attr('fill', (edge: IEdge) => {
+            const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+            const node = nodesMap?.[reverse ? edge.end : edge.start];
+            return getCurrNodeStyle?.('color', node) || null;
+          })
+          .attr('cx', (edge: IEdge) => {
+            return xScale(formatTime(edge.properties.createdTime));
+          })
+          .attr('cy', (edge: IEdge) => {
+            return yScale(edge.start);
+          });
+        start.exit().remove();
+
+        // end 节点（有 end 才绘制，如果没有就不绘制）
+        const end = chart
+          .selectAll('.__circle.__end')
+          .data(
+            edges
+              .filter((edge) => !!(edge.end && nodesMap[edge.end]))
+              .filter(
+                (edge) =>
+                  xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+                  xScale(formatTime(edge.properties.createdTime)) <= size.width,
+              ),
+          );
+        const endEnter: any = end.enter().append('circle').attr('class', '__circle __end');
+
+        end
+          .merge(endEnter)
+          .attr('r', (edge: IEdge) => {
+            const node = nodesMap?.[edge.end];
+            return getCurrNodeStyle?.<INodeTypeStyle['radius']>('radius', node) || null;
+          })
+          .attr('fill', (edge: IEdge) => {
+            const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+            const node = nodesMap?.[reverse ? edge.start : edge.end];
+            return getCurrNodeStyle?.('color', node) || null;
+          })
+          .attr('cx', (edge: IEdge) => {
+            return xScale(formatTime(edge.properties.createdTime));
+          })
+          .attr('cy', (edge: IEdge) => {
+            return yScale(edge.end);
+          });
+        end.exit().remove();
+
+        // 连线（有 start & end 的才画线&在范围内）
+        const line = chart
+          .selectAll('.__line')
+          .data(
+            edges
+              .filter(
+                (edge) => !!(edge.end && edge.start && nodesMap[edge.start] && nodesMap[edge.end]),
+              )
+              .filter(
+                (edge) =>
+                  xScale(formatTime(edge.properties.createdTime)) >= yWidth &&
+                  xScale(formatTime(edge.properties.createdTime)) <= size.width,
+              ),
+          );
+        const lineEnter: any = line.enter().append('line').attr('class', '__line');
+
+        line
+          .merge(lineEnter)
+          .attr('x1', (edge: IEdge) => {
+            return xScale(formatTime(edge.properties.createdTime));
+          })
+          .attr('y1', (edge: IEdge) => {
+            return yScale(edge.start);
+          })
+          .attr('x2', (edge: IEdge) => {
+            return xScale(formatTime(edge.properties.createdTime));
+          })
+          .attr('y2', (edge: IEdge) => {
+            const node = nodesMap?.[edge.end];
+            const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>(
+              'radius',
+              node,
+            ) as number;
+            return yScale(edge.end) - endRadius * 2;
+          })
+          .attr('stroke', (edge: IEdge) => {
+            const stroke = getCurrEdgeStyle?.('color', edge) || null;
+            if (stroke && stroke !== 'gradient') return stroke;
+
+            // 默认配置：渐变
+            const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+            const startNode = nodesMap?.[edge.start];
+            const endNode = nodesMap?.[edge.end];
+
+            const startColor = getCurrNodeStyle?.('color', startNode);
+            const endColor = getCurrNodeStyle?.('color', endNode);
+
+            // 其中一个不存在，就使用某个定点的配色;
+            if (!startColor || !endColor) return startColor || endColor || null;
+            // 如果起始配色相同，直接使用，不再设置渐变配置；
+            if (startColor === endColor) return startColor;
+
+            const gradientId = insertGradient(
+              reverse ? endColor : startColor,
+              reverse ? startColor : endColor,
+            );
+
+            return `url(#${gradientId})`;
+          })
+          .attr('stroke-width', (edge: IEdge) => {
+            const width = getCurrEdgeStyle?.<IEdgeTypeStyle['width']>('width', edge) || null;
+            return width;
+          })
+          .attr('marker-end', (edge: IEdge) => {
+            const reverse = getCurrEdgeStyle?.<IEdgeTypeStyle['reverse']>('reverse', edge);
+            const node = nodesMap?.[reverse ? edge.start : edge.end];
+            const color = getCurrNodeStyle?.('color', node) as string;
+            const endRadius = getCurrNodeStyle?.<INodeTypeStyle['radius']>(
+              'radius',
+              node,
+            ) as number;
+
+            const arrowId = insertArrow(color, endRadius ? endRadius * 2 : undefined);
+            return `url(#${arrowId})`;
+          });
+        line.exit().remove();
+      }
+    }
   }, [chart, size, xScale, yScale, edges, nodes]);
 
   return {
