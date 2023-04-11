@@ -1,41 +1,18 @@
-import { useEffect, useMemo, useContext } from 'react';
-import { extent } from 'd3-array';
-import { scaleTime } from 'd3-scale';
+import { useEffect, useContext } from 'react';
 import { axisTop, axisBottom } from 'd3-axis';
-import { map } from 'lodash';
-import dayjs from 'dayjs';
 import { useSafeState } from 'ahooks';
-import { TIME_FORMAT } from '../../common/constants';
 import { GraphTimeService } from './service';
 import type { Selection } from 'd3-selection';
-import { getTime } from '../../utils';
 
 export default () => {
   const {
     wrapper,
-    edges,
     size,
-    yAxisStyle: { width: yWidth },
-    transform,
+    xScale
   } = useContext(GraphTimeService);
 
   const [xAxisTop, setXAxisTop] = useSafeState<Selection<SVGGElement, any, any, any>>();
   const [xAxisBottom, setXAxisBottom] = useSafeState<Selection<SVGGElement, any, any, any>>();
-
-  const minAndMax = useMemo(() => {
-    if (!edges?.length) return;
-    return extent(edges, ({ time }) => getTime(time))
-  }, [edges])
-
-  const xScale = useMemo(() => {
-    if (!wrapper || !size || !minAndMax) return;
-
-    const scale = scaleTime()
-      .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
-      .range([yWidth, size.width])
-      .nice();
-    return transform?.rescaleX(scale) || scale;
-  }, [wrapper, minAndMax, size, transform]);
 
   useEffect(() => {
     if (!wrapper || !size) return;
@@ -67,7 +44,8 @@ export default () => {
   }, [xAxisBottom, xScale]);
 
   return {
-    xScale,
     xAxisTop,
-  };
+    xAxisBottom
+  }
+
 };

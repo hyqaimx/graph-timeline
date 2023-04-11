@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { useSafeState } from 'ahooks';
-import { scalePoint } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
-import { map } from 'lodash';
 import type { Selection } from 'd3-selection';
 import { GraphTimeService } from './service';
 import type { INode  } from '../../types';
@@ -12,20 +10,11 @@ export default () => {
         wrapper,
         nodes,
         size, 
-        xAxisStyle, 
+        yScale,
         yAxisStyle: { width: yWidth }, 
         getCurrnodeConfig
     } = useContext(GraphTimeService);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
-    const yScale = useMemo(() => {
-        if (!wrapper || !nodes?.length || !size) return;
-
-        const ids = map(nodes, ({ id }) => id);
-
-        return scalePoint()
-                .domain(ids)
-                .range([30, size.height - 30])
-    }, [wrapper, nodes, size])
 
     // init y 轴 selection
     useEffect(() => {
@@ -79,7 +68,5 @@ export default () => {
         
     }, [yAxis, yScale, size, nodes])
     
-    return {
-        yScale
-    }
+    return yAxis
 }

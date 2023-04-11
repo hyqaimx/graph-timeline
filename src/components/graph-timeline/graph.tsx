@@ -13,12 +13,12 @@ export default () => {
     size,
     setTransform,
     edges = [],
-    nodes = [],
-    yAxisStyle: { width: yWidth },
+    xScale,
+    yScale
   } = useContext(GraphTimeService);
-  const { xScale } = useXAxis();
-  const { yScale } = useYAxis();
-  const { chart } = useChart({
+  const xAxis = useXAxis();
+  const yAxis = useYAxis();
+  const chart = useChart({
     xScale,
     yScale,
   });

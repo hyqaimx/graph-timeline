@@ -1,14 +1,16 @@
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
-import { assign } from 'lodash';
+import { assign, map } from 'lodash';
 import { select } from 'd3-selection';
+import { scaleTime, scalePoint } from 'd3-scale';
 import useNoPaddingSize from '../../hooks/useNoPaddingSize';
-import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE, DEFAULT_NODE_TYPE_STYLE, DEFAULT_EDGE_TYPE_STYLE } from '../../common/constants';
+import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE, DEFAULT_NODE_TYPE_STYLE, DEFAULT_EDGE_TYPE_STYLE, TIME_FORMAT } from '../../common/constants';
 import { IEdge, IEdgeGroupStyle, INode, INodeGroupStyle, IXAxisStyle, IYAxisStyle } from '../../types';
 import type { Selection } from 'd3-selection';
 import { extent } from 'd3-array';
 import { useSafeState } from 'ahooks';
 import { ZoomTransform } from 'd3-zoom';
 import { getServiceToken, getTime } from '../../utils';
+import dayjs from 'dayjs';
 
 export interface IServiceProps {
   containerRef: RefObject<HTMLDivElement>;
@@ -59,6 +61,44 @@ export const useService = ({
     return Number(minAndMax[1]) - Number(minAndMax[0]);
   }, [edges]);
 
+  const minAndMax = useMemo(() => {
+    if (!edges?.length) return;
+    return extent(edges, ({ time }) => getTime(time))
+  }, [edges])
+
+  const xScale = useMemo(() => {
+    if (!selection || !size || !minAndMax) return;
+
+    const scale = scaleTime()
+      .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
+      .range([yAxisStyle.width, size.width])
+      .nice();
+    return transform?.rescaleX(scale) || scale;
+  }, [selection, minAndMax, size, transform]);
+
+  const yScale = useMemo(() => {
+    if (!selection || !edges?.length || !size || !nodesMap) return;
+
+    const ids = map(nodes, ({ id }) => id);
+
+    return scalePoint()
+            .domain(ids)
+            .range([30, size.height - 30])
+}, [selection, edges, nodesMap, size])
+
+const insightEdges = useMemo(() => {
+  if (!size || !xScale) return;
+  // 可视区域内的边
+  return edges
+    .filter(
+      (edge) =>
+        xScale(getTime(edge.time)) >= yAxisStyle.width &&
+        xScale(getTime(edge.time)) <= size.width &&
+        edge.source && nodesMap[edge.source] &&
+        edge.target && nodesMap[edge.target]
+    )
+}, [xScale, yAxisStyle.width, size?.width, edges, nodesMap])
+
   const getCurrnodeConfig = useCallback((key: keyof INodeGroupStyle, node?: INode) => {
     const typeKey = node?.[nodeGroupBy as keyof INode];
     // 有分类样式
@@ -88,12 +128,15 @@ export const useService = ({
     wrapper: selection,
     size,
     nodes,
-    timeGapTotal,
     nodesMap,
     edges,
+    insightEdges,
+    timeGapTotal,
     yAxisStyle,
     xAxisStyle,
     transform,
+    xScale,
+    yScale,
     setTransform,
     getCurrnodeConfig,
     getCurredgeConfig

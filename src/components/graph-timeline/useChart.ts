@@ -3,11 +3,11 @@ import { useSafeState } from 'ahooks';
 import { GraphTimeService } from './service';
 import { compileColor, getTime } from '../../utils';
 import { DEFAULT_NODE_TYPE_STYLE } from '../../common/constants';
-import { extent, max } from 'd3-array';
+import {  max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { isString } from 'lodash';
 import type { BaseType, Selection } from 'd3-selection';
-import type { IEdge, INode, THeatMapItem } from '../../types';
+import type { IEdge, THeatMapItem } from '../../types';
 
 export interface IProps {
   xScale: any;
@@ -17,17 +17,26 @@ export interface IProps {
 export default ({ xScale, yScale }: IProps) => {
   const {
     wrapper,
-    edges = [],
+    insightEdges,
     nodesMap,
     timeGapTotal,
     size,
-    xAxisStyle,
     yAxisStyle: { width: yWidth },
     getCurrnodeConfig,
     getCurredgeConfig,
   } = useContext(GraphTimeService);
 
   const [chart, setChart] = useSafeState<Selection<BaseType, null, BaseType, unknown>>();
+
+  //判断是热力泳道图还是点线 根据当前缩放等级下的时间段长度和整个数据的时间段长度比值决定
+  // ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
+  const ratio = useMemo(() => {
+    if (!xScale || !timeGapTotal) return;
+    const left = xScale.invert(yWidth);
+    const right = xScale.invert(size?.width);
+    const timeGap = right - left;
+    return timeGap / timeGapTotal;
+  }, [xScale, size?.width, yWidth, timeGapTotal]);
 
   const insertGradient = useCallback(
     (startColor: string, endColor: string) => {
@@ -87,43 +96,6 @@ export default ({ xScale, yScale }: IProps) => {
     },
     [wrapper],
   );
-
-  useEffect(() => {
-    if (!wrapper) return;
-    // init chart Element
-    let chart = wrapper.select('svg').selectAll('g.__chart').data([null]);
-    const chartEnter: any = chart.enter().append('g').attr('class', '__chart');
-    chart = chart.merge(chartEnter);
-    setChart(chart);
-
-    // init gradient defs
-    wrapper
-      .select('svg')
-      .selectAll('defs.__gradient')
-      .data([null])
-      .enter()
-      .append('defs')
-      .attr('class', '__gradient');
-
-    // init arrow marker defs
-    wrapper
-      .select('svg')
-      .selectAll('defs.__arrow')
-      .data([null])
-      .enter()
-      .append('defs')
-      .attr('class', '__arrow');
-  }, [wrapper]);
-
-  //判断是热力泳道图还是点线 根据当前缩放等级下的时间段长度和整个数据的时间段长度比值决定
-  // ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
-  const ratio = useMemo(() => {
-    if (!xScale || !timeGapTotal) return;
-    const left = xScale.invert(yWidth);
-    const right = xScale.invert(size?.width);
-    const timeGap = right - left;
-    return timeGap / timeGapTotal;
-  }, [xScale, size?.width, yWidth, timeGapTotal]);
 
   const renderHeatMap = (insightEdges: IEdge[]) => {
     if (!chart) return;
@@ -342,25 +314,41 @@ export default ({ xScale, yScale }: IProps) => {
   }
 
   useEffect(() => {
-    if (!chart || !size || !xScale || !timeGapTotal) return;
+    if (!wrapper) return;
+    // init chart Element
+    let chart = wrapper.select('svg').selectAll('g.__chart').data([null]);
+    const chartEnter: any = chart.enter().append('g').attr('class', '__chart');
+    chart = chart.merge(chartEnter);
+    setChart(chart);
 
-    // 可视区域内的边
-    const insightEdges = edges
-      .filter((edge) => !!(edge.source && nodesMap[edge.source]))
-      .filter(
-        (edge) =>
-          xScale(getTime(edge.time)) >= yWidth &&
-          xScale(getTime(edge.time)) <= size.width,
-      )
+    // init gradient defs
+    wrapper
+      .select('svg')
+      .selectAll('defs.__gradient')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__gradient');
+
+    // init arrow marker defs
+    wrapper
+      .select('svg')
+      .selectAll('defs.__arrow')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__arrow');
+  }, [wrapper]);
+
+  useEffect(() => {
+    if (!chart || !size || !insightEdges) return;
 
     if (ratio && ratio > 0.5) {
       renderHeatMap(insightEdges);
       return;
     }
     renderTimeline(insightEdges);
-  }, [chart, size, xScale, yScale, edges, nodesMap]);
+  }, [chart, size, insightEdges]);
 
-  return {
-    chart,
-  };
+  return chart;
 };
