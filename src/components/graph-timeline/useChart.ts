@@ -22,8 +22,8 @@ export default ({ xScale, yScale }: IProps) => {
     timeGapTotal,
     size,
     yAxisStyle: { width: yWidth },
-    getCurrnodeConfig,
-    getCurredgeConfig,
+    getCurrNodeConfig,
+    getCurrEdgeConfig,
   } = useContext(GraphTimeService);
 
   const [chart, setChart] = useSafeState<Selection<BaseType, null, BaseType, unknown>>();
@@ -169,7 +169,7 @@ export default ({ xScale, yScale }: IProps) => {
       .attr('width', cellWidth)
       .attr('height', cellHeight)
       // .attr("fill", d => colorScale(d.count));
-      .attr('fill', (d) => getCurrnodeConfig?.('color', nodesMap?.[d.node]) || null)
+      .attr('fill', (d) => getCurrNodeConfig?.('color', nodesMap?.[d.node]) || null)
       .attr('fill-opacity', (d) => opacityScale(d.count));
     heatMapChart.exit().remove();
   }
@@ -186,12 +186,12 @@ export default ({ xScale, yScale }: IProps) => {
       .merge(startEnter)
       .attr('r', (edge: IEdge) => {
         const node = nodesMap?.[edge.source];
-        return getCurrnodeConfig?.('radius', node) || null;
+        return getCurrNodeConfig?.('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
-        const reverse = getCurredgeConfig?.('reverse', edge);
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
-        return getCurrnodeConfig?.('color', node) || null;
+        return getCurrNodeConfig?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
@@ -214,12 +214,12 @@ export default ({ xScale, yScale }: IProps) => {
       .merge(endEnter)
       .attr('r', (edge: IEdge) => {
         const node = nodesMap?.[edge.target];
-        return getCurrnodeConfig?.('radius', node) || null;
+        return getCurrNodeConfig?.('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
-        const reverse = getCurredgeConfig?.('reverse', edge);
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
-        return getCurrnodeConfig?.('color', node) || null;
+        return getCurrNodeConfig?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
@@ -251,23 +251,23 @@ export default ({ xScale, yScale }: IProps) => {
       })
       .attr('y2', (edge: IEdge) => {
         const node = nodesMap?.[edge.target];
-        const endRadius = getCurrnodeConfig?.(
+        const endRadius = getCurrNodeConfig?.(
           'radius',
           node,
         ) as number;
         return yScale(edge.target) - endRadius * 2;
       })
       .attr('stroke', (edge: IEdge) => {
-        const stroke = getCurredgeConfig?.('color', edge) || null;
+        const stroke = getCurrEdgeConfig?.('color', edge) || null;
         if (stroke && stroke !== 'gradient') return stroke;
 
         // 默认配置：渐变
-        const reverse = getCurredgeConfig?.('reverse', edge);
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
         const startNode = nodesMap?.[edge.source];
         const endNode = nodesMap?.[edge.target];
 
-        const startColor = getCurrnodeConfig?.('color', startNode);
-        const endColor = getCurrnodeConfig?.('color', endNode);
+        const startColor = getCurrNodeConfig?.('color', startNode);
+        const endColor = getCurrNodeConfig?.('color', endNode);
 
         // 其中一个不存在，就使用某个定点的配色;
         if (!isString(startColor) || !isString(endColor)) return startColor || endColor || null;
@@ -282,14 +282,14 @@ export default ({ xScale, yScale }: IProps) => {
         return `url(#${gradientId})`;
       })
       .attr('stroke-width', (edge: IEdge) => {
-        const width = getCurredgeConfig?.('width', edge) || null;
+        const width = getCurrEdgeConfig?.('width', edge) || null;
         return width;
       })
       .attr('marker-end', (edge: IEdge) => {
-        const reverse = getCurredgeConfig?.('reverse', edge);
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
-        const color = getCurrnodeConfig?.('color', node) as string;
-        const endRadius = getCurrnodeConfig?.(
+        const color = getCurrNodeConfig?.('color', node) as string;
+        const endRadius = getCurrNodeConfig?.(
           'radius',
           node,
         ) as number;

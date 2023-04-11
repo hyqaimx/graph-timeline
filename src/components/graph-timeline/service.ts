@@ -24,6 +24,7 @@ export interface IServiceProps {
   nodeGroups?: Record<string, INodeGroupStyle>;
   // 没有类型，统一设置所有节点样式
   nodeConfig?: INodeGroupStyle;
+  edgeGroupBy?: string;
   edgeGroups?: Record<string, IEdgeGroupStyle>;
   edgeConfig?: IEdgeGroupStyle;
 }
@@ -37,6 +38,7 @@ export const useService = ({
   nodeGroupBy = FROM_KEY['type'],
   nodeGroups,
   nodeConfig,
+  edgeGroupBy,
   edgeGroups,
   edgeConfig
 }: IServiceProps) => {
@@ -99,24 +101,25 @@ const insightEdges = useMemo(() => {
     )
 }, [xScale, yAxisStyle.width, size?.width, edges, nodesMap])
 
-  const getCurrnodeConfig = useCallback((key: keyof INodeGroupStyle, node?: INode) => {
-    const typeKey = node?.[nodeGroupBy as keyof INode];
+  const getCurrNodeConfig = useCallback((key: keyof INodeGroupStyle, node?: INode) => {
+    const groupKey = node?.[nodeGroupBy as keyof INode];
     // 有分类样式
-    if (typeKey && nodeGroups?.[typeKey as string]?.[key])  return nodeGroups[typeKey as string][key];
+    if (groupKey && nodeGroups?.[groupKey as string]?.[key])  return nodeGroups[groupKey as string][key];
     // 无分类样式，有统一样式
     if (nodeConfig?.[key]) return nodeConfig[key];
     // 内部默认样式
     return DEFAULT_NODE_TYPE_STYLE[key] || null;
   }, [nodeGroupBy, nodeGroups, nodeConfig])
 
-  const getCurredgeConfig = useCallback((key: keyof IEdgeGroupStyle, edge?: IEdge) => {
+  const getCurrEdgeConfig = useCallback((key: keyof IEdgeGroupStyle, edge?: IEdge) => {
+    const groupKey = edge?.[edgeGroupBy as keyof IEdge];
     // 有分类样式
-    if (edge?.type && edgeGroups?.[edge.type]?.[key]) return edgeGroups[edge.type][key];
+    if (groupKey && edgeGroups?.[groupKey as string]?.[key])  return edgeGroups[groupKey as string][key];
     // 无分类样式，有统一样式
     if (edgeConfig?.[key]) return edgeConfig[key];
     // 内部默认样式
     return DEFAULT_EDGE_TYPE_STYLE[key] || null;
-  }, [edgeGroups, edgeConfig])
+  }, [edgeGroups, edgeConfig, edgeGroupBy])
 
   useEffect(() => {
     if (!containerRef.current || !size) return;
@@ -138,8 +141,8 @@ const insightEdges = useMemo(() => {
     xScale,
     yScale,
     setTransform,
-    getCurrnodeConfig,
-    getCurredgeConfig
+    getCurrNodeConfig,
+    getCurrEdgeConfig
   };
 };
 

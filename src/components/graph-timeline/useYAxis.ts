@@ -12,7 +12,7 @@ export default () => {
         size, 
         yScale,
         yAxisStyle: { width: yWidth }, 
-        getCurrnodeConfig
+        getCurrNodeConfig
     } = useContext(GraphTimeService);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
 
@@ -43,25 +43,25 @@ export default () => {
         yAxis.selectAll('.tick')
             .data(nodes)
             .attr('color', (node: INode) => {
-                return getCurrnodeConfig?.('color', node) || null;
+                return getCurrNodeConfig?.('color', node) || null;
             });
 
         // 设置线的背景色
         yAxis.selectAll('.tick line')
             .data(nodes)
             .attr('stroke', (node: INode) => {
-                const strokeColor = getCurrnodeConfig?.('strokeColor', node);
+                const strokeColor = getCurrNodeConfig?.('strokeColor', node);
                 if (strokeColor) return strokeColor;
 
                 // 如果节点有配色会使用当前节点颜色
                 return 'currentColor';
             })
             .attr('opacity', (node: INode) => {
-                const opacity = getCurrnodeConfig?.('strokeOpacity', node) || 1;
+                const opacity = getCurrNodeConfig?.('strokeOpacity', node) || 1;
                 return opacity;
             })
             .attr('stroke-dasharray', (node: INode) => {
-                const style = getCurrnodeConfig?.('strokeStyle', node);
+                const style = getCurrNodeConfig?.('strokeStyle', node);
                 return style === 'solid' ? null : '5'
             })
 
