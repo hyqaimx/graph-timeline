@@ -78,33 +78,45 @@ export const useService = ({
     return transform?.rescaleX(scale) || scale;
   }, [selection, minAndMax, size, transform]);
 
+  const insightEdges = useMemo(() => {
+    if (!size || !xScale) return;
+    // 可视区域内的边
+    return edges
+      .filter(
+        (edge) =>
+          xScale(getTime(edge.time)) >= yAxisStyle.width &&
+          xScale(getTime(edge.time)) <= size.width &&
+          edge.source && nodesMap[edge.source] &&
+          edge.target && nodesMap[edge.target]
+      )
+  }, [xScale, yAxisStyle.width, size?.width, edges, nodesMap])
+
+  const insightNodes = useMemo(() => {
+    if (!insightEdges?.length) return;
+
+    const nodeIdMap = new Map();
+    insightEdges.forEach(({ source, target }) => {
+      if (source) nodeIdMap.set(source, 1);
+      if (target) nodeIdMap.set(target, 1);
+    });
+
+    return nodes.filter(node => nodeIdMap.has(node.id));
+  }, [insightEdges, nodes])
+
   const yScale = useMemo(() => {
     if (!selection || !edges?.length || !size || !nodesMap) return;
 
-    const ids = map(nodes, ({ id }) => id);
+    const ids = map(insightNodes, ({ id }) => id);
 
     return scalePoint()
-            .domain(ids)
-            .range([30, size.height - 30])
-}, [selection, edges, nodesMap, size])
-
-const insightEdges = useMemo(() => {
-  if (!size || !xScale) return;
-  // 可视区域内的边
-  return edges
-    .filter(
-      (edge) =>
-        xScale(getTime(edge.time)) >= yAxisStyle.width &&
-        xScale(getTime(edge.time)) <= size.width &&
-        edge.source && nodesMap[edge.source] &&
-        edge.target && nodesMap[edge.target]
-    )
-}, [xScale, yAxisStyle.width, size?.width, edges, nodesMap])
+      .domain(ids)
+      .range([30, size.height - 30])
+  }, [selection, edges, nodesMap, size, insightNodes])
 
   const getCurrNodeConfig = useCallback((key: keyof INodeGroupStyle, node?: INode) => {
     const groupKey = node?.[nodeGroupBy as keyof INode];
     // 有分类样式
-    if (groupKey && nodeGroups?.[groupKey as string]?.[key])  return nodeGroups[groupKey as string][key];
+    if (groupKey && nodeGroups?.[groupKey as string]?.[key]) return nodeGroups[groupKey as string][key];
     // 无分类样式，有统一样式
     if (nodeConfig?.[key]) return nodeConfig[key];
     // 内部默认样式
@@ -114,7 +126,7 @@ const insightEdges = useMemo(() => {
   const getCurrEdgeConfig = useCallback((key: keyof IEdgeGroupStyle, edge?: IEdge) => {
     const groupKey = edge?.[edgeGroupBy as keyof IEdge];
     // 有分类样式
-    if (groupKey && edgeGroups?.[groupKey as string]?.[key])  return edgeGroups[groupKey as string][key];
+    if (groupKey && edgeGroups?.[groupKey as string]?.[key]) return edgeGroups[groupKey as string][key];
     // 无分类样式，有统一样式
     if (edgeConfig?.[key]) return edgeConfig[key];
     // 内部默认样式
@@ -132,6 +144,7 @@ const insightEdges = useMemo(() => {
     size,
     nodes,
     nodesMap,
+    insightNodes,
     edges,
     insightEdges,
     timeGapTotal,

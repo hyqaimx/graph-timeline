@@ -8,7 +8,7 @@ import type { INode  } from '../../types';
 export default () => {
     const {
         wrapper,
-        nodes,
+        insightNodes,
         size, 
         yScale,
         yAxisStyle: { width: yWidth }, 
@@ -16,7 +16,6 @@ export default () => {
     } = useContext(GraphTimeService);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
 
-    // init y 轴 selection
     useEffect(() => {
         if (!wrapper || !size) return;
 
@@ -28,9 +27,8 @@ export default () => {
         setYAxis(yAxis as any);
     }, [wrapper, size])
 
-    // render y 轴
     useEffect(() => {
-        if (!yAxis || !yScale ||!size || !nodes?.length) return;
+        if (!yAxis || !yScale ||!size || !insightNodes?.length) return;
 
         yAxis.attr("transform", `translate(${size.width},0)`);
 
@@ -41,14 +39,14 @@ export default () => {
 
         // 设置节点统一颜色 
         yAxis.selectAll('.tick')
-            .data(nodes)
+            .data(insightNodes)
             .attr('color', (node: INode) => {
                 return getCurrNodeConfig?.('color', node) || null;
             });
 
         // 设置线的背景色
         yAxis.selectAll('.tick line')
-            .data(nodes)
+            .data(insightNodes)
             .attr('stroke', (node: INode) => {
                 const strokeColor = getCurrNodeConfig?.('strokeColor', node);
                 if (strokeColor) return strokeColor;
@@ -64,9 +62,7 @@ export default () => {
                 const style = getCurrNodeConfig?.('strokeStyle', node);
                 return style === 'solid' ? null : '5'
             })
-
-        
-    }, [yAxis, yScale, size, nodes])
+    }, [yAxis, yScale, size, insightNodes])
     
     return yAxis
 }

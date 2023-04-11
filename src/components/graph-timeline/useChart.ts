@@ -110,7 +110,7 @@ export default ({ xScale, yScale }: IProps) => {
     const tickDiff = Math.floor(currentTicks[1] - currentTicks[0]) / 2;
     const heatMapData = new Map();
     for (const edge of insightEdges) {
-      const timeStamp = edge.time;
+      const timeStamp = getTime(edge.time);
       const i = Math.floor((Number(timeStamp) - Number(currentTicks[0])) / tickDiff);
       if (edge.source) {
         const node = edge.source;
