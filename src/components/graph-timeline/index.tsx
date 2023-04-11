@@ -1,40 +1,36 @@
 import React, { CSSProperties, useRef } from 'react';
 import { classPrefix } from '../../common/constants';
-import GraphContext from '../../context';
-import { useService } from './service';
+import { useService, GraphTimeService } from './service';
 import Graph from './graph';
-import type { IData, IXAxisStyle, IYAxisStyle } from '../../types';
+import type { IXAxisStyle, IYAxisStyle } from '../../types';
+import type { IServiceProps } from './service';
 
 import './index.less';
 
-export interface IProps extends Partial<{
-    wrapperClassName: string;
-    className: string;
-    yAxis: Partial<IYAxisStyle>;
-    xAxis: Partial<IXAxisStyle>
-    style: CSSProperties;
-}> {
-    data: IData
+export interface IProps extends Omit<IServiceProps, 'containerRef'> {
+    wrapperClassName?: string;
+    className?: string;
+    style?: CSSProperties;
 }
 
 const GraphTimeline: React.FC<IProps> = ({
     wrapperClassName = '',
     className = '',
-    data,
     style,
     yAxis: yStyleSettings,
-    xAxis: xStyleSettings
+    xAxis: xStyleSettings,
+    ...data
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const value = useService({
         containerRef,
-        data,
         xAxis: xStyleSettings,
-        yAxis: yStyleSettings
+        yAxis: yStyleSettings,
+        ...data
     });
 
     return (
-        <GraphContext.Provider
+        <GraphTimeService.Provider
             value={value}
         >
             <div className={`${classPrefix}-wrapper ${wrapperClassName}`}>
@@ -42,7 +38,7 @@ const GraphTimeline: React.FC<IProps> = ({
                     <Graph />
                 </div>
             </div>
-        </GraphContext.Provider>
+        </GraphTimeService.Provider>
     )
 };
 

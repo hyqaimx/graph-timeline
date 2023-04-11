@@ -1,13 +1,11 @@
 import React, { useContext, useMemo } from 'react';
 import { zoom } from 'd3-zoom';
-import { useSafeState, useUpdateEffect } from 'ahooks';
-import useXAxis from '../../hooks/useXAxis';
-import useYAxis from '../../hooks/useYAxis';
-import useChart from '../../hooks/useChart';
-import GraphContext from '../../context';
-import { extent } from 'd3-array';
-import { formatTime } from '../../utils';
-import { INode } from '../../types';
+import { useUpdateEffect } from 'ahooks';
+import useXAxis from './useXAxis';
+import useYAxis from './useYAxis';
+import useChart from './useChart';
+import { GraphTimeService } from './service';
+import { getTime } from '../../utils';
 
 export default () => {
   const {
@@ -17,7 +15,7 @@ export default () => {
     edges = [],
     nodes = [],
     yAxisStyle: { width: yWidth },
-  } = useContext(GraphContext);
+  } = useContext(GraphTimeService);
   const { xScale } = useXAxis();
   const { yScale } = useYAxis();
   const { chart } = useChart({
@@ -40,7 +38,7 @@ export default () => {
    */
   const edgesExtent = useMemo(() => {
     if (!edges?.length) return;
-    const timeStamps = new Set(edges.map((edge) => edge.properties.createdTime));
+    const timeStamps = new Set(edges.map((edge) => getTime(edge.time)));
     const timeArray = [...timeStamps].sort();
     let minGap = Number.MAX_SAFE_INTEGER;
     let ans = 0;
@@ -57,13 +55,11 @@ export default () => {
     };
   }, [edges]);
 
-  const [minScale, setMinScale] = useSafeState();
-
   useUpdateEffect(() => {
     if (!wrapper || !size || !edgesExtent || !xScale) return;
     const zoomed: any = zoom()
       .on('start', () => {
-        //console.log('start');
+        // console.log('start');
       })
       .on('zoom', (event) => {
         setTransform?.(event.transform);
@@ -74,10 +70,12 @@ export default () => {
         [size?.width * 1.5, size.height],
       ])
       .on('end', () => {
-        //console.log('end');
+        // console.log('end');
       });
 
     wrapper.select('svg').call(zoomed);
   }, [wrapper, size]);
+
+
   return <svg></svg>;
 };

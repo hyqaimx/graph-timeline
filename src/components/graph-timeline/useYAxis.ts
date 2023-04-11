@@ -4,8 +4,8 @@ import { scalePoint } from 'd3-scale';
 import { axisLeft } from 'd3-axis';
 import { map } from 'lodash';
 import type { Selection } from 'd3-selection';
-import GraphContext from '../context';
-import type { INode  } from '../types';
+import { GraphTimeService } from './service';
+import type { INode  } from '../../types';
 
 export default () => {
     const {
@@ -14,8 +14,8 @@ export default () => {
         size, 
         xAxisStyle, 
         yAxisStyle: { width: yWidth }, 
-        getCurrNodeStyle
-    } = useContext(GraphContext);
+        getCurrnodeConfig
+    } = useContext(GraphTimeService);
     const [yAxis, setYAxis] = useSafeState<Selection<SVGGElement, any, any, any>>()
     const yScale = useMemo(() => {
         if (!wrapper || !nodes?.length || !size) return;
@@ -54,25 +54,25 @@ export default () => {
         yAxis.selectAll('.tick')
             .data(nodes)
             .attr('color', (node: INode) => {
-                return getCurrNodeStyle?.('color', node) || null;
+                return getCurrnodeConfig?.('color', node) || null;
             });
 
         // 设置线的背景色
         yAxis.selectAll('.tick line')
             .data(nodes)
             .attr('stroke', (node: INode) => {
-                const bgLineColor = getCurrNodeStyle?.('bgLineColor', node);
-                if (bgLineColor) return bgLineColor;
+                const strokeColor = getCurrnodeConfig?.('strokeColor', node);
+                if (strokeColor) return strokeColor;
 
                 // 如果节点有配色会使用当前节点颜色
                 return 'currentColor';
             })
             .attr('opacity', (node: INode) => {
-                const opacity = getCurrNodeStyle?.('bgLineColorOpacity', node) || 1;
+                const opacity = getCurrnodeConfig?.('strokeOpacity', node) || 1;
                 return opacity;
             })
             .attr('stroke-dasharray', (node: INode) => {
-                const style = getCurrNodeStyle?.('bgLineStyle', node);
+                const style = getCurrnodeConfig?.('strokeStyle', node);
                 return style === 'solid' ? null : '5'
             })
 

@@ -5,9 +5,10 @@ import { axisTop, axisBottom } from 'd3-axis';
 import { map } from 'lodash';
 import dayjs from 'dayjs';
 import { useSafeState } from 'ahooks';
-import { TIME_FORMAT } from '../common/constants';
-import GraphContext from '../context';
-import type { BaseType, Selection } from 'd3-selection';
+import { TIME_FORMAT } from '../../common/constants';
+import { GraphTimeService } from './service';
+import type { Selection } from 'd3-selection';
+import { getTime } from '../../utils';
 
 export default () => {
   const {
@@ -16,14 +17,14 @@ export default () => {
     size,
     yAxisStyle: { width: yWidth },
     transform,
-  } = useContext(GraphContext);
+  } = useContext(GraphTimeService);
 
   const [xAxisTop, setXAxisTop] = useSafeState<Selection<SVGGElement, any, any, any>>();
   const [xAxisBottom, setXAxisBottom] = useSafeState<Selection<SVGGElement, any, any, any>>();
 
   const minAndMax = useMemo(() => {
     if (!edges?.length) return;
-    return extent(edges, ({ properties: { createdTime } }) => createdTime)
+    return extent(edges, ({ time }) => getTime(time))
   }, [edges])
 
   const xScale = useMemo(() => {

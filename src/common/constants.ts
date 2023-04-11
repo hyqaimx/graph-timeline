@@ -1,4 +1,4 @@
-import { INodeTypeStyle, IYAxisStyle, IXAxisStyle, IEdgeTypeStyle } from "../types";
+import { INodeGroupStyle, IYAxisStyle, IXAxisStyle, IEdgeGroupStyle } from "../types";
 
 export const classPrefix = 'graph-timeline';
 
@@ -16,17 +16,17 @@ export const FROM_KEY = {
     type: 'type'
 }
 
-export const DEFAULT_NODE_TYPE_STYLE: INodeTypeStyle = {
+export const DEFAULT_NODE_TYPE_STYLE: INodeGroupStyle = {
     // 默认节点颜色
     color: '#8c8c8c',
     // 半径
     radius: 3,
     // 默认不透明
-    bgLineColorOpacity: 1,
+    strokeOpacity: 1,
     // 背景线实线还是虚线
-    bgLineStyle: 'solid'
+    strokeStyle: 'solid'
 }
-export const DEFAULT_EDGE_TYPE_STYLE: IEdgeTypeStyle = {
+export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
     // 颜色默认起始节点到中止节点渐变，也可特殊定义
     color: 'gradient',
     // 宽度
