@@ -16,7 +16,7 @@ export default {
       "strokeStyle": "dashed"
     },
     "edgeConfig": {
-      "width": 2,
+      "width": 3,
       "reverse": true
     },
     "edgeGroupBy": "group",

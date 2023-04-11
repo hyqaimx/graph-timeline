@@ -7,6 +7,6 @@ export default () => (
   <GraphTimeline
     {...demo1Data}
     yAxis={{ width: 200 }}
-    style={{ height: 1200, padding: 30 }}
+    style={{ height: 800, padding: 30 }}
   />
 );
