@@ -1,18 +1,13 @@
 import { useEffect, useContext } from 'react';
-import { axisTop, axisBottom } from 'd3-axis';
+import * as d3 from 'd3';
 import { useSafeState } from 'ahooks';
 import { GraphTimeService } from './service';
-import type { Selection } from 'd3-selection';
 
 export default () => {
-  const {
-    wrapper,
-    size,
-    xScale
-  } = useContext(GraphTimeService);
+  const { wrapper, size, xScale } = useContext(GraphTimeService);
 
-  const [xAxisTop, setXAxisTop] = useSafeState<Selection<SVGGElement, any, any, any>>();
-  const [xAxisBottom, setXAxisBottom] = useSafeState<Selection<SVGGElement, any, any, any>>();
+  const [xAxisTop, setXAxisTop] = useSafeState<d3.Selection<SVGGElement, any, any, any>>();
+  const [xAxisBottom, setXAxisBottom] = useSafeState<d3.Selection<SVGGElement, any, any, any>>();
 
   useEffect(() => {
     if (!wrapper || !size) return;
@@ -26,7 +21,11 @@ export default () => {
 
     // bottom
     let xAxisBottom: any = wrapper.select('svg').selectAll('.xAxisBottom').data([null]);
-    const xAxisBottomEnter: any = xAxisBottom.enter().append('g').attr('class', 'axis xAxisBottom').attr('transform', `translate(0, ${size.height})`);
+    const xAxisBottomEnter: any = xAxisBottom
+      .enter()
+      .append('g')
+      .attr('class', 'axis xAxisBottom')
+      .attr('transform', `translate(0, ${size.height})`);
 
     xAxisBottom = xAxisBottom.merge(xAxisBottomEnter);
 
@@ -35,17 +34,16 @@ export default () => {
 
   useEffect(() => {
     if (!xAxisTop || !xScale) return;
-    xAxisTop.call(axisTop(xScale));
+    xAxisTop.call(d3.axisTop(xScale));
   }, [xAxisTop, xScale]);
 
   useEffect(() => {
     if (!xAxisBottom || !xScale) return;
-    xAxisBottom.call(axisBottom(xScale));
+    xAxisBottom.call(d3.axisBottom(xScale));
   }, [xAxisBottom, xScale]);
 
   return {
     xAxisTop,
-    xAxisBottom
-  }
-
+    xAxisBottom,
+  };
 };

@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from 'react';
-import { zoom } from 'd3-zoom';
+import * as d3 from 'd3';
 import { useUpdateEffect } from 'ahooks';
 import useXAxis from './useXAxis';
 import useYAxis from './useYAxis';
@@ -8,14 +8,7 @@ import { GraphTimeService } from './service';
 import { getTime } from '../../utils';
 
 export default () => {
-  const {
-    wrapper,
-    size,
-    setTransform,
-    edges = [],
-    xScale,
-    yScale
-  } = useContext(GraphTimeService);
+  const { wrapper, size, setTransform, edges = [], xScale, yScale } = useContext(GraphTimeService);
   const xAxis = useXAxis();
   const yAxis = useYAxis();
   const chart = useChart({
@@ -57,7 +50,8 @@ export default () => {
 
   useUpdateEffect(() => {
     if (!wrapper || !size || !edgesExtent || !xScale) return;
-    const zoomed: any = zoom()
+    const zoomed: any = d3
+      .zoom()
       .on('start', () => {
         // console.log('start');
       })
@@ -75,7 +69,6 @@ export default () => {
 
     wrapper.select('svg').call(zoomed);
   }, [wrapper, size]);
-
 
   return <svg></svg>;
 };

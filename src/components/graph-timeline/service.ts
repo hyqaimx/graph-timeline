@@ -1,14 +1,25 @@
 import { RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { assign, map } from 'lodash';
-import { select } from 'd3-selection';
-import { scaleTime, scalePoint } from 'd3-scale';
+import * as d3 from 'd3';
 import useNoPaddingSize from '../../hooks/useNoPaddingSize';
-import { DEFAULT_YAXIS_STYLE, FROM_KEY, DEFAULT_XAXIS_STYLE, DEFAULT_NODE_TYPE_STYLE, DEFAULT_EDGE_TYPE_STYLE, TIME_FORMAT } from '../../common/constants';
-import { IEdge, IEdgeGroupStyle, INode, INodeGroupStyle, IXAxisStyle, IYAxisStyle } from '../../types';
-import type { Selection } from 'd3-selection';
-import { extent } from 'd3-array';
+import {
+  DEFAULT_YAXIS_STYLE,
+  FROM_KEY,
+  DEFAULT_XAXIS_STYLE,
+  DEFAULT_NODE_TYPE_STYLE,
+  DEFAULT_EDGE_TYPE_STYLE,
+  TIME_FORMAT,
+  TIME_LOCALE_FORMAT,
+} from '../../common/constants';
+import {
+  IEdge,
+  IEdgeGroupStyle,
+  INode,
+  INodeGroupStyle,
+  IXAxisStyle,
+  IYAxisStyle,
+} from '../../types';
 import { useSafeState } from 'ahooks';
-import { ZoomTransform } from 'd3-zoom';
 import { getServiceToken, getTime } from '../../utils';
 import dayjs from 'dayjs';
 
@@ -40,11 +51,12 @@ export const useService = ({
   nodeConfig,
   edgeGroupBy,
   edgeGroups,
-  edgeConfig
+  edgeConfig,
 }: IServiceProps) => {
   const size = useNoPaddingSize(containerRef);
-  const [selection, setSelection] = useState<Selection<HTMLDivElement, unknown, null, undefined>>();
-  const [transform, setTransform] = useSafeState<ZoomTransform>();
+  const [selection, setSelection] =
+    useState<d3.Selection<HTMLDivElement, unknown, null, undefined>>();
+  const [transform, setTransform] = useSafeState<d3.ZoomTransform>();
 
   const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yAxis), [yAxis]);
   const xAxisStyle = useMemo(() => assign(DEFAULT_XAXIS_STYLE, xAxis), [xAxis]);
@@ -59,19 +71,22 @@ export const useService = ({
 
   const timeGapTotal = useMemo(() => {
     if (!edges?.length) return;
-    const minAndMax = extent(edges, ({ time }) => getTime(time));
+    const minAndMax = d3.extent(edges, ({ time }) => getTime(time));
     return Number(minAndMax[1]) - Number(minAndMax[0]);
   }, [edges]);
 
   const minAndMax = useMemo(() => {
     if (!edges?.length) return;
-    return extent(edges, ({ time }) => getTime(time))
-  }, [edges])
+    return d3.extent(edges, ({ time }) => getTime(time));
+  }, [edges]);
 
   const xScale = useMemo(() => {
     if (!selection || !size || !minAndMax) return;
 
-    const scale = scaleTime()
+    d3.timeFormatDefaultLocale(TIME_LOCALE_FORMAT);
+
+    const scale = d3
+      .scaleTime()
       .domain(map(minAndMax, (time) => dayjs(time, TIME_FORMAT)))
       .range([yAxisStyle.width, size.width])
       .nice();
@@ -81,15 +96,16 @@ export const useService = ({
   const insightEdges = useMemo(() => {
     if (!size || !xScale) return;
     // 可视区域内的边
-    return edges
-      .filter(
-        (edge) =>
-          xScale(getTime(edge.time)) >= yAxisStyle.width &&
-          xScale(getTime(edge.time)) <= size.width &&
-          edge.source && nodesMap[edge.source] &&
-          edge.target && nodesMap[edge.target]
-      )
-  }, [xScale, yAxisStyle.width, size?.width, edges, nodesMap])
+    return edges.filter(
+      (edge) =>
+        xScale(getTime(edge.time)) >= yAxisStyle.width &&
+        xScale(getTime(edge.time)) <= size.width &&
+        edge.source &&
+        nodesMap[edge.source] &&
+        edge.target &&
+        nodesMap[edge.target],
+    );
+  }, [xScale, yAxisStyle.width, size?.width, edges, nodesMap]);
 
   const insightNodes = useMemo(() => {
     if (!insightEdges?.length) return;
@@ -100,43 +116,52 @@ export const useService = ({
       if (target) nodeIdMap.set(target, 1);
     });
 
-    return nodes.filter(node => nodeIdMap.has(node.id));
-  }, [insightEdges, nodes])
+    return nodes.filter((node) => nodeIdMap.has(node.id));
+  }, [insightEdges, nodes]);
 
   const yScale = useMemo(() => {
     if (!selection || !edges?.length || !size || !nodesMap) return;
 
     const ids = map(insightNodes, ({ id }) => id);
 
-    return scalePoint()
+    return d3
+      .scalePoint()
       .domain(ids)
-      .range([30, size.height - 30])
-  }, [selection, edges, nodesMap, size, insightNodes])
+      .range([30, size.height - 30]);
+  }, [selection, edges, nodesMap, size, insightNodes]);
 
-  const getCurrNodeConfig = useCallback((key: keyof INodeGroupStyle, node?: INode) => {
-    const groupKey = node?.[nodeGroupBy as keyof INode];
-    // 有分类样式
-    if (groupKey && nodeGroups?.[groupKey as string]?.[key]) return nodeGroups[groupKey as string][key];
-    // 无分类样式，有统一样式
-    if (nodeConfig?.[key]) return nodeConfig[key];
-    // 内部默认样式
-    return DEFAULT_NODE_TYPE_STYLE[key] || null;
-  }, [nodeGroupBy, nodeGroups, nodeConfig])
+  const getCurrNodeConfig = useCallback(
+    (key: keyof INodeGroupStyle, node?: INode) => {
+      const groupKey = node?.[nodeGroupBy as keyof INode];
+      // 有分类样式
+      if (groupKey && nodeGroups?.[groupKey as string]?.[key])
+        return nodeGroups[groupKey as string][key];
+      // 无分类样式，有统一样式
+      if (nodeConfig?.[key]) return nodeConfig[key];
+      // 内部默认样式
+      return DEFAULT_NODE_TYPE_STYLE[key] || null;
+    },
+    [nodeGroupBy, nodeGroups, nodeConfig],
+  );
 
-  const getCurrEdgeConfig = useCallback((key: keyof IEdgeGroupStyle, edge?: IEdge) => {
-    const groupKey = edge?.[edgeGroupBy as keyof IEdge];
-    // 有分类样式
-    if (groupKey && edgeGroups?.[groupKey as string]?.[key]) return edgeGroups[groupKey as string][key];
-    // 无分类样式，有统一样式
-    if (edgeConfig?.[key]) return edgeConfig[key];
-    // 内部默认样式
-    return DEFAULT_EDGE_TYPE_STYLE[key] || null;
-  }, [edgeGroups, edgeConfig, edgeGroupBy])
+  const getCurrEdgeConfig = useCallback(
+    (key: keyof IEdgeGroupStyle, edge?: IEdge) => {
+      const groupKey = edge?.[edgeGroupBy as keyof IEdge];
+      // 有分类样式
+      if (groupKey && edgeGroups?.[groupKey as string]?.[key])
+        return edgeGroups[groupKey as string][key];
+      // 无分类样式，有统一样式
+      if (edgeConfig?.[key]) return edgeConfig[key];
+      // 内部默认样式
+      return DEFAULT_EDGE_TYPE_STYLE[key] || null;
+    },
+    [edgeGroups, edgeConfig, edgeGroupBy],
+  );
 
   useEffect(() => {
     if (!containerRef.current || !size) return;
 
-    setSelection(select(containerRef.current));
+    setSelection(d3.select(containerRef.current));
   }, [containerRef.current, size]);
 
   return {
@@ -155,7 +180,7 @@ export const useService = ({
     yScale,
     setTransform,
     getCurrNodeConfig,
-    getCurrEdgeConfig
+    getCurrEdgeConfig,
   };
 };
 
