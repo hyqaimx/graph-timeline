@@ -9,6 +9,7 @@ export default () => {
     const {
         wrapper,
         insightNodes,
+        nodesMap,
         size, 
         yScale,
         yAxisStyle: { width: yWidth }, 
@@ -28,11 +29,19 @@ export default () => {
     }, [wrapper, size])
 
     useEffect(() => {
-        if (!yAxis || !yScale ||!size || !insightNodes?.length) return;
+        if (!yAxis || !yScale ||!size || !insightNodes?.length || !nodesMap) return;
 
         yAxis.attr("transform", `translate(${size.width},0)`);
 
-        yAxis.call(axisLeft(yScale).tickSize(size.width - yWidth).tickPadding(3))
+        yAxis.call(
+            axisLeft(yScale)
+            .tickFormat(id => {
+                const node = nodesMap[id];
+                return node?.label || id;
+            })
+            .tickSize(size.width - yWidth)
+            .tickPadding(3)
+        )
 
         // 删除 y 轴竖线
         yAxis.selectAll('.domain').remove()
@@ -62,7 +71,7 @@ export default () => {
                 const style = getCurrNodeConfig?.('strokeStyle', node);
                 return style === 'solid' ? null : '5'
             })
-    }, [yAxis, yScale, size, insightNodes])
+    }, [yAxis, yScale, size, insightNodes, nodesMap])
     
     return yAxis
 }

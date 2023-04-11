@@ -146,7 +146,7 @@ export default ({ xScale, yScale }: IProps) => {
       }
     });
     // const colorScale = scaleLinear([0, max(ans, (d) => d.count) || 1], ['#0571b0', '#ca0020']);
-    const opacityScale = scaleLinear([0, max(ans, (d) => d.count) || 1], [0.1, 1]);
+    const opacityScale = scaleLinear([0, max(ans, (d) => d.count) || 1], [0, 1]);
 
     const cellWidth = xScale(currentTicks[1]) - xScale(currentTicks[0]),
       cellHeight = 14;
