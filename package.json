@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "graph-timeline",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "是一个用于图分析中分析节点的时间关系的组件",
   "repository": "git@github.com:hyqaimx/graph-timeline.git",
   "keywords": [
