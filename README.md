@@ -1,4 +1,4 @@
-# graph-timeline-v2
+# graph-timeline
 
 ## Getting Started
 
