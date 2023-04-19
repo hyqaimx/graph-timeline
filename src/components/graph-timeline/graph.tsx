@@ -11,10 +11,7 @@ export default () => {
   const { wrapper, size, setTransform, edges = [], xScale, yScale } = useContext(GraphTimeService);
   const xAxis = useXAxis();
   const yAxis = useYAxis();
-  const chart = useChart({
-    xScale,
-    yScale,
-  });
+  const chart = useChart();
 
   useUpdateEffect(() => {
     if (!wrapper || !size) return;
@@ -34,15 +31,11 @@ export default () => {
     const timeStamps = new Set(edges.map((edge) => getTime(edge.time)));
     const timeArray = [...timeStamps].sort();
     let minGap = Number.MAX_SAFE_INTEGER;
-    let ans = 0;
-    for (let i = 1; i < timeArray.length; i++) {
-      const diff = Math.abs(Number(timeArray[i]) - Number(timeArray[i - 1]));
-      minGap = minGap > diff ? diff : minGap;
-      if (minGap === diff) {
-        ans = i;
-      }
+    for (let i = 1; i < timeArray.length - 1; i++) {
+      const diff = Math.abs(timeArray[i] - timeArray[i - 1]);
+      minGap = Math.min(minGap, diff);
     }
-    const maxGap = Number(timeArray[timeArray.length - 1]) - Number(timeArray[0]);
+    const maxGap = timeArray[timeArray.length - 1] - timeArray[0];
     return {
       maxScale: maxGap / minGap,
     };
@@ -52,9 +45,6 @@ export default () => {
     if (!wrapper || !size || !edgesExtent || !xScale) return;
     const zoomed: any = d3
       .zoom()
-      .on('start', () => {
-        // console.log('start');
-      })
       .on('zoom', (event) => {
         setTransform?.(event.transform);
       })
@@ -62,10 +52,7 @@ export default () => {
       .translateExtent([
         [-size.width / 2, 0],
         [size?.width * 1.5, size.height],
-      ])
-      .on('end', () => {
-        // console.log('end');
-      });
+      ]);
 
     wrapper.select('svg').call(zoomed);
   }, [wrapper, size]);

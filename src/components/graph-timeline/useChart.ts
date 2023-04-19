@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import * as d3 from 'd3';
 import { useSafeState } from 'ahooks';
 import { GraphTimeService } from './service';
@@ -12,29 +12,22 @@ export interface IProps {
   yScale: any;
 }
 
-export default ({ xScale, yScale }: IProps) => {
+export default () => {
   const {
     wrapper,
+    minAndMax,
+    edges,
     insightEdges,
     nodesMap,
-    timeGapTotal,
     size,
-    yAxisStyle: { width: yWidth },
+    xScale,
+    yScale,
     getCurrNodeConfig,
     getCurrEdgeConfig,
+    isHeatMap,
   } = useContext(GraphTimeService);
 
   const [chart, setChart] = useSafeState<d3.Selection<d3.BaseType, null, d3.BaseType, unknown>>();
-
-  //判断是热力泳道图还是点线 根据当前缩放等级下的时间段长度和整个数据的时间段长度比值决定
-  // ratio > 0.5 ? console.log('热力泳道图') : console.log('点线图');
-  const ratio = useMemo(() => {
-    if (!xScale || !timeGapTotal) return;
-    const left = xScale.invert(yWidth);
-    const right = xScale.invert(size?.width);
-    const timeGap = right - left;
-    return timeGap / timeGapTotal;
-  }, [xScale, size?.width, yWidth, timeGapTotal]);
 
   const insertGradient = useCallback(
     (startColor: string, endColor: string) => {
@@ -95,80 +88,94 @@ export default ({ xScale, yScale }: IProps) => {
     [wrapper],
   );
 
-  const renderHeatMap = (insightEdges: IEdge[]) => {
-    if (!chart) return;
-    chart.selectAll('.__circle.__start').remove();
-    chart.selectAll('.__circle.__end').remove();
+  const renderHeatMap = () => {
+    if (!chart || !xScale || !yScale || !minAndMax || !edges) return;
+    chart.selectAll('.__circle').remove();
     chart.selectAll('.__line').remove();
 
-    //当前事件列表数据映射到时间块内的数量统计列表
+    // 当前事件列表数据映射到时间块内的数量统计列表
     const currentTicks = xScale.ticks();
-    //时间块数量
-    const timeBlockNum = (currentTicks.length - 1) * 2;
-    const tickDiff = Math.floor(currentTicks[1] - currentTicks[0]) / 2;
-    const heatMapData = new Map();
-    for (const edge of insightEdges) {
+    const tickTimeGap = currentTicks[1].getTime() - currentTicks[0].getTime();
+    const [minTime, maxTime] = minAndMax;
+    if (!minTime || !maxTime) return;
+    const totalTimeGap = maxTime - minTime;
+    const tickCount = Math.floor(totalTimeGap / tickTimeGap);
+
+    const nodeBlockMap = new Map();
+    for (const edge of edges) {
       const timeStamp = getTime(edge.time);
-      const i = Math.floor((Number(timeStamp) - Number(currentTicks[0])) / tickDiff);
+      const i = Math.floor((timeStamp - minTime) / tickTimeGap);
       if (edge.source) {
         const node = edge.source;
-        const arr = heatMapData.get(node);
+        const arr = nodeBlockMap.get(node);
         if (arr) {
-          arr[i] = arr[i] + 1;
+          arr[i]++;
         } else {
-          const temp = new Array(timeBlockNum).fill(0);
-          temp[i] = temp[i] + 1;
-          heatMapData.set(node, temp);
+          const temp = new Array(tickCount).fill(0);
+          temp[i]++;
+          nodeBlockMap.set(node, temp);
         }
       }
       if (edge.target) {
         const node = edge.target;
-        const arr = heatMapData.get(node);
+        const arr = nodeBlockMap.get(node);
         if (arr) {
-          arr[i] = arr[i] + 1;
+          arr[i]++;
         } else {
-          const temp = new Array(timeBlockNum).fill(0);
-          temp[i] = temp[i] + 1;
-          heatMapData.set(node, temp);
+          const temp = new Array(tickCount).fill(0);
+          temp[i]++;
+          nodeBlockMap.set(node, temp);
         }
       }
     }
-    const ans: THeatMapItem[] = [];
-    heatMapData.forEach((value, key) => {
-      for (let i = 0; i < timeBlockNum; i++) {
-        ans.push({
-          node: key,
-          count: value[i],
-          time: i,
+    const heatmap: THeatMapItem[] = [];
+    nodeBlockMap.forEach((block, nodeId) => {
+      for (let i = 0; i < tickCount; i++) {
+        const count = block[i];
+        if (count <= 0) continue;
+        heatmap.push({
+          nodeId,
+          index: i,
+          count: block[i],
         });
       }
     });
-    // const colorScale = scaleLinear([0, max(ans, (d) => d.count) || 1], ['#0571b0', '#ca0020']);
-    const opacityScale = d3.scaleLinear([0, d3.max(ans, (d) => d.count) || 1], [0, 1]);
+    const maxCount = d3.max(heatmap, (d) => d.count) || 1;
+    const opacityScale = d3.scaleLinear([0, maxCount], [0, 1]);
+
+    const leftX = xScale(currentTicks[0].getTime());
+    const rightX = xScale(currentTicks[currentTicks.length - 1].getTime());
+
+    const renderHeatMap = heatmap.filter((item) => {
+      const x = xScale(minTime + item.index * tickTimeGap);
+      const y = yScale(item.nodeId);
+      return y && x >= leftX && x <= rightX;
+    });
 
     const cellWidth = xScale(currentTicks[1]) - xScale(currentTicks[0]),
       cellHeight = 14;
-    const heatMapChart = chart.selectAll('.__heatmap').data(ans.filter((item) => item.count > -1));
+    const heatMapChart = chart.selectAll('.__heatmap').data(renderHeatMap);
     const heatMapChartEnter: any = heatMapChart.enter().append('rect').attr('class', '__heatmap');
 
     heatMapChart
       .merge(heatMapChartEnter)
       .attr('x', (item) => {
-        return xScale(Number(currentTicks[0]) + item.time * tickDiff);
+        const x = xScale(minTime + item.index * tickTimeGap);
+        return x;
       })
       .attr('y', (item) => {
-        return yScale(item.node) - cellHeight / 2;
+        return (yScale(item.nodeId) as number) - cellHeight / 2;
       })
       .attr('width', cellWidth)
       .attr('height', cellHeight)
-      // .attr("fill", d => colorScale(d.count));
-      .attr('fill', (d) => getCurrNodeConfig?.('color', nodesMap?.[d.node]) || null)
+      .attr('fill', (d) => getCurrNodeConfig?.('color', nodesMap?.[d.nodeId]) || null)
       .attr('fill-opacity', (d) => opacityScale(d.count));
+
     heatMapChart.exit().remove();
   };
 
   const renderTimelineStart = (insightEdges: IEdge[]) => {
-    if (!chart || !size) return;
+    if (!chart || !size || !xScale || !yScale) return;
     // start 节点
     const start = chart.selectAll('.__circle.__start').data(insightEdges);
     const startEnter: any = start.enter().append('circle').attr('class', '__circle __start');
@@ -180,6 +187,8 @@ export default ({ xScale, yScale }: IProps) => {
         return getCurrNodeConfig?.('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
         return getCurrNodeConfig?.('color', node) || null;
@@ -188,13 +197,13 @@ export default ({ xScale, yScale }: IProps) => {
         return xScale(getTime(edge.time));
       })
       .attr('cy', (edge: IEdge) => {
-        return yScale(edge.source);
+        return yScale(edge.source) || null;
       });
     start.exit().remove();
   };
 
   const renderTimelineEnd = (insightEdges: IEdge[]) => {
-    if (!chart || !size) return;
+    if (!chart || !size || !xScale || !yScale) return;
     // end 节点（有 end 才绘制，如果没有就不绘制）
     const end = chart.selectAll('.__circle.__end').data(insightEdges);
     const endEnter: any = end.enter().append('circle').attr('class', '__circle __end');
@@ -206,6 +215,8 @@ export default ({ xScale, yScale }: IProps) => {
         return getCurrNodeConfig?.('radius', node) || null;
       })
       .attr('fill', (edge: IEdge) => {
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
         return getCurrNodeConfig?.('color', node) || null;
@@ -214,13 +225,13 @@ export default ({ xScale, yScale }: IProps) => {
         return xScale(getTime(edge.time));
       })
       .attr('cy', (edge: IEdge) => {
-        return yScale(edge.target);
+        return yScale(edge.target) || null;
       });
     end.exit().remove();
   };
 
   const renderTimelineLine = (insightEdges: IEdge[]) => {
-    if (!chart || !size) return;
+    if (!chart || !size || !xScale || !yScale) return;
     // 连线（有 start & end 的才画线&在范围内）
     const line = chart.selectAll('.__line').data(insightEdges);
     const lineEnter: any = line.enter().append('line').attr('class', '__line');
@@ -231,7 +242,7 @@ export default ({ xScale, yScale }: IProps) => {
         return xScale(getTime(edge.time));
       })
       .attr('y1', (edge: IEdge) => {
-        return yScale(edge.source);
+        return yScale(edge.source) || null;
       })
       .attr('x2', (edge: IEdge) => {
         return xScale(getTime(edge.time));
@@ -239,7 +250,8 @@ export default ({ xScale, yScale }: IProps) => {
       .attr('y2', (edge: IEdge) => {
         const node = nodesMap?.[edge.target];
         const endRadius = getCurrNodeConfig?.('radius', node) as number;
-        return yScale(edge.target) - endRadius * 2;
+        const y2 = yScale(edge.target) || null;
+        return y2 ? y2 - endRadius * 2 : null;
       })
       .attr('stroke', (edge: IEdge) => {
         const stroke = getCurrEdgeConfig?.('color', edge) || null;
@@ -270,12 +282,13 @@ export default ({ xScale, yScale }: IProps) => {
         return width;
       })
       .attr('marker-end', (edge: IEdge) => {
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
         const color = getCurrNodeConfig?.('color', node) as string;
         const endRadius = getCurrNodeConfig?.('radius', node) as number;
 
-        const arrowId = insertArrow(color, endRadius ? endRadius * 2 : undefined);
+        const arrowId = insertArrow(`${stroke || color}`, endRadius ? endRadius * 2 : undefined);
         return `url(#${arrowId})`;
       });
 
@@ -324,12 +337,12 @@ export default ({ xScale, yScale }: IProps) => {
   useEffect(() => {
     if (!chart || !size || !insightEdges) return;
 
-    if (ratio && ratio > 0.5) {
-      renderHeatMap(insightEdges);
+    if (isHeatMap) {
+      renderHeatMap();
       return;
     }
     renderTimeline(insightEdges);
-  }, [chart, size, insightEdges]);
+  }, [chart, size, insightEdges, isHeatMap]);
 
   return chart;
 };

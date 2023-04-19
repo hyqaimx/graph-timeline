@@ -3,6 +3,8 @@ import { INodeGroupStyle, IYAxisStyle, IXAxisStyle, IEdgeGroupStyle } from '../t
 
 export const classPrefix = 'graph-timeline';
 
+export const MAX_HEATMAP_HEIGHT = 14;
+
 export const TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 // 定义中文时间格式化字符串
@@ -50,7 +52,7 @@ export const DEFAULT_YAXIS_STYLE: IYAxisStyle = {
 export const DEFAULT_XAXIS_STYLE: IXAxisStyle = {};
 
 export const FROM_KEY = {
-  type: 'type',
+  group: 'group',
 };
 
 export const DEFAULT_NODE_TYPE_STYLE: INodeGroupStyle = {

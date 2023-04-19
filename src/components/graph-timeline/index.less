@@ -1,14 +1,43 @@
 @prefixCls: ~'graph-timeline';
 
 .@{prefixCls}-wrapper {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 
 .@{prefixCls} {
-    margin: 0;
+  margin: 0;
 
-    > svg {
-        overflow: visible;
+  > svg {
+    overflow: visible;
+    g {
+      &.tick {
+        text {
+          cursor: pointer;
+          &:hover {
+            & + rect {
+              display: block;
+            }
+          }
+
+          & + rect {
+            display: none;
+            pointer-events: none;
+            fill: rgba(255, 255, 255, 0.05);
+            text-anchor: middle;
+          }
+        }
+        &.__active {
+          rect {
+            display: block;
+          }
+        }
+      }
+      &.__chart {
+        .__circle {
+          cursor: pointer;
+        }
+      }
     }
+  }
 }

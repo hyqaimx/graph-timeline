@@ -15,11 +15,12 @@ import {
   IEdge,
   IEdgeGroupStyle,
   INode,
+  INodeGlobalStyle,
   INodeGroupStyle,
   IXAxisStyle,
   IYAxisStyle,
 } from '../../types';
-import { useSafeState } from 'ahooks';
+import { useDebounce, useSafeState } from 'ahooks';
 import { getServiceToken, getTime } from '../../utils';
 import dayjs from 'dayjs';
 
@@ -34,10 +35,13 @@ export interface IServiceProps {
   // 分类型
   nodeGroups?: Record<string, INodeGroupStyle>;
   // 没有类型，统一设置所有节点样式
-  nodeConfig?: INodeGroupStyle;
+  nodeConfig?: INodeGlobalStyle;
+  activeNodeIds?: string[];
   edgeGroupBy?: string;
   edgeGroups?: Record<string, IEdgeGroupStyle>;
   edgeConfig?: IEdgeGroupStyle;
+
+  onNodeClick?: (node: INode) => void;
 }
 // 数据处理 & 格式转换
 export const useService = ({
@@ -46,17 +50,21 @@ export const useService = ({
   xAxis,
   nodes = [],
   edges = [],
-  nodeGroupBy = FROM_KEY['type'],
+  nodeGroupBy = FROM_KEY['group'],
   nodeGroups,
   nodeConfig,
   edgeGroupBy,
   edgeGroups,
   edgeConfig,
+  activeNodeIds,
+  onNodeClick,
 }: IServiceProps) => {
   const size = useNoPaddingSize(containerRef);
   const [selection, setSelection] =
     useState<d3.Selection<HTMLDivElement, unknown, null, undefined>>();
   const [transform, setTransform] = useSafeState<d3.ZoomTransform>();
+  const debounceTransform = useDebounce(transform, { wait: 500 });
+  const [isHeatMap, setIsHeatmap] = useSafeState<boolean>(nodeConfig?.showHeatMap || true);
 
   const yAxisStyle = useMemo(() => assign(DEFAULT_YAXIS_STYLE, yAxis), [yAxis]);
   const xAxisStyle = useMemo(() => assign(DEFAULT_XAXIS_STYLE, xAxis), [xAxis]);
@@ -127,7 +135,7 @@ export const useService = ({
     return d3
       .scalePoint()
       .domain(ids)
-      .range([30, size.height - 30]);
+      .range([20, size.height - 20]);
   }, [selection, edges, nodesMap, size, insightNodes]);
 
   const getCurrNodeConfig = useCallback(
@@ -145,7 +153,7 @@ export const useService = ({
   );
 
   const getCurrEdgeConfig = useCallback(
-    (key: keyof IEdgeGroupStyle, edge?: IEdge) => {
+    (key: keyof IEdgeGroupStyle, edge?: IEdge, useDefault?: boolean) => {
       const groupKey = edge?.[edgeGroupBy as keyof IEdge];
       // 有分类样式
       if (groupKey && edgeGroups?.[groupKey as string]?.[key])
@@ -153,7 +161,7 @@ export const useService = ({
       // 无分类样式，有统一样式
       if (edgeConfig?.[key]) return edgeConfig[key];
       // 内部默认样式
-      return DEFAULT_EDGE_TYPE_STYLE[key] || null;
+      return useDefault ? DEFAULT_EDGE_TYPE_STYLE[key] || null : null;
     },
     [edgeGroups, edgeConfig, edgeGroupBy],
   );
@@ -164,23 +172,44 @@ export const useService = ({
     setSelection(d3.select(containerRef.current));
   }, [containerRef.current, size]);
 
+  useEffect(() => {
+    if (!nodeConfig?.showHeatMap) {
+      setIsHeatmap(false);
+      return;
+    }
+    if (!xScale || !timeGapTotal || !size?.width) return;
+    const left = xScale.invert(yAxisStyle.width).getTime();
+    const right = xScale.invert(size.width).getTime();
+    const timeGap = right - left;
+    const ratio = timeGap / timeGapTotal;
+
+    if (ratio && ratio > 0.5) {
+      return setIsHeatmap(true);
+    }
+    setIsHeatmap(false);
+  }, [xScale, size?.width, yAxisStyle.width, timeGapTotal, nodeConfig?.showHeatMap]);
+
   return {
     wrapper: selection,
     size,
     nodes,
     nodesMap,
     insightNodes,
+    activeNodeIds,
+    minAndMax,
     edges,
     insightEdges,
     timeGapTotal,
     yAxisStyle,
     xAxisStyle,
-    transform,
+    transform: debounceTransform,
     xScale,
     yScale,
+    isHeatMap,
     setTransform,
     getCurrNodeConfig,
     getCurrEdgeConfig,
+    onNodeClick,
   };
 };
 
