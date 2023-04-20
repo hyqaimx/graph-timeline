@@ -1,72 +1,77 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { nodes as ns, links as ls } from './data';
 import GraphTimeLine from '../src';
+import './index.less'
 
 const App = () => {
   const [nodes, setNodes] = useState([
-    {id: '1',name: '节点1', date: '2021-11-25 10:10:10', color: 'green'},
-    {id: '2',name: '节点1', date: '2021-11-23 11:00:10'},
-    {id: '3',name: '节点1', date: '2021-11-26 20:10:10'},
-    {id: '4',name: '节点2', date: '2021-11-23 11:00:10'},
-    {id: '5',name: '节点3', date: '2021-11-24 18:10:10'},
-    {id: '6',name: '节点3', date: '2021-11-24 15:10:10'},
-    {id: '7',name: '节点3', date: '2021-11-24 23:10:10'},
-    {id: '8',name: '节点4', date: '2021-11-23 12:10:10'},
-    {id: '9',name: '节点5', date: '2021-11-25 15:12:10'},
-    {id: '10',name: '节点5', date: '2021-11-24 18:10:10'},
+    {id:"1",name:"事件1", nodeId: '1', nodeName: '节点1', "date":"2022-08-04 00:00:00"},
+    {id:"2",name:"事件2", nodeId: '2', nodeName: '节点1', "date":"2022-08-04 00:00:00"},
+    {id:"3",name:"事件3", nodeId: '2', nodeName: '节点1', "date":"2022-08-05 00:00:00"},
+    {id:"4",name:"事件4", nodeId: '3', nodeName: '节点3', "date":"2022-08-06 00:00:00"},
+    {id:"5",name:"事件5", nodeId: '3', nodeName: '节点3', "date":"2022-08-05 00:00:00"},
+    {id:"6",name:"事件6", nodeId: '4', nodeName: '节点4', "date":"2022-08-06 00:00:00"},
+    {id:"7",name:"事件7", nodeId: '5', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"8",name:"事件8", nodeId: '5', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"9",name:"事件9", nodeId: '6', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"10",name:"事件10", nodeId: '7', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"11",name:"事件11", nodeId: '8', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"12",name:"事件12", nodeId: '9', nodeName: '节点3', "date":"2022-08-07 00:00:00"},
+    {id:"14",name:"事件14", nodeId: '10', nodeName: '节点4', "date":"2022-08-07 00:00:00"},
+    {id:"15",name:"事件15", nodeId: '11', nodeName: '节点5', "date":"2022-08-07 00:00:00"},
+    {id:"16",name:"事件16", nodeId: '12', nodeName: '节点6', "date":"2022-08-07 00:00:00"},
+    {id:"17",name:"事件17", nodeId: '13', nodeName: '节点7', "date":"2022-08-07 00:00:00"},
+    {id:"18",name:"事件18", nodeId: '14', nodeName: '节点8', "date":"2022-08-07 00:00:00"},
+    {id:"19",name:"事件19", nodeId: '15', nodeName: '节点9', "date":"2022-08-07 00:00:00"},
+    {id:"20",name:"事件20", nodeId: '16', nodeName: '节点10', "date":"2022-08-07 00:00:00"},
+    {id:"21",name:"事件21", nodeId: '17', nodeName: '节点11', "date":"2022-08-07 00:00:00"},
+    {id:"22",name:"事件22", nodeId: '18', nodeName: '节点12', "date":"2022-08-07 00:00:00"},
+    {id:"23",name:"事件23", nodeId: '19', nodeName: '节点13', "date":"2022-08-07 00:00:00"},
+    {id:"24",name:"事件24", nodeId: '20', nodeName: '节点14', "date":"2022-08-07 00:00:00"},
   ]);
   const [links, setLinks] = useState([
-    {source: '2', target: '4'},
-    {source: '10', target: '5'},
+    {source: '1', target: '2'},
+    {source: '3', target: '5'},
   ]);
 
-const [selectedItem, setSelectedItem] = useState(['节点1']);
+  const [selectedItem, setSelectedItem] = useState(['1']);
 
-// useEffect(() => {
-//   setTimeout(() => {
-//     setSelectedItem(['节点1', '节点2'])
-//   }, 2000)
-// }, [])
-  // useEffect(() => {
-  //   const date = new Date();
-  //   const getStrDate = (date) => {
-  //     const year = date.getFullYear();
-  //     const month = date.getMonth() > 8 ? date.getMonth() + 1 : '0' + (date.getMonth() + 1);
-  //     const day = date.getDate() > 9 ? date.getDate() : '0' + date.getDate();
-  //     const hour = date.getHours() > 9 ? date.getHours() : '0' + date.getHours();
-  //     const minutes = date.getMinutes() > 9 ? date.getMinutes() : '0' + date.getMinutes();
-  //     const seconds = date.getSeconds() > 9 ? date.getSeconds() : '0' + date.getSeconds();
-  //     return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
-  //   }
-  //   const arr = new Array(1000).fill(0).map((item, index) => ({
-  //     id: String(Math.floor(Math.random() * 1000)),
-  //     name: '节点' + (index + 1),
-  //     date: getStrDate(new Date(date.valueOf() - (1000*index))),
-  //     // color: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16).padEnd(6, "f")
-  //   }));
+  useEffect(() => {
+    setTimeout(() => {
+      setSelectedItem(['1', '2'])
+    }, 5000)
+  }, [])
 
-  //   const createLinks = Array.from({length: 500}).fill(0).map((item, index) => ({
-  //     source: arr[Math.floor(Math.random() * 999)].id,
-  //     target: arr[Math.floor(Math.random() * 999)].id
-  //   }));
-  //   console.log(arr,createLinks)
-  //   setNodes([...arr]);
-  //   setLinks([...createLinks]);
-  // }, [])
+  // const newData = useMemo(() => {
+  //   return nodes.map(item => ({
+  //     ...item,
+  //     nodeId: Math.round(Math.random() * 30),
+  //     nodeName: item.name
+  //   }))
+  // }, [nodes])
+
   return (
     <GraphTimeLine
+      // width={1500}
       height={500}
       nodes={nodes}
       links={links}
       // useBrush={false}
       options={{
         colors: {
-          '节点1': '#ffd666',
-          '节点3': '#a0d911'
+          '节点0': 'purple',
         },
-        node: {
-          size: 10
+        yAxis: {
+          tickColor: '#e5e5e5',
+          direction: 'topToBottom'
+        },
+        link: {
+          selectedColor: 'yellow'
         }
+      }}
+      tooltip={{
+        show: true
       }}
       selectedItem={selectedItem}
       onBrushChange={ (value) => {console.log(value)}}
@@ -74,12 +79,14 @@ const [selectedItem, setSelectedItem] = useState(['节点1']);
       onSelect={(selectedData, show, d) => {console.log(selectedData, d, show)}}
       onSelectedNodesChange={
         (current, selectedData) => {
-          console.log(`当前选中数据：${JSON.stringify(current)}, 已选中数据：${JSON.stringify(selectedData)}`)
+          console.log('onSelectedNodesChange', 'current', current);
+          console.log('onSelectedNodesChange', 'selectedData', selectedData);
         }
       }
       onSelectedLinksChange={
         (current, selectedData) => {
-          console.log(`当前选中边：${JSON.stringify(current)}, 已选中边：${JSON.stringify(selectedData)}`)
+          console.log('onSelectedLinksChange', 'current', current);
+          console.log('onSelectedLinksChange', 'selectedData', selectedData);
         }
       }
     />
