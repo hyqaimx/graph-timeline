@@ -6,6 +6,7 @@ import { compileColor, getTime } from '../../utils';
 import { DEFAULT_NODE_TYPE_STYLE } from '../../common/constants';
 import { isString } from 'lodash';
 import type { IEdge, THeatMapItem } from '../../types';
+import { INode } from '../../types';
 
 export interface IProps {
   xScale: any;
@@ -84,6 +85,35 @@ export default () => {
         .attr('d', `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`);
 
       return arrowId;
+    },
+    [wrapper],
+  );
+
+  const groupSet: Set<string> = new Set();
+  const insertIcon = useCallback(
+    (radius: number, url: string, groupName: string) => {
+      const iconId = 'icon-' + groupName;
+
+      //创建图片
+      const defs = wrapper?.select('defs.__icon');
+      if (!defs) return '';
+
+      if (groupSet.has(groupName)) return iconId;
+
+      groupSet.add(groupName);
+      defs
+        .append('pattern')
+        .attr('id', iconId)
+        .attr('height', 1)
+        .attr('width', 1)
+        .append('image')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', radius * 2)
+        .attr('height', radius * 2)
+        .attr('xlink:href', url);
+
+      return iconId;
     },
     [wrapper],
   );
@@ -182,16 +212,29 @@ export default () => {
 
     start
       .merge(startEnter)
+      // .attr('name', (edge:IEdge) => {
+      //   const reverse = getCurrEdgeConfig?.('reverse', edge);
+      //   const node = nodesMap?.[reverse ? edge.target : edge.source];
+      //   return node.label || "";
+      // })
       .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.source];
-        return getCurrNodeConfig?.('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const stroke = getCurrEdgeConfig?.('color', edge, false);
-        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
-        return getCurrNodeConfig?.('color', node) || null;
+        return getCurrNodeConfig?.('radius', node) as number;
+      })
+      .attr('fill', (edge: IEdge) => {
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.target : edge.source];
+        const url = getCurrNodeConfig?.('url', node) as string;
+        if (url) {
+          const radius = getCurrNodeConfig?.('radius', node) as number;
+          const iconId = insertIcon(radius, url, node.group || '');
+          return iconId ? `url(#${iconId})` : null;
+        } else {
+          const stroke = getCurrEdgeConfig?.('color', edge, false);
+          if (stroke) return stroke;
+          return getCurrNodeConfig?.('color', node) || null;
+        }
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
@@ -211,16 +254,36 @@ export default () => {
     end
       .merge(endEnter)
       .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.target];
-        return getCurrNodeConfig?.('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const stroke = getCurrEdgeConfig?.('color', edge, false);
-        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
-        return getCurrNodeConfig?.('color', node) || null;
+        return (getCurrNodeConfig?.('radius', node) as number) || null;
       })
+      .attr('fill', (edge: IEdge) => {
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.source : edge.target];
+        const url = getCurrNodeConfig?.('url', node) as string;
+        if (url) {
+          const radius = getCurrNodeConfig?.('radius', node) as number;
+          const iconId = insertIcon(radius, url, node.group || '');
+          return iconId ? `url(#${iconId})` : null;
+        } else {
+          const stroke = getCurrEdgeConfig?.('color', edge, false);
+          if (stroke) return stroke;
+          return getCurrNodeConfig?.('color', node) || null;
+        }
+      })
+
+      // .attr('r', (edge: IEdge) => {
+      //   const node = nodesMap?.[edge.target];
+      //   return getCurrNodeConfig?.('radius', node) || null;
+      // })
+      // .attr('fill', (edge: IEdge) => {
+      //   const stroke = getCurrEdgeConfig?.('color', edge, false);
+      //   if (stroke) return stroke;
+      //   const reverse = getCurrEdgeConfig?.('reverse', edge);
+      //   const node = nodesMap?.[reverse ? edge.source : edge.target];
+      //   return getCurrNodeConfig?.('color', node) || null;
+      // })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
       })
@@ -234,7 +297,7 @@ export default () => {
     if (!chart || !size || !xScale || !yScale) return;
     // 连线（有 start & end 的才画线&在范围内）
     const line = chart.selectAll('.__line').data(insightEdges);
-    const lineEnter: any = line.enter().append('line').attr('class', '__line');
+    const lineEnter: any = line.enter().insert('line', 'circle').attr('class', '__line');
 
     line
       .merge(lineEnter)
@@ -286,7 +349,7 @@ export default () => {
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
         const color = getCurrNodeConfig?.('color', node) as string;
-        const endRadius = getCurrNodeConfig?.('radius', node) as number;
+        const endRadius = getCurrNodeConfig?.('arrowRadius', node) as number;
 
         const arrowId = insertArrow(`${stroke || color}`, endRadius ? endRadius * 2 : undefined);
         return `url(#${arrowId})`;
@@ -332,6 +395,14 @@ export default () => {
       .enter()
       .append('defs')
       .attr('class', '__arrow');
+
+    wrapper
+      .select('svg')
+      .selectAll('defs.__icon')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__icon');
   }, [wrapper]);
 
   useEffect(() => {

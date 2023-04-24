@@ -55,6 +55,7 @@ export default () => {
         return getCurrNodeConfig?.('color', node) || null;
       })
       .select('rect')
+
       .attr('class', (node: INode) => {
         if (!activeNodeIds?.length) return null;
         const isActive = activeNodeIds?.includes(node.id);

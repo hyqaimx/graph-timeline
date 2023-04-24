@@ -26,6 +26,10 @@ export interface INodeGroupStyle {
   strokeOpacity?: number;
   // 背景线实线还是虚线；默认 solid 实线
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
+  // 背景图地址
+  url?: string;
+  // 箭头半径
+  arrowRadius?: number;
 }
 export interface INodeGlobalStyle extends INodeGroupStyle {
   // 是否显示热力图

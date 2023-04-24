@@ -64,6 +64,8 @@ export const DEFAULT_NODE_TYPE_STYLE: INodeGroupStyle = {
   strokeOpacity: 1,
   // 背景线实线还是虚线
   strokeStyle: 'solid',
+  // 箭头半径
+  arrowRadius: 4,
 };
 export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
   // 颜色默认起始节点到中止节点渐变，也可特殊定义

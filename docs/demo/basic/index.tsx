@@ -18,9 +18,11 @@ export default () => {
     nodeGroups: {
       SPerson: {
         color: 'rgba(53,127,31,1)',
-        radius: 4,
+        radius: 8,
+        arrowRadius: 4,
         strokeColor: 'rgba(53,127,31,0.7)',
         strokeStyle: 'solid',
+        url: 'http://touxiang.fzlol.com/pic/20160727/14033_1469581695_1.jpg',
       },
     },
     nodeConfig: {
