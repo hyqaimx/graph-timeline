@@ -64,8 +64,6 @@ export const DEFAULT_NODE_TYPE_STYLE: INodeGroupStyle = {
   strokeOpacity: 1,
   // 背景线实线还是虚线
   strokeStyle: 'solid',
-  // 箭头半径
-  arrowRadius: 4,
 };
 export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
   // 颜色默认起始节点到中止节点渐变，也可特殊定义
@@ -74,4 +72,6 @@ export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
   width: 2,
   // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；
   reverse: false,
+  // 箭头半径
+  arrowRadius: 10,
 };

@@ -2,10 +2,12 @@ export type ValueOf<T> = T[keyof T];
 
 export type TBaseTime = string | number;
 export type TTime = TBaseTime | { start: TBaseTime; end: TBaseTime };
+
 export interface IEdge {
   source: string;
   target: string;
   time: TTime;
+  group: string;
 }
 
 export interface INode
@@ -16,6 +18,18 @@ export interface INode
   }> {
   id: string;
 }
+
+export interface INodeGroupIconStyle {
+  // 类型
+  type: string;
+  // 图标内容，img对应图片地址，icon对应图标的unicode值，text对应文本字符（仅展示一个字符）
+  value: string;
+  // 图标颜色,仅当iconType为icon和text有效
+  color?: string;
+  // 设置图标的类名，可用于iconfont fontawesome的外部类名指定
+  className?: string;
+}
+
 export interface INodeGroupStyle {
   // 节点颜色
   color?: string;
@@ -26,15 +40,15 @@ export interface INodeGroupStyle {
   strokeOpacity?: number;
   // 背景线实线还是虚线；默认 solid 实线
   strokeStyle?: 'solid' | 'dashed' | 'dotted';
-  // 背景图地址
-  url?: string;
-  // 箭头半径
-  arrowRadius?: number;
+  // y轴坐标图标样式
+  iconStyle?: INodeGroupIconStyle;
 }
+
 export interface INodeGlobalStyle extends INodeGroupStyle {
   // 是否显示热力图
   showHeatMap?: boolean;
 }
+
 export interface IEdgeGroupStyle {
   // 颜色默认起始节点到中止节点渐变，也可特殊定义
   color?: string;
@@ -42,6 +56,12 @@ export interface IEdgeGroupStyle {
   reverse?: boolean;
   // 线的宽度
   width?: number;
+  // 起始节点背景图地址
+  sourceUrl?: string;
+  // 终止节点背景图地址
+  targetUrl?: string;
+  // 箭头半径
+  arrowRadius?: number;
 }
 
 export interface IYAxisStyle {

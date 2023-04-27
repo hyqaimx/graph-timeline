@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GraphTimeline, INode } from 'graph-timeline';
 import demo1Data from './demo1';
 import './index.less';
+import './iconfont/iconfont.css';
 
 export default () => {
   const [activeNodeIds, setActiveNodeIds] = useState<string[]>([]);
@@ -18,15 +19,37 @@ export default () => {
     nodeGroups: {
       SPerson: {
         color: 'rgba(53,127,31,1)',
-        radius: 8,
-        arrowRadius: 4,
+        radius: 5,
         strokeColor: 'rgba(53,127,31,0.7)',
         strokeStyle: 'solid',
-        url: 'http://touxiang.fzlol.com/pic/20160727/14033_1469581695_1.jpg',
+        iconStyle: {
+          type: 'icon',
+          color: 'white',
+          value: '&#xe629;',
+          className: 'iconfont',
+        },
+      },
+      SPerson1: {
+        color: 'rgba(53,127,31,1)',
+        radius: 5,
+        strokeColor: 'rgba(53,127,31,0.7)',
+        strokeStyle: 'solid',
+        iconStyle: {
+          type: 'text',
+          color: 'white',
+          value: '人',
+        },
+      },
+      Device: {
+        color: 'rgb(224,162,30)',
+        iconStyle: {
+          type: 'img',
+          value: 'http://touxiang.fzlol.com/pic/20141216/1275_1418705548_1.jpg',
+        },
       },
     },
     nodeConfig: {
-      radius: 4,
+      radius: 5,
       color: 'rgba(255,0,0,1)',
       strokeOpacity: 0.3,
       strokeColor: 'rgba(255,0,0,.7)',
@@ -39,8 +62,14 @@ export default () => {
     edgeGroupBy: 'group',
     edgeGroups: {
       COMPANY: {
-        width: 2,
+        width: 4,
+        arrowRadius: 8,
         color: 'yellow',
+      },
+      Cooperate: {
+        sourceUrl: 'http://touxiang.fzlol.com/pic/20160727/14033_1469581695_1.jpg',
+        targetUrl: 'http://touxiang.fzlol.com/pic/20141216/1275_1418705548_1.jpg',
+        color: 'white',
       },
     },
   };
