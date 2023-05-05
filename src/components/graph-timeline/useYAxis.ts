@@ -1,10 +1,9 @@
 import { useEffect, useContext, useCallback } from 'react';
 import * as d3 from 'd3';
 import { useSafeState } from 'ahooks';
-import { axisLeft, getTime } from '../../utils';
+import { axisLeft } from '../../utils';
 import { GraphTimeService } from './service';
 import type { INode, INodeGroupIconStyle } from '../../types';
-import { IEdge } from '../../types';
 
 export default () => {
   const {
@@ -126,15 +125,14 @@ export default () => {
       .attr('r', iconRadius)
       .attr('fill', (node: INode) => {
         const iconStyle = getCurrNodeConfig?.('iconStyle', node) || null;
-        if (iconStyle) {
-          const iconType = iconStyle.type as string;
-          if (iconType === 'img') {
-            const iconValue = iconStyle.value as string;
-            const iconId = insertIcon(iconRadius, iconValue, node.group || '', iconType);
-            return iconId ? `url(#${iconId})` : null;
-          }
-        }
-        return 'currentColor';
+        if (!iconStyle) return 'currentColor';
+
+        const iconType = iconStyle.type as string;
+        if (iconType !== 'img') return 'currentColor';
+
+        const iconValue = iconStyle.value as string;
+        const iconId = insertIcon(iconRadius, iconValue, node.group || '', iconType);
+        return iconId ? `url(#${iconId})` : null;
       });
 
     // 过滤出iconType为text类型的数据
@@ -160,7 +158,6 @@ export default () => {
       .attr('text-anchor', 'middle')
       .html((node: INode) => {
         const iconStyle = getCurrNodeConfig?.('iconStyle', node) || null;
-        console.log(node);
         return iconStyle ? (iconStyle.value as string) : null;
       })
       .exit();
