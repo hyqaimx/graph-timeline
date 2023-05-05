@@ -84,12 +84,7 @@ export default () => {
       .attr('color', (node: INode) => {
         return (getCurrNodeConfig?.('color', node) as string) || null;
       })
-      .attr('name', (node: INode) => {
-        const iconStyle = getCurrNodeConfig?.('iconStyle', node) || null;
-        return iconStyle ? iconStyle.type : null;
-      })
       .select('rect')
-
       .attr('class', (node: INode) => {
         if (!activeNodeIds?.length) return null;
         const isActive = activeNodeIds?.includes(node.id);
@@ -142,12 +137,11 @@ export default () => {
     });
     // 渲染text和icon类型的图标
     yAxis
-      .selectAll('.tick[name=text], .tick[name=icon]')
+      .selectAll('._icon')
       .data(iconDataByTextAndIcon)
-      .select('text[name=iconText]')
       .attr('class', (node: INode) => {
         const iconStyle = getCurrNodeConfig?.('iconStyle', node) as INodeGroupIconStyle;
-        return iconStyle ? (iconStyle.className as string) : null;
+        return `${iconStyle?.className || ''} _icon`;
       })
       .attr('fill', (node: INode) => {
         const iconStyle = getCurrNodeConfig?.('iconStyle', node) as INodeGroupIconStyle;
@@ -174,7 +168,7 @@ export default () => {
         const isActive = activeNodeIds?.includes(node.id);
         return isActive ? 'tick __active' : 'tick';
       })
-      .select('text')
+      .select('._label')
       .on('click', (_, node: INode) => {
         onNodeClick?.(node);
       });
