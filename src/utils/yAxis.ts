@@ -65,7 +65,9 @@ function axis(orient, scale) {
       tickEnter = tick.enter().append('g').attr('class', 'tick'),
       line = tick.select('line'),
       text = tick.select('text'),
-      rect = tick.select('rect');
+      rect = tick.select('rect'),
+      icon = tick.select('circle'),
+      iconText = tick.select('text');
 
     tick = tick.merge(tickEnter);
 
@@ -75,6 +77,10 @@ function axis(orient, scale) {
         .attr('stroke', 'currentColor')
         .attr(x + '2', k * tickSizeInner),
     );
+
+    icon = icon.merge(tickEnter.append('circle'));
+
+    iconText = iconText.merge(tickEnter.append('text').attr('name', 'iconText'));
 
     text = text.merge(
       tickEnter
@@ -119,8 +125,9 @@ function axis(orient, scale) {
     });
 
     line.attr(x + '2', k * tickSizeInner);
-
-    text.attr(x, k * spacing).text(format);
+    icon.attr('c' + x, k * spacing - 5);
+    text.attr(x, k * spacing - 20).text(format);
+    iconText.attr(x, k * spacing - 5);
 
     selection
       .filter(entering)

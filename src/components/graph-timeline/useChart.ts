@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { useSafeState } from 'ahooks';
 import { GraphTimeService } from './service';
 import { compileColor, getTime } from '../../utils';
-import { DEFAULT_NODE_TYPE_STYLE } from '../../common/constants';
+import { DEFAULT_EDGE_TYPE_STYLE } from '../../common/constants';
 import { isString } from 'lodash';
 import type { IEdge, THeatMapItem } from '../../types';
 
@@ -63,10 +63,9 @@ export default () => {
   );
 
   const insertArrow = useCallback(
-    (color: string, arrowSize: number = DEFAULT_NODE_TYPE_STYLE['radius'] as number) => {
+    (color: string, arrowSize: number = DEFAULT_EDGE_TYPE_STYLE['arrowRadius'] as number) => {
       if (!wrapper) return;
       const arrowId = compileColor(color);
-
       const defs = wrapper.select('defs.__arrow');
 
       if (defs.select(`#${arrowId}`).size()) return arrowId;
@@ -74,6 +73,8 @@ export default () => {
       defs
         .insert('marker')
         .attr('id', arrowId)
+        // 设置以后箭头粗细不随连接线粗细变化
+        .attr('markerUnits', 'userSpaceOnUse')
         .attr('markerHeight', arrowSize)
         .attr('markerWidth', arrowSize)
         .attr('refX', arrowSize / 2)
@@ -84,6 +85,31 @@ export default () => {
         .attr('d', `M0,0 v${arrowSize / 2} l${(arrowSize * 4) / 5},-${arrowSize / 4} Z`);
 
       return arrowId;
+    },
+    [wrapper],
+  );
+
+  const nodeImgIdSet: Set<string> = new Set();
+  const insertNodeImg = useCallback(
+    (radius: number, url: string, groupName: string, sourceOrTarget: string) => {
+      const imgId = `icon-${groupName}-${sourceOrTarget}`;
+      //创建图片
+      const defs = wrapper?.select('defs.__icon');
+      if (!defs) return null;
+      if (nodeImgIdSet.has(imgId)) return imgId;
+      nodeImgIdSet.add(imgId);
+      defs
+        .append('pattern')
+        .attr('id', imgId)
+        .attr('height', 1)
+        .attr('width', 1)
+        .append('image')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', radius * 2)
+        .attr('height', radius * 2)
+        .attr('xlink:href', url);
+      return imgId;
     },
     [wrapper],
   );
@@ -183,14 +209,15 @@ export default () => {
     start
       .merge(startEnter)
       .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.source];
-        return getCurrNodeConfig?.('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const stroke = getCurrEdgeConfig?.('color', edge, false);
-        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
+        return getCurrNodeConfig?.('radius', node) as number;
+      })
+      .attr('fill', (edge: IEdge) => {
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.target : edge.source];
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
         return getCurrNodeConfig?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
@@ -211,14 +238,15 @@ export default () => {
     end
       .merge(endEnter)
       .attr('r', (edge: IEdge) => {
-        const node = nodesMap?.[edge.target];
-        return getCurrNodeConfig?.('radius', node) || null;
-      })
-      .attr('fill', (edge: IEdge) => {
-        const stroke = getCurrEdgeConfig?.('color', edge, false);
-        if (stroke) return stroke;
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
+        return (getCurrNodeConfig?.('radius', node) as number) || null;
+      })
+      .attr('fill', (edge: IEdge) => {
+        const reverse = getCurrEdgeConfig?.('reverse', edge);
+        const node = nodesMap?.[reverse ? edge.source : edge.target];
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
         return getCurrNodeConfig?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
@@ -234,7 +262,7 @@ export default () => {
     if (!chart || !size || !xScale || !yScale) return;
     // 连线（有 start & end 的才画线&在范围内）
     const line = chart.selectAll('.__line').data(insightEdges);
-    const lineEnter: any = line.enter().append('line').attr('class', '__line');
+    const lineEnter: any = line.enter().insert('line', 'circle').attr('class', '__line');
 
     line
       .merge(lineEnter)
@@ -251,7 +279,10 @@ export default () => {
         const node = nodesMap?.[edge.target];
         const endRadius = getCurrNodeConfig?.('radius', node) as number;
         const y2 = yScale(edge.target) || null;
-        return y2 ? y2 - endRadius * 2 : null;
+        const y1 = yScale(edge.source) || null;
+        // 判断箭头方向是否朝上，如果朝上，则偏移量为正
+        const upFlag = y2 && y1 && y2 < y1;
+        return y2 ? y2 + endRadius * 2 * (upFlag ? 1 : -1) : null;
       })
       .attr('stroke', (edge: IEdge) => {
         const stroke = getCurrEdgeConfig?.('color', edge) || null;
@@ -286,8 +317,7 @@ export default () => {
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
         const color = getCurrNodeConfig?.('color', node) as string;
-        const endRadius = getCurrNodeConfig?.('radius', node) as number;
-
+        const endRadius = getCurrEdgeConfig?.('arrowRadius', edge) as number;
         const arrowId = insertArrow(`${stroke || color}`, endRadius ? endRadius * 2 : undefined);
         return `url(#${arrowId})`;
       });
@@ -332,6 +362,14 @@ export default () => {
       .enter()
       .append('defs')
       .attr('class', '__arrow');
+
+    wrapper
+      .select('svg')
+      .selectAll('defs.__icon')
+      .data([null])
+      .enter()
+      .append('defs')
+      .attr('class', '__icon');
   }, [wrapper]);
 
   useEffect(() => {

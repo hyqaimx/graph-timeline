@@ -143,7 +143,7 @@ export const useService = ({
       const groupKey = node?.[nodeGroupBy as keyof INode];
       // 有分类样式
       if (groupKey && nodeGroups?.[groupKey as string]?.[key])
-        return nodeGroups[groupKey as string][key];
+        return nodeGroups[groupKey as string][key] as any;
       // 无分类样式，有统一样式
       if (nodeConfig?.[key]) return nodeConfig[key];
       // 内部默认样式

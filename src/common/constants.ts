@@ -72,4 +72,6 @@ export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
   width: 2,
   // 渐变是否反向。不反向：起始节点到中止节点渐变；反向： 中止节点到起始节点渐变；
   reverse: false,
+  // 箭头半径
+  arrowRadius: 10,
 };
