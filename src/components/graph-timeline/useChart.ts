@@ -3,10 +3,9 @@ import * as d3 from 'd3';
 import { useSafeState } from 'ahooks';
 import { GraphTimeService } from './service';
 import { compileColor, getTime } from '../../utils';
-import { DEFAULT_EDGE_TYPE_STYLE, DEFAULT_NODE_TYPE_STYLE } from '../../common/constants';
+import { DEFAULT_EDGE_TYPE_STYLE } from '../../common/constants';
 import { isString } from 'lodash';
 import type { IEdge, THeatMapItem } from '../../types';
-import { INode } from '../../types';
 
 export interface IProps {
   xScale: any;
@@ -209,11 +208,6 @@ export default () => {
 
     start
       .merge(startEnter)
-      // .attr('name', (edge:IEdge) => {
-      //   const reverse = getCurrEdgeConfig?.('reverse', edge);
-      //   const node = nodesMap?.[reverse ? edge.target : edge.source];
-      //   return node.label || "";
-      // })
       .attr('r', (edge: IEdge) => {
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
@@ -222,16 +216,9 @@ export default () => {
       .attr('fill', (edge: IEdge) => {
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.target : edge.source];
-        const url = getCurrEdgeConfig?.('sourceUrl', edge) as string;
-        if (url) {
-          const radius = getCurrNodeConfig?.('radius', node) as number;
-          const imgId = insertNodeImg(radius, url, edge.group || '', 'source');
-          return imgId ? `url(#${imgId})` : null;
-        } else {
-          const stroke = getCurrEdgeConfig?.('color', edge, false);
-          if (stroke) return stroke;
-          return getCurrNodeConfig?.('color', node) || null;
-        }
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
+        return getCurrNodeConfig?.('color', node) || null;
       })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
@@ -258,29 +245,10 @@ export default () => {
       .attr('fill', (edge: IEdge) => {
         const reverse = getCurrEdgeConfig?.('reverse', edge);
         const node = nodesMap?.[reverse ? edge.source : edge.target];
-        const url = getCurrEdgeConfig?.('targetUrl', edge) as string;
-        if (url) {
-          const radius = getCurrNodeConfig?.('radius', node) as number;
-          const imgId = insertNodeImg(radius, url, edge.group || '', 'target');
-          return imgId ? `url(#${imgId})` : null;
-        } else {
-          const stroke = getCurrEdgeConfig?.('color', edge, false);
-          if (stroke) return stroke;
-          return getCurrNodeConfig?.('color', node) || null;
-        }
+        const stroke = getCurrEdgeConfig?.('color', edge, false);
+        if (stroke) return stroke;
+        return getCurrNodeConfig?.('color', node) || null;
       })
-
-      // .attr('r', (edge: IEdge) => {
-      //   const node = nodesMap?.[edge.target];
-      //   return getCurrNodeConfig?.('radius', node) || null;
-      // })
-      // .attr('fill', (edge: IEdge) => {
-      //   const stroke = getCurrEdgeConfig?.('color', edge, false);
-      //   if (stroke) return stroke;
-      //   const reverse = getCurrEdgeConfig?.('reverse', edge);
-      //   const node = nodesMap?.[reverse ? edge.source : edge.target];
-      //   return getCurrNodeConfig?.('color', node) || null;
-      // })
       .attr('cx', (edge: IEdge) => {
         return xScale(getTime(edge.time));
       })

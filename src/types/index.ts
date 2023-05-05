@@ -21,7 +21,7 @@ export interface INode
 
 export interface INodeGroupIconStyle {
   // 类型
-  type: string;
+  type: 'img' | 'icon' | 'text';
   // 图标内容，img对应图片地址，icon对应图标的unicode值，text对应文本字符（仅展示一个字符）
   value: string;
   // 图标颜色,仅当iconType为icon和text有效
@@ -56,10 +56,6 @@ export interface IEdgeGroupStyle {
   reverse?: boolean;
   // 线的宽度
   width?: number;
-  // 起始节点背景图地址
-  sourceUrl?: string;
-  // 终止节点背景图地址
-  targetUrl?: string;
   // 箭头半径
   arrowRadius?: number;
 }

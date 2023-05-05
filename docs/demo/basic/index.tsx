@@ -66,11 +66,6 @@ export default () => {
         arrowRadius: 8,
         color: 'yellow',
       },
-      Cooperate: {
-        sourceUrl: 'http://touxiang.fzlol.com/pic/20160727/14033_1469581695_1.jpg',
-        targetUrl: 'http://touxiang.fzlol.com/pic/20141216/1275_1418705548_1.jpg',
-        color: 'white',
-      },
     },
   };
   return (
