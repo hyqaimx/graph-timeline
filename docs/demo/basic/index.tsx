@@ -93,6 +93,7 @@ export default () => {
         onNodeClick={onNodeClick}
         activeNodeIds={activeNodeIds}
         onEdgeClick={onEdgeClick}
+        onEdgeHover={onEdgeClick}
       />
     </div>
   );
