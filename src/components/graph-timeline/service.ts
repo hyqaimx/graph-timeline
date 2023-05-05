@@ -24,6 +24,12 @@ import { useDebounce, useSafeState } from 'ahooks';
 import { getServiceToken, getTime } from '../../utils';
 import dayjs from 'dayjs';
 
+type TEdgeEvent = (
+  type: 'source' | 'target' | 'line',
+  edge: IEdge,
+  position: { x?: number; s?: number; t?: number },
+  e: MouseEvent,
+) => void;
 export interface IServiceProps {
   containerRef: RefObject<HTMLDivElement>;
   yAxis?: Partial<IYAxisStyle>;
@@ -42,6 +48,8 @@ export interface IServiceProps {
   edgeConfig?: IEdgeGroupStyle;
 
   onNodeClick?: (node: INode, e: MouseEvent) => void;
+  onEdgeClick?: TEdgeEvent;
+  onEdgeHover?: TEdgeEvent;
 }
 // 数据处理 & 格式转换
 export const useService = ({
@@ -58,6 +66,8 @@ export const useService = ({
   edgeConfig,
   activeNodeIds,
   onNodeClick,
+  onEdgeClick,
+  onEdgeHover,
 }: IServiceProps) => {
   const size = useNoPaddingSize(containerRef);
   const [selection, setSelection] =
@@ -210,6 +220,8 @@ export const useService = ({
     getCurrNodeConfig,
     getCurrEdgeConfig,
     onNodeClick,
+    onEdgeClick,
+    onEdgeHover,
   };
 };
 

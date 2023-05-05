@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GraphTimeline, INode } from 'graph-timeline';
+import { GraphTimeline, INode, IEdge } from 'graph-timeline';
 import demo1Data from './demo1';
 import './index.less';
 import './iconfont/iconfont.css';
@@ -16,6 +16,16 @@ export default () => {
     setActiveNodeIds(
       !include ? [...activeNodeIds, node.id] : activeNodeIds.filter((id) => id !== node.id),
     );
+  };
+
+  // x 是x轴坐标，s 是起点y轴坐标，t是终点y轴坐标
+  const onEdgeClick = (
+    type: 'source' | 'target' | 'line',
+    edge: IEdge,
+    position: { x?: number; s?: number; t?: number },
+    e: MouseEvent,
+  ) => {
+    console.log(type, edge, position, e);
   };
 
   const graphConfig = {
@@ -82,6 +92,7 @@ export default () => {
         style={{ height: 400, padding: 30 }}
         onNodeClick={onNodeClick}
         activeNodeIds={activeNodeIds}
+        onEdgeClick={onEdgeClick}
       />
     </div>
   );

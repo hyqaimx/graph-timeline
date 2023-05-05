@@ -25,6 +25,8 @@ export default () => {
     getCurrNodeConfig,
     getCurrEdgeConfig,
     isHeatMap,
+    onEdgeClick,
+    onEdgeHover,
   } = useContext(GraphTimeService);
 
   const [chart, setChart] = useSafeState<d3.Selection<d3.BaseType, null, d3.BaseType, unknown>>();
@@ -200,6 +202,22 @@ export default () => {
       })
       .attr('cy', (edge: IEdge) => {
         return yScale(edge.source) || null;
+      })
+      .on('click', (e, edge: IEdge) => {
+        return onEdgeClick?.(
+          'source',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
+      })
+      .on('mouseover', (e, edge: IEdge) => {
+        return onEdgeHover?.(
+          'source',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
       });
     start.exit().remove();
   };
@@ -229,6 +247,22 @@ export default () => {
       })
       .attr('cy', (edge: IEdge) => {
         return yScale(edge.target) || null;
+      })
+      .on('click', (e, edge: IEdge) => {
+        return onEdgeClick?.(
+          'target',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
+      })
+      .on('mouseover', (e, edge: IEdge) => {
+        return onEdgeHover?.(
+          'target',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
       });
     end.exit().remove();
   };
@@ -295,6 +329,22 @@ export default () => {
         const endRadius = getCurrEdgeConfig?.('arrowRadius', edge) as number;
         const arrowId = insertArrow(`${stroke || color}`, endRadius ? endRadius * 2 : undefined);
         return `url(#${arrowId})`;
+      })
+      .on('click', (e, edge: IEdge) => {
+        return onEdgeClick?.(
+          'line',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
+      })
+      .on('mouseover', (e, edge: IEdge) => {
+        return onEdgeHover?.(
+          'line',
+          edge,
+          { x: xScale(getTime(edge.time)), s: yScale(edge.source), t: yScale(edge.target) },
+          e,
+        );
       });
 
     line.exit().remove();
@@ -337,7 +387,6 @@ export default () => {
       .enter()
       .append('defs')
       .attr('class', '__arrow');
-
     wrapper
       .select('svg')
       .selectAll('defs.__icon')

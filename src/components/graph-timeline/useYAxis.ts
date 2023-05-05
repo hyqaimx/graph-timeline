@@ -17,6 +17,7 @@ export default () => {
     getCurrNodeConfig,
     onNodeClick,
   } = useContext(GraphTimeService);
+
   const [yAxis, setYAxis] = useSafeState<d3.Selection<SVGGElement, any, any, any>>();
 
   const iconSet: Set<string> = new Set();
