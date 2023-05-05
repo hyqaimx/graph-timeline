@@ -89,31 +89,6 @@ export default () => {
     [wrapper],
   );
 
-  const nodeImgIdSet: Set<string> = new Set();
-  const insertNodeImg = useCallback(
-    (radius: number, url: string, groupName: string, sourceOrTarget: string) => {
-      const imgId = `icon-${groupName}-${sourceOrTarget}`;
-      //创建图片
-      const defs = wrapper?.select('defs.__icon');
-      if (!defs) return null;
-      if (nodeImgIdSet.has(imgId)) return imgId;
-      nodeImgIdSet.add(imgId);
-      defs
-        .append('pattern')
-        .attr('id', imgId)
-        .attr('height', 1)
-        .attr('width', 1)
-        .append('image')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', radius * 2)
-        .attr('height', radius * 2)
-        .attr('xlink:href', url);
-      return imgId;
-    },
-    [wrapper],
-  );
-
   const renderHeatMap = () => {
     if (!chart || !xScale || !yScale || !minAndMax || !edges) return;
     chart.selectAll('.__circle').remove();

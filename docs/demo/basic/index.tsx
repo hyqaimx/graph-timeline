@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { GraphTimeline, INode } from 'graph-timeline';
 import demo1Data from './demo1';
 import './index.less';
