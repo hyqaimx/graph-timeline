@@ -56,16 +56,16 @@ function axis(orient, scale) {
           : tickFormat,
       spacing = Math.max(tickSizeInner, 0) + tickPadding,
       range = scale.range(),
-      range0 = +range[0] + offset,
-      range1 = +range[range.length - 1] + offset,
       position = (scale.bandwidth ? center : number)(scale.copy(), offset),
       selection = context.selection ? context.selection() : context,
       tick = selection.selectAll('.tick').data(values, scale).order(),
       tickExit = tick.exit(),
       tickEnter = tick.enter().append('g').attr('class', 'tick'),
       line = tick.select('line'),
-      text = tick.select('text'),
-      rect = tick.select('rect');
+      label = tick.select('text._label'),
+      rect = tick.select('rect'),
+      icon = tick.select('circle'),
+      iconText = tick.select('text._icon');
 
     tick = tick.merge(tickEnter);
 
@@ -76,10 +76,15 @@ function axis(orient, scale) {
         .attr(x + '2', k * tickSizeInner),
     );
 
-    text = text.merge(
+    icon = icon.merge(tickEnter.append('circle'));
+
+    iconText = iconText.merge(tickEnter.append('text').attr('class', '_icon'));
+
+    label = label.merge(
       tickEnter
         .append('text')
         .attr('fill', 'currentColor')
+        .attr('class', '_label')
         .attr(x, k * spacing)
         .attr('dy', orient === top ? '0em' : orient === bottom ? '0.71em' : '0.32em'),
     );
@@ -95,7 +100,7 @@ function axis(orient, scale) {
     if (context !== selection) {
       tick = tick.transition(context);
       line = line.transition(context);
-      text = text.transition(context);
+      label = label.transition(context);
 
       tickExit = tickExit
         .transition(context)
@@ -119,8 +124,9 @@ function axis(orient, scale) {
     });
 
     line.attr(x + '2', k * tickSizeInner);
-
-    text.attr(x, k * spacing).text(format);
+    icon.attr('c' + x, k * spacing - 5);
+    label.attr(x, k * spacing - 20).text(format);
+    iconText.attr(x, k * spacing - 5);
 
     selection
       .filter(entering)

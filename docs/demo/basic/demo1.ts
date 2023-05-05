@@ -7,7 +7,7 @@ export default {
     },
     {
       id: 's-1576813199045427200',
-      group: 'SPerson',
+      group: 'SPerson1',
       label: 'node-2',
     },
     {
@@ -516,7 +516,7 @@ export default {
       source: 's-1530035685489119232',
       target: 's-1553321703310884864',
       time: 1666238451000,
-      group: 'COMPANY',
+      group: 'Cooperate',
     },
     {
       source: 's-1530035685489119232',
