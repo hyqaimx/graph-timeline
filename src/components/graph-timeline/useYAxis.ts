@@ -169,8 +169,8 @@ export default () => {
         return isActive ? 'tick __active' : 'tick';
       })
       .select('._label')
-      .on('click', (_, node: INode) => {
-        onNodeClick?.(node);
+      .on('mousedown', (e, node: INode) => {
+        onNodeClick?.(node, e);
       });
   }, [yAxis, yScale, activeNodeIds, insightNodes]);
 

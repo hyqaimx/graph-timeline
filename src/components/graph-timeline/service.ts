@@ -41,7 +41,7 @@ export interface IServiceProps {
   edgeGroups?: Record<string, IEdgeGroupStyle>;
   edgeConfig?: IEdgeGroupStyle;
 
-  onNodeClick?: (node: INode) => void;
+  onNodeClick?: (node: INode, e: MouseEvent) => void;
 }
 // 数据处理 & 格式转换
 export const useService = ({

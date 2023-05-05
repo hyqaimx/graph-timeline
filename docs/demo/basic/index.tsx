@@ -7,7 +7,11 @@ import './iconfont/iconfont.css';
 export default () => {
   const [activeNodeIds, setActiveNodeIds] = useState<string[]>([]);
 
-  const onNodeClick = (node: INode) => {
+  const onNodeClick = (node: INode, e: MouseEvent) => {
+    console.log('e', e.button);
+    if (e.button !== 2) return;
+
+    // 右键点击选中
     const include = activeNodeIds.includes(node.id);
     setActiveNodeIds(
       !include ? [...activeNodeIds, node.id] : activeNodeIds.filter((id) => id !== node.id),
@@ -68,14 +72,17 @@ export default () => {
       },
     },
   };
+
   return (
-    <GraphTimeline
-      {...demo1Data}
-      {...graphConfig}
-      yAxis={{ width: 80 }}
-      style={{ height: 400, padding: 30 }}
-      onNodeClick={onNodeClick}
-      activeNodeIds={activeNodeIds}
-    />
+    <div onContextMenu={(e) => e.preventDefault()}>
+      <GraphTimeline
+        {...demo1Data}
+        {...graphConfig}
+        yAxis={{ width: 80 }}
+        style={{ height: 400, padding: 30 }}
+        onNodeClick={onNodeClick}
+        activeNodeIds={activeNodeIds}
+      />
+    </div>
   );
 };
