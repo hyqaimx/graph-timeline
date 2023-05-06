@@ -19,8 +19,8 @@ export default () => {
     wrapper
       .selectAll('svg')
       .data([size])
-      .attr('width', (d) => d.width)
-      .attr('height', (d) => d.height);
+      .attr('width', (d) => d.width || 0)
+      .attr('height', (d) => d.height || 0);
   }, [wrapper, size]);
 
   /**
@@ -50,8 +50,8 @@ export default () => {
       })
       .scaleExtent([0.1, edgesExtent.maxScale * 0.6])
       .translateExtent([
-        [-size.width / 2, 0],
-        [size?.width * 1.5, size.height],
+        [-(size.width || 0) / 2, 0],
+        [(size?.width || 0) * 1.5, size.height || 0],
       ]);
 
     wrapper.select('svg').call(zoomed);

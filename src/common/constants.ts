@@ -75,3 +75,5 @@ export const DEFAULT_EDGE_TYPE_STYLE: IEdgeGroupStyle = {
   // 箭头半径
   arrowRadius: 10,
 };
+
+export const DEFAULT_NODE_HEIGHT = 30;

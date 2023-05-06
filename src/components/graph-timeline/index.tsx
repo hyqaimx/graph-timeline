@@ -31,7 +31,11 @@ const GraphTimeline: React.FC<IProps> = ({
   return (
     <GraphTimeService.Provider value={value}>
       <div className={`${classPrefix}-wrapper ${wrapperClassName}`}>
-        <div className={`${classPrefix} ${className}`} ref={containerRef} style={style}>
+        <div
+          className={`${classPrefix} ${className}`}
+          ref={containerRef}
+          style={{ ...style, overflowY: 'auto' }}
+        >
           <Graph />
         </div>
       </div>

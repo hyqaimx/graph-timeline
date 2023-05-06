@@ -10,6 +10,7 @@ import {
   DEFAULT_EDGE_TYPE_STYLE,
   TIME_FORMAT,
   TIME_LOCALE_FORMAT,
+  DEFAULT_NODE_HEIGHT,
 } from '../../common/constants';
 import {
   IEdge,
@@ -137,15 +138,25 @@ export const useService = ({
     return nodes.filter((node) => nodeIdMap.has(node.id));
   }, [insightEdges, nodes]);
 
-  const yScale = useMemo(() => {
-    if (!selection || !edges?.length || !size || !nodesMap) return;
+  const { yScale, realHeight } = useMemo(() => {
+    if (!selection || !edges?.length || !size || !nodesMap) return {};
 
     const ids = map(insightNodes, ({ id }) => id);
 
-    return d3
-      .scalePoint()
-      .domain(ids)
-      .range([20, size.height - 20]);
+    const minHeight = ids.length * DEFAULT_NODE_HEIGHT;
+    let realHeight = size.height;
+
+    if (minHeight > realHeight) {
+      realHeight = minHeight;
+    }
+
+    return {
+      yScale: d3
+        .scalePoint()
+        .domain(ids)
+        .range([20, realHeight - 20]),
+      realHeight,
+    };
   }, [selection, edges, nodesMap, size, insightNodes]);
 
   const getCurrNodeConfig = useCallback(
@@ -201,7 +212,7 @@ export const useService = ({
 
   return {
     wrapper: selection,
-    size,
+    size: { ...size, height: realHeight },
     nodes,
     nodesMap,
     insightNodes,

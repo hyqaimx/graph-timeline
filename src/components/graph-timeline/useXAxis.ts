@@ -21,13 +21,11 @@ export default () => {
 
     // bottom
     let xAxisBottom: any = wrapper.select('svg').selectAll('.xAxisBottom').data([null]);
-    const xAxisBottomEnter: any = xAxisBottom
-      .enter()
-      .append('g')
-      .attr('class', 'axis xAxisBottom')
-      .attr('transform', `translate(0, ${size.height})`);
+
+    const xAxisBottomEnter: any = xAxisBottom.enter().append('g').attr('class', 'axis xAxisBottom');
 
     xAxisBottom = xAxisBottom.merge(xAxisBottomEnter);
+    xAxisBottom.attr('transform', `translate(0, ${size.height})`);
 
     setXAxisBottom(xAxisBottom);
   }, [wrapper, size]);
